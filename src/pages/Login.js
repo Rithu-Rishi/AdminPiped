@@ -1,30 +1,75 @@
-import React from 'react';
-import { Row, Col } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Row, Col, Button, Form, Alert, Spinner } from 'react-bootstrap';
+import API, { setAuthToken } from '../config/api.js'
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Step 1: Get CSRF token (for Laravel/Sanctum)
+      await API.get("/sanctum/csrf-cookie");
+
+      // Step 2: Make login request
+      const response = await API.post("/api/login", { email, password });
+      console.log(response);
+      if (response.data.token) {
+        // Step 3: Store Token and Set Authorization Header
+        setAuthToken(response.data.token);
+        navigate("/dashboard"); // Redirect after login
+      } else {
+        setError("Invalid credentials");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <Row className='justify-content-center'>
       <Col xs='4'>
-      
-      <Form>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email address</Form.Label>
-        <Form.Control type="email" placeholder="Enter email" />
-      </Form.Group>
+        {error && <Alert variant="danger">{error}</Alert>}
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="formBasicEmail">
+            <Form.Label>Email address</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control type="password" placeholder="Password" />
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicCheckbox">
-        <Form.Check type="checkbox" label="Forgot Password" />
-      </Form.Group>
-      <Button variant="primary" type="submit">
-        Login
-      </Button>
-    </Form>
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+            <Form.Check type="checkbox" label="Forgot Password" />
+          </Form.Group>
+          <Button variant="primary" type="submit" disabled={loading}>
+            {loading ? <Spinner animation="border" size="sm" /> : "Login"}
+          </Button>
+        </Form>
       </Col>
     </Row>
   );

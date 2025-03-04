@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./App.layout";
+import ProtectedRoute from "./routes/ProtectedRoute";
 import Dashboard from './pages/Dashboard';
 import ParentsList from "./pages/ParentsList";
 import ChildList from "./pages/ChildList";
@@ -11,11 +12,15 @@ const AppRouter = () => {
     return (
         <Layout>
             <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/perantslist" element={<ParentsList />} />
-                <Route path="/childlist" element={<ChildList />} />
-                <Route path="/teachers" element={<Teacher/>} />
-                <Route path="/login" element={<Login/>} />
+                {/* Protected Route */}
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/perantslist" element={<ParentsList />} />
+                    <Route path="/childlist" element={<ChildList />} />
+                    <Route path="/teachers" element={<Teacher />} />
+                </Route>
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<Login />} />
             </Routes>
         </Layout>
     );

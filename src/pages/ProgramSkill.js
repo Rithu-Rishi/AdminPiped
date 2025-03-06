@@ -1,85 +1,113 @@
-import React, { useState } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import { DeleteOutline as DeleteOutlineIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
-import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import TablePagination from '@mui/material/TablePagination';
-
-// Sample Data
-function createData(skill_name, skill_description, skill_period) {
-  return { skill_name, skill_description, skill_period };
-}
-
-const initialRows = [
-  createData('Beginner', 'Description Goes Here for the Skill', '6'),
-];
+import React, { useEffect, useState } from "react";
+import { getAllSkillLevels, addSkillLevels, updateSkillLevels, deleteSkillLevel } from "../services/skillLevelApi";
+import { getAllPrograms } from "../services/programsApi";
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
+} from "@mui/material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
 
 const ProgramSkill = () => {
-  const [rows, setRows] = useState(initialRows);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [skillLevels, setSkillLevels] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [formData, setFormData] = useState({ program_id: "", skills: [] });
+  const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [formData, setFormData] = useState({ skill_name: '', skill_description: '', skill_period: '' });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Handle Pagination Changes
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  useEffect(() => {
+    fetchSkillLevels(page);
+    fetchPrograms();
+  }, [page]);
+
+  const fetchSkillLevels = async (page) => {
+    try {
+      const response = await getAllSkillLevels(page);
+      setSkillLevels(response || []);
+      setTotalPages(response.last_page || 1);
+    } catch (err) {
+      console.error("Failed to fetch skill levels.");
+    }
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  // Handle Open Modals
-  const openDeleteModal = (row) => {
-    setSelectedRow(row);
-    setDeleteModalOpen(true);
+  const fetchPrograms = async () => {
+    try {
+      const response = await getAllPrograms();
+      setPrograms(response || []);
+    } catch (err) {
+      console.error("Failed to fetch programs.");
+    }
   };
 
   const openFormModal = (row = null) => {
-    setSelectedRow(row);
-    setFormData(row || { skill_name: '', skill_description: '', skill_period: '' });
+    if (row) {
+      setFormData({
+        program_id: row.program_id,
+        skills: [{
+          program_id: row.program_id,
+          skill_name: row.skill_name,
+          skill_description: row.skill_description,
+          skill_period: row.skill_period,
+          skill_amount: row.skill_amount,
+          skill_discount: row.skill_discount,
+        }]
+      });
+      setEditId(row.id);
+    } else {
+      setFormData({ program_id: "", skills: [{ skill_name: "", skill_description: "", skill_period: "", skill_amount: "", skill_discount: "" }] });
+      setEditId(null);
+    }
     setFormModalOpen(true);
   };
 
-  // Handle Close Modals
-  const closeDeleteModal = () => setDeleteModalOpen(false);
-  const closeFormModal = () => setFormModalOpen(false);
-
   // Handle Delete
-  const handleDelete = () => {
-    setRows(rows.filter((row) => row !== selectedRow));
-    closeDeleteModal();
+  const handleDelete = async () => {
+    await deleteSkillLevel(selectedRow.id);
+    setDeleteModalOpen(false);
+    fetchSkillLevels(page);
   };
 
   // Handle Input Change in Form
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (index, field, value) => {
+    const updatedSkills = [...formData.skills];
+    updatedSkills[index][field] = value;
+    updatedSkills[index].program_id = formData.program_id;
+    setFormData({ ...formData, skills: updatedSkills });
   };
 
   // Handle Create/Edit Submit
-  const handleSubmit = () => {
-    if (selectedRow) {
-      // Edit existing row
-      setRows(rows.map(row => (row === selectedRow ? formData : row)));
-    } else {
-      // Add new row
-      setRows([...rows, formData]);
+  const handleSubmit = async () => {
+    try {
+      if (editId) {
+        await updateSkillLevels(editId, formData.skills[0]);
+      } else {
+        console.log(formData);
+        const updatedSkills = formData.skills.map(skill => ({ ...skill, program_id: formData.program_id }));
+        console.log({ skills: updatedSkills });
+        console.log(updatedSkills);
+        await addSkillLevels({ skills: updatedSkills });
+      }
+      setFormModalOpen(false);
+      fetchSkillLevels(page);
+    } catch (err) {
+      console.error("Failed to save skill levels.");
     }
-    closeFormModal();
+  };
+
+  // Add a Row
+  const handleAddRow = () => {
+    setFormData({ ...formData, skills: [...formData.skills, { program_id: formData.program_id, skill_name: "", skill_description: "", skill_period: "", skill_amount: "", skill_discount: "" }] });
+  };
+
+  // Delete a Row
+  const handleRemoveRow = (index) => {
+    const updatedSkills = [...formData.skills];
+    updatedSkills.splice(index, 1);
+    setFormData({ ...formData, skills: updatedSkills });
   };
 
   return (
@@ -88,30 +116,36 @@ const ProgramSkill = () => {
       <div className='d-flex justify-content-between mb-2'>
         <h3>Skill Level</h3>
         <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-         Create Skill Level
+          Create Skill Level
         </Button>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
+              <TableCell>Program</TableCell>
               <TableCell>Skill Name</TableCell>
-              <TableCell>Skill Description</TableCell>
-              <TableCell>Skill Period</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Period</TableCell>
+              <TableCell>Amount</TableCell>
+              <TableCell>Discount</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-              <TableRow key={row.skill_name}>
+            {skillLevels.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.id}</TableCell>
                 <TableCell>{row.skill_name}</TableCell>
                 <TableCell>{row.skill_description}</TableCell>
                 <TableCell>{row.skill_period}</TableCell>
+                <TableCell>{row.skill_amount}</TableCell>
+                <TableCell>{row.skill_discount}</TableCell>
                 <TableCell align="center">
                   <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
+                  <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
                     <DeleteOutlineIcon />
                   </IconButton>
                 </TableCell>
@@ -119,21 +153,18 @@ const ProgramSkill = () => {
             ))}
           </TableBody>
         </Table>
-        {rows.length > 5 && (
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        )}
+        <TablePagination
+          component="div"
+          count={totalPages * rowsPerPage}
+          page={page - 1}
+          onPageChange={(event, newPage) => setPage(newPage + 1)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+        />
       </TableContainer>
 
       {/* Delete Confirmation Modal */}
-      <Modal open={deleteModalOpen} onClose={closeDeleteModal}>
+      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
@@ -144,29 +175,45 @@ const ProgramSkill = () => {
             Are you sure you want to delete <b>{selectedRow?.skill_name}</b>?
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={closeDeleteModal} sx={{ mr: 1 }}>Cancel</Button>
+            <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
         </Box>
       </Modal>
 
       {/* Add/Edit Child Modal */}
-      <Modal open={formModalOpen} onClose={closeFormModal}>
+      <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
           boxShadow: 12, p: 3, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>{selectedRow ? 'Edit Skill' : 'Create Skill'}</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <TextField label="Skill Name" name="skill_name" value={formData.skill_name} onChange={handleChange} fullWidth />
-            <TextField label="Skill Description" name="skill_description" value={formData.skill_description} onChange={handleChange} fullWidth />
-            <TextField  label="Skill Period" name="skill_period" value={formData.skill_period} onChange={handleChange} fullWidth />
-          </Box>
+          <Typography variant="h6" gutterBottom>{editId ? 'Edit Skill' : 'Create Skill'}</Typography>
+          <Select fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+            {programs.map((program) => (
+              <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+            ))}
+          </Select>
+          {formData.skills.map((skill, index) => (
+            <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+              <TextField label="Skill Name" value={skill.skill_name} onChange={(e) => handleChange(index, "skill_name", e.target.value)} fullWidth required />
+              <TextField label="Description" value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required />
+              <TextField label="Period" value={skill.skill_period} onChange={(e) => handleChange(index, "skill_period", e.target.value)} fullWidth required />
+              <TextField label="Amount" type="number" value={skill.skill_amount} onChange={(e) => handleChange(index, "skill_amount", e.target.value)} fullWidth required />
+              <TextField label="Discount" type="number" value={skill.skill_discount} onChange={(e) => handleChange(index, "skill_discount", e.target.value)} fullWidth required />
+              {!editId && (<IconButton color="error" onClick={() => handleRemoveRow(index)}>
+                <CloseIcon />
+              </IconButton>
+              )}
+            </Box>
+          ))}
+          {!editId && (
+            <Button onClick={handleAddRow} startIcon={<AddIcon />}>Add Row</Button>
+          )}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={closeFormModal} sx={{ mr: 1 }}>Cancel</Button>
+            <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
-              {selectedRow ? 'Update' : 'Create'}
+              {editId ? 'Update' : 'Create'}
             </Button>
           </Box>
         </Box>

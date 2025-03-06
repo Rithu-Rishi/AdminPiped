@@ -1,68 +1,55 @@
-import React, { useState } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import { DeleteOutline as DeleteOutlineIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
-import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import TablePagination from '@mui/material/TablePagination';
-
-// Sample Data
-function createData(sub_title, keywords) {
-  return { sub_title, keywords };
-}
-
-const initialRows = [
-  createData('Dance Forms We Teach', 'Move, Groove, and Shine')
-];
+import React, { useEffect, useState } from "react";
+import { getAllSubPrograms, addSubProgram, updateSubProgram, deleteSubProgram } from "../services/subprogramsApi";
+import { getAllPrograms } from "../services/programsApi";
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
+} from "@mui/material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
 
 const SubPrograms = () => {
-  const [rows, setRows] = useState(initialRows);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [subPrograms, setSubPrograms] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [formData, setFormData] = useState({
+    program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: []
+  });
+  const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [formData, setFormData] = useState({ sub_title: '', keywords: '', });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Handle Pagination Changes
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  useEffect(() => {
+    fetchSubPrograms(page);
+    fetchPrograms();
+  }, [page]);
+
+  const fetchSubPrograms = async (page) => {
+    try {
+      const response = await getAllSubPrograms(page);
+      setSubPrograms(response || []);
+      setTotalPages(response.last_page || 1);
+    } catch (err) {
+      console.error("Failed to fetch sub-programs.");
+    }
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const fetchPrograms = async () => {
+    try {
+      const response = await getAllPrograms();
+      setPrograms(response || []);
+    } catch (err) {
+      console.error("Failed to fetch programs.");
+    }
   };
-
-  // Handle Open Modals
-  const openDeleteModal = (row) => {
-    setSelectedRow(row);
-    setDeleteModalOpen(true);
-  };
-
-  const openFormModal = (row = null) => {
-    setSelectedRow(row);
-    setFormData(row || { sub_title: '', keywords: '' });
-    setFormModalOpen(true);
-  };
-
-  // Handle Close Modals
-  const closeDeleteModal = () => setDeleteModalOpen(false);
-  const closeFormModal = () => setFormModalOpen(false);
 
   // Handle Delete
-  const handleDelete = () => {
-    setRows(rows.filter((row) => row !== selectedRow));
-    closeDeleteModal();
+  const handleDelete = async () => {
+    await deleteSubProgram(selectedRow.id);
+    setDeleteModalOpen(false);
+    fetchSubPrograms(page);
   };
 
   // Handle Input Change in Form
@@ -70,16 +57,62 @@ const SubPrograms = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // const handleImageChange = (e) => {
+  //   const files = Array.from(e.target.files);
+  //   setFormData({ ...formData, images: files, image_titles: Array(files.length).fill(""), image_colors: Array(files.length).fill("") });
+  // };
+
+  // const handleImageDetailChange = (index, field, value) => {
+  //   const updatedArray = [...formData[field]];
+  //   updatedArray[index] = value;
+  //   setFormData({ ...formData, [field]: updatedArray });
+  // };
+
   // Handle Create/Edit Submit
-  const handleSubmit = () => {
-    if (selectedRow) {
-      // Edit existing row
-      setRows(rows.map(row => (row === selectedRow ? formData : row)));
-    } else {
-      // Add new row
-      setRows([...rows, formData]);
+  const handleSubmit = async () => {
+    try {
+      if (editId) {
+        await updateSubProgram(editId, formData);
+      } else {
+        await addSubProgram(formData);
+      }
+      setFormModalOpen(false);
+      fetchSubPrograms(page);
+    } catch (err) {
+      console.error("Failed to save sub-program.");
     }
-    closeFormModal();
+  };
+
+  const openFormModal = (subProgram = null) => {
+    if (subProgram) {
+      setFormData({
+        program_id: subProgram.program_id,
+        sub_title: subProgram.sub_title,
+        keywords: subProgram.keywords,
+        images: subProgram.images.map(img => img.path) || [],
+        image_titles: subProgram.images.map(img => img.title) || [],
+        image_colors: subProgram.images.map(img => img.color_code) || [],
+      });
+      setEditId(subProgram.id);
+    } else {
+      setFormData({ program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [] });
+      setEditId(null);
+    }
+    setFormModalOpen(true);
+  };
+
+  const handleRemoveImage = (index) => {
+    setFormData((prevData) => {
+      const updatedImages = [...prevData.images];
+      const updatedTitles = [...prevData.image_titles];
+      const updatedColors = [...prevData.image_colors];
+
+      updatedImages.splice(index, 1);
+      updatedTitles.splice(index, 1);
+      updatedColors.splice(index, 1);
+
+      return { ...prevData, images: updatedImages, image_titles: updatedTitles, image_colors: updatedColors };
+    });
   };
 
   return (
@@ -95,21 +128,23 @@ const SubPrograms = () => {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
+              <TableCell>Program</TableCell>
               <TableCell>Sub Program Title</TableCell>
               <TableCell>Keywords</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-              <TableRow key={row.sub_title}>
+            {subPrograms.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.id}</TableCell>
                 <TableCell>{row.sub_title}</TableCell>
                 <TableCell>{row.keywords}</TableCell>
                 <TableCell align="center">
                   <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
+                  <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
                     <DeleteOutlineIcon />
                   </IconButton>
                 </TableCell>
@@ -117,21 +152,18 @@ const SubPrograms = () => {
             ))}
           </TableBody>
         </Table>
-        {rows.length > 5 && (
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        )}
+        <TablePagination
+          component="div"
+          count={totalPages * rowsPerPage}
+          page={page - 1}
+          onPageChange={(event, newPage) => setPage(newPage + 1)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+        />
       </TableContainer>
 
       {/* Delete Confirmation Modal */}
-      <Modal open={deleteModalOpen} onClose={closeDeleteModal}>
+      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
@@ -142,14 +174,14 @@ const SubPrograms = () => {
             Are you sure you want to delete <b>{selectedRow?.sub_title}</b>?
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={closeDeleteModal} sx={{ mr: 1 }}>Cancel</Button>
+            <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
         </Box>
       </Modal>
 
       {/* Add/Edit Child Modal */}
-      <Modal open={formModalOpen} onClose={closeFormModal}>
+      {/* <Modal open={formModalOpen} onClose={closeFormModal}>
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
@@ -165,6 +197,42 @@ const SubPrograms = () => {
             <Button variant="contained" color="primary" onClick={handleSubmit}>
               {selectedRow ? 'Update' : 'Create'}
             </Button>
+          </Box>
+        </Box>
+      </Modal> */}
+
+      {/* Add/Edit Child Modal */}
+      <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
+          <Typography variant="h6" gutterBottom>{editId ? 'Edit Sub Program' : 'Create Sub Program'}</Typography>
+          <Select fullWidth name="program_id" value={formData.program_id} onChange={handleChange}>
+            {programs.map((program) => (
+              <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+            ))}
+          </Select>
+          <TextField label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth required />
+          <TextField label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
+          <input type="file" multiple accept="image/*" onChange={(e) => setFormData({ ...formData, images: [...formData.images, ...Array.from(e.target.files)] })} />
+          {formData.images.map((img, index) => (
+            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+              <img src={typeof img === 'string' ? `http://localhost:8000/${img}` : typeof img === 'object' && img instanceof File ? URL.createObjectURL(img) : img} alt="Preview" width="50" height="50" />
+              <TextField label="Image Title" value={formData.image_titles[index] || ""} onChange={(e) => {
+                const updatedTitles = [...formData.image_titles];
+                updatedTitles[index] = e.target.value;
+                setFormData({ ...formData, image_titles: updatedTitles });
+              }} fullWidth required />
+              <TextField label="Image Color" value={formData.image_colors[index] || ""} onChange={(e) => {
+                const updatedColors = [...formData.image_colors];
+                updatedColors[index] = e.target.value;
+                setFormData({ ...formData, image_colors: updatedColors });
+              }} fullWidth required />
+              <IconButton color="error" onClick={() => handleRemoveImage(index)}>
+                <CloseIcon />
+              </IconButton>
+            </div>
+          ))}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <Button variant="contained" color="primary" onClick={handleSubmit}>{editId ? 'Update' : 'Create'}</Button>
           </Box>
         </Box>
       </Modal>

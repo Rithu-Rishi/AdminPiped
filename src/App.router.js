@@ -12,6 +12,7 @@ import SubPrograms from "./pages/SubProgram";
 import SubProgramFocus from "./pages/SubProgramFocus";
 import ProgramSkill from "./pages/ProgramSkill";
 import SkillProgression from "./pages/SkillProgression";
+import PaymentPlan from "./pages/PaymentPlan";
 
 const AppRouter = () => {
     return (
@@ -28,6 +29,7 @@ const AppRouter = () => {
                     <Route path="/subProgramFocus" element={<SubProgramFocus />} />
                     <Route path="/programSkill" element={<ProgramSkill />} />
                     <Route path="/skillProgression" element={<SkillProgression />} />
+                    <Route path="/paymentPlan" element={<PaymentPlan />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

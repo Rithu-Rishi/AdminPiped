@@ -1,0 +1,218 @@
+import React, { useEffect, useState } from "react";
+import { getAllPaymentPlans, addPaymentPlans, updatePaymentPlan, deletePaymentPlan } from "../services/paymentPlanApi";
+import { getAllPrograms } from "../services/programsApi";
+import {
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+    Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
+} from "@mui/material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+
+const PaymentPlan = () => {
+    const [plans, setPlans] = useState([]);
+    const [programs, setPrograms] = useState([]);
+    const [formData, setFormData] = useState({ program_id: "", plans: [] });
+    const [editId, setEditId] = useState(null);
+    const [formModalOpen, setFormModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    useEffect(() => {
+        fetchPaymentPlans(page);
+        fetchPrograms();
+    }, [page]);
+
+    const fetchPaymentPlans = async (page) => {
+        try {
+            const response = await getAllPaymentPlans(page);
+            setPlans(response || []);
+            setTotalPages(response.last_page || 1);
+        } catch (err) {
+            console.error("Failed to fetch payment plans.");
+        }
+    };
+
+    const fetchPrograms = async () => {
+        try {
+            const response = await getAllPrograms();
+            setPrograms(response || []);
+        } catch (err) {
+            console.error("Failed to fetch programs.");
+        }
+    };
+
+    const calculateFinalAmount = (amount, discount) => {
+        return amount - (amount * discount / 100);
+    };
+
+    const handleChange = (index, field, value) => {
+        setFormData((prevData) => {
+            const updatedPlans = [...prevData.plans];
+            updatedPlans[index][field] = value;
+            updatedPlans[index].program_id = formData.program_id;
+            if (field === "amount" || field === "discount_percent") {
+                updatedPlans[index].final_amount = calculateFinalAmount(parseFloat(updatedPlans[index].amount) || 0, parseFloat(updatedPlans[index].discount_percent) || 0);
+            }
+            return { ...prevData, plans: updatedPlans };
+        });
+    };
+
+
+    const handleSubmit = async () => {
+        try {
+            if (editId) {
+                await updatePaymentPlan(editId, formData.plans[0]);
+            } else {
+                const updatedPlans = formData.plans.map(plan => ({ ...plan, program_id: formData.program_id }));
+                await addPaymentPlans({ plans: updatedPlans });
+            }
+            setFormModalOpen(false);
+            fetchPaymentPlans(page);
+        } catch (err) {
+            console.error("Failed to save payment plan.");
+        }
+    };
+
+    const openFormModal = (row = null) => {
+        if (row) {
+            setFormData({ plans: [{ ...row, program_id: row.program_id }] });
+            setEditId(row.id);
+        } else {
+            setFormData({ program_id: "", plans: [{ program_id: "", duration_months: "", amount: "", discount_percent: "", final_amount: "" }] });
+            setEditId(null);
+        }
+        setFormModalOpen(true);
+    };
+
+    const handleDelete = async () => {
+        try {
+            await deletePaymentPlan(selectedRow.id);
+            fetchPaymentPlans(page);
+            setDeleteModalOpen(false);
+        } catch (err) {
+            console.error("Failed to delete payment plan.");
+        }
+    };
+
+    const addRow = () => {
+        setFormData((prevData) => ({
+            ...prevData,
+            plans: [...prevData.plans, { duration_months: "", amount: "", discount_percent: "", final_amount: "" }]
+        }));
+    };
+
+    const removeRow = (index) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            plans: prevData.plans.filter((_, i) => i !== index)
+        }));
+    };
+
+    return (
+        <>
+            {/* Table */}
+            <div className='d-flex justify-content-between mb-2'>
+                <h3>All Payment Plans</h3>
+                <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+                    Create Payment Plan
+                </Button>
+            </div>
+            <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Program Name</TableCell>
+                            <TableCell>Duration (Months)</TableCell>
+                            <TableCell>Amount</TableCell>
+                            <TableCell>Discount (%)</TableCell>
+                            <TableCell>Final Amount</TableCell>
+                            <TableCell width={100} align="center">Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {plans.map((row, index) => (
+                            < TableRow key={row.id} >
+                                <TableCell>sdfsdf</TableCell>
+                                <TableCell>{row.duration_months}</TableCell>
+                                <TableCell>{row.amount}</TableCell>
+                                <TableCell>{row.discount_percent}</TableCell>
+                                <TableCell>{row.final_amount}</TableCell>
+                                <TableCell align="center">
+                                    <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                                        <EditIcon />
+                                    </IconButton>
+                                    <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
+                                        <DeleteOutlineIcon />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                <TablePagination
+                    component="div"
+                    count={totalPages * rowsPerPage}
+                    page={page - 1}
+                    onPageChange={(event, newPage) => setPage(newPage + 1)}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+                />
+            </TableContainer >
+            
+            {/* Delete Confirmation Modal */}
+            < Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+                <Box sx={{
+                    position: 'absolute', top: '50%', left: '50%',
+                    transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
+                    boxShadow: 24, p: 3, borderRadius: 2
+                }}>
+                    <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
+                    <Typography variant="body1" gutterBottom>
+                        Are you sure you want to delete this payment plan?
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                        <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
+                        <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+                    </Box>
+                </Box>
+            </Modal >
+
+            {/* Add/Edit Child Modal */}
+            < Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
+                <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 700, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
+                    <Typography variant="h6" gutterBottom>{editId ? 'Edit Payment Plan' : 'Create Payment Plans'}</Typography>
+                    {!editId && (
+                        <Select fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                            {programs.map((program) => (
+                                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                            ))}
+                        </Select>
+                    )}
+                    {formData.plans.map((plan, index) => (
+                        <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 2 }}>
+                            <TextField label="Duration (Months)" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth required />
+                            <TextField label="Amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth required />
+                            <TextField label="Discount (%)" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth required />
+                            <TextField label="Final Amount" value={plan.final_amount} fullWidth disabled />
+                            {!editId && (
+                                <IconButton color="error" onClick={() => removeRow(index)}>
+                                    <CloseIcon />
+                                </IconButton>
+                            )}
+                        </Box>
+                    ))}
+                    {!editId && <Button onClick={addRow} startIcon={<AddIcon />}>Add Row</Button>}
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                        <Button variant="contained" color="primary" onClick={handleSubmit}>
+                            {editId ? 'Update' : 'Create'}
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal >
+        </>
+    );
+};
+
+export default PaymentPlan;

@@ -116,6 +116,14 @@ const Sidebar = () => {
               <ListItemText className='text_items' primary="Skill Progression" />
             </ListItemButton>
           </Link>
+          <Link to="/paymentPlan">
+            <ListItemButton className='single_item' sx={{ pl: 4 }}>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Payment Plan" />
+            </ListItemButton>
+          </Link>
         </Collapse>
 
         <Link to='/teachers'>

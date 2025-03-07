@@ -48,9 +48,9 @@ const SkillProgression = () => {
       // Edit - Handling single row update
       setFormData({
         program_id: row.program_id || "",
-        title: row.title || "", 
-        description: row.description || "", 
-        image: row.image || "", 
+        title: row.title || "",
+        description: row.description || "",
+        image: row.image || "",
         imagePreview: row.image_url || `http://localhost:8000/${row.image}`
       });
       setEditId(row.id);
@@ -215,7 +215,7 @@ const SkillProgression = () => {
         }}>
           <Typography variant="h6" gutterBottom>{editId ? 'Edit Skill Progression' : 'Create Skill Progression'}</Typography>
           {!editId && (
-            <Select fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+            <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
               {programs.map((program) => (
                 <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
               ))}
@@ -224,18 +224,22 @@ const SkillProgression = () => {
           {editId ? (
             // Edit: Single Entry Form
             <>
-              <TextField label="Title" value={formData.title} onChange={(e) => handleChange(0, "title", e.target.value)} fullWidth required />
-              <TextField label="Description" value={formData.description} onChange={(e) => handleChange(0, "description", e.target.value)} fullWidth required />
-              <input type="file" accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} />
-              {formData.imagePreview && <img src={formData.imagePreview} alt="Preview" width="50" height="50" />}
+
+              <TextField size="small" multiline rows={2} className="mb-3" label="Description" value={formData.description} onChange={(e) => handleChange(0, "description", e.target.value)} fullWidth required />
+              <Box className="d-flex" sx={{ gap: 2 }}>
+                <TextField size="small" className="mb-3" label="Title" value={formData.title} onChange={(e) => handleChange(0, "title", e.target.value)} fullWidth required />
+                <input type="file" className="border rounded-2 w-100 p-2" style={{height:'40px'}} accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} />
+              </Box>
+
+              {formData.imagePreview && <img src={formData.imagePreview} className="mt-2" alt="Preview" width="50" height="50" />}
             </>
           ) : (
             // Create: Multiple Entries Form
             formData.titles.map((_, index) => (
               <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 2 }}>
-                <TextField label="Title" value={formData.titles[index]} onChange={(e) => handleChange(index, "titles", e.target.value)} fullWidth required />
-                <TextField label="Description" value={formData.descriptions[index]} onChange={(e) => handleChange(index, "descriptions", e.target.value)} fullWidth required />
-                <input type="file" accept="image/*" onChange={(e) => handleFileChange(index, e.target.files)} />
+                <TextField size="small" label="Title" value={formData.titles[index]} onChange={(e) => handleChange(index, "titles", e.target.value)} fullWidth required />
+                <TextField size="small" label="Description" value={formData.descriptions[index]} onChange={(e) => handleChange(index, "descriptions", e.target.value)} fullWidth required />
+                <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleFileChange(index, e.target.files)} />
                 {formData.imagePreviews[index] && <img src={formData.imagePreviews[index]} alt="Preview" width="50" height="50" />}
                 <IconButton color="error" onClick={() => removeRow(index)}>
                   <CloseIcon />

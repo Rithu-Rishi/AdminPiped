@@ -4,6 +4,7 @@
 body {
     font-size: 14px !important;
     font-family: "Poppins", serif !important;
+    background: #f9fafc !important;
 }
 
 table,
@@ -14,4 +15,80 @@ select,
 button,
 p {
     font-family: "Poppins", serif !important;
+}
+
+.main_header {
+    transition: all 0.1s ease;
+    box-shadow: 0px 0px 16px 0px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar {
+    height: calc(100vh - 56px);
+    overflow: hidden;
+    transition: width 0.3s ease-in-out;
+    white-space: nowrap;
+    background-color: #202947;
+}
+
+.sidebar nav {
+    background-color: #202947;
+}
+
+
+.Sidebar_list a {
+    text-decoration: none;
+    color: #757575;
+}
+
+.Sidebar_list a {
+    text-decoration: none;
+    color: #757575;
+}
+
+.Sidebar_list a:hover {
+    background-color: #202947;
+}
+
+.single_item {
+    padding-left: 10px !important;
+}
+
+.icon_down {
+    fill: #b2b8c7 !important
+}
+
+
+.icon_items {
+    min-width: 40px !important;
+    color: #b2b8c7;
+}
+
+.icon_items svg {
+    fill: #b2b8c7;
+}
+
+.text_items span {
+    font-size: 0.9em;
+    color: #b2b8c7;
+    font-family: "Poppins", serif !important;
+
+}
+
+.collapsed {
+    width: 52px;
+}
+
+.expanded {
+    width: 250px;
+}
+
+.togglebtn {
+    cursor: pointer;
+    color: #757575;
+    text-align: right;
+    display: block;
+    position: fixed;
+    left: 10px;
+    top: 16px;
+    z-index: 9;
 }

@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
-import { DeleteOutline as DeleteOutlineIcon, Edit as EditIcon, Add as AddIcon} from '@mui/icons-material';
+import { DeleteOutline as DeleteOutlineIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
@@ -180,19 +180,23 @@ const ParentsList = () => {
       <Modal open={formModalOpen} onClose={closeFormModal}>
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper',
-          boxShadow: 24, p: 3, borderRadius: 2
+          transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper',
+          boxShadow: 12, p: 3, borderRadius: 2
         }}>
           <Typography variant="h6" gutterBottom>{selectedRow ? 'Edit Parent' : 'Create Parent'}</Typography>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField label="Parent Name" name="pname" value={formData.pname} onChange={handleChange} fullWidth />
-            <TextField label="EMale" name="eMale" value={formData.eMale} onChange={handleChange} fullWidth />
-            <TextField label="Mobile" name="mobile" value={formData.mobile} onChange={handleChange} fullWidth />
-            <TextField label="Number of Children" name="childrens" value={formData.childrens} onChange={handleChange} fullWidth />
+            <Box className='d-flex' sx={{ gap: 2 }}>
+              <TextField size='small' label="Parent Name" name="pname" value={formData.pname} onChange={handleChange} fullWidth />
+              <TextField size='small' label="Email" name="eMale" value={formData.eMale} onChange={handleChange} fullWidth />
+            </Box>
+            <Box className='d-flex' sx={{ gap: 2 }}>
+              <TextField size='small' label="Mobile" name="mobile" value={formData.mobile} onChange={handleChange} fullWidth />
+              <TextField size='small' label="Number of Children" name="childrens" value={formData.childrens} onChange={handleChange} fullWidth />
+            </Box>
             {/* Gender Select Field */}
             <FormControl fullWidth>
               <InputLabel>Gender</InputLabel>
-              <Select
+              <Select label="Gender" size='small'
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}

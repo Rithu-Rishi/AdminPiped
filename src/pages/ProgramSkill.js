@@ -189,33 +189,38 @@ const ProgramSkill = () => {
           boxShadow: 12, p: 3, borderRadius: 2
         }}>
           <Typography variant="h6" gutterBottom>{editId ? 'Edit Skill' : 'Create Skill'}</Typography>
-          <Select fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
-            {programs.map((program) => (
-              <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+          <Box component="form" sx={{ maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+            <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+              {programs.map((program) => (
+                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+              ))}
+            </Select>
+            {formData.skills.map((skill, index) => (
+              <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+                <TextField size="small" label="Skill Name" value={skill.skill_name} onChange={(e) => handleChange(index, "skill_name", e.target.value)} fullWidth required />
+                <Box className='d-flex' sx={{ gap: 2 }}>
+                  <TextField size="small" label="Period" value={skill.skill_period} onChange={(e) => handleChange(index, "skill_period", e.target.value)} fullWidth required />
+                  <TextField size="small" label="Amount" type="number" value={skill.skill_amount} onChange={(e) => handleChange(index, "skill_amount", e.target.value)} fullWidth required />
+                  <TextField size="small" label="Discount" type="number" value={skill.skill_discount} onChange={(e) => handleChange(index, "skill_discount", e.target.value)} fullWidth required />
+                </Box>
+                <TextField size="small" label="Description" multiline rows={2} value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required />
+                {!editId && (<IconButton color="error" onClick={() => handleRemoveRow(index)}>
+                  <CloseIcon />
+                </IconButton>
+                )}
+              </Box>
             ))}
-          </Select>
-          {formData.skills.map((skill, index) => (
-            <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-              <TextField label="Skill Name" value={skill.skill_name} onChange={(e) => handleChange(index, "skill_name", e.target.value)} fullWidth required />
-              <TextField label="Description" value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required />
-              <TextField label="Period" value={skill.skill_period} onChange={(e) => handleChange(index, "skill_period", e.target.value)} fullWidth required />
-              <TextField label="Amount" type="number" value={skill.skill_amount} onChange={(e) => handleChange(index, "skill_amount", e.target.value)} fullWidth required />
-              <TextField label="Discount" type="number" value={skill.skill_discount} onChange={(e) => handleChange(index, "skill_discount", e.target.value)} fullWidth required />
-              {!editId && (<IconButton color="error" onClick={() => handleRemoveRow(index)}>
-                <CloseIcon />
-              </IconButton>
-              )}
-            </Box>
-          ))}
-          {!editId && (
-            <Button onClick={handleAddRow} startIcon={<AddIcon />}>Add Row</Button>
-          )}
+            {!editId && (
+              <Button onClick={handleAddRow} startIcon={<AddIcon />}>Add Row</Button>
+            )}
+          </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}
             </Button>
           </Box>
+
         </Box>
       </Modal>
     </>

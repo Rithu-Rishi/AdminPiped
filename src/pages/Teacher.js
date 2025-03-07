@@ -187,21 +187,21 @@ const Teacher = () => {
           <Typography variant="h6" gutterBottom>{editId ? 'Edit Teacher' : 'Create Teacher'}</Typography>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 2, pr: 2 }}>
             <Box className='d-flex' sx={{ gap: 2 }}>
-              <TextField label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth required />
-              <TextField label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth required />
+              <TextField size='small' label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth required />
+              <TextField size='small' label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth required />
             </Box>
 
             <Box className='d-flex' sx={{ gap: 2 }}>
-              <TextField label="Mobile Number" name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth required />
-              <TextField label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth required />
+              <TextField size='small' label="Mobile Number" name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth required />
+              <TextField size='small' label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth required />
             </Box>
-            <TextField label="Designation" name="designation" value={formData.designation} onChange={handleChange} fullWidth required />
-            <TextField label="Bio" name="bio" multiline rows={2} value={formData.bio} onChange={handleChange} fullWidth required />
-            <TextField label="Experiences" name="experiences" multiline rows={2} value={formData.experiences} onChange={handleChange} fullWidth required />
-            <TextField label="Awards" name="awards" multiline rows={2} value={formData.awards} onChange={handleChange} fullWidth required />
-            <TextField label="Certifications" name="certifications" multiline rows={2} value={formData.certifications} onChange={handleChange} fullWidth required />
+            <TextField size='small' label="Designation" name="designation" value={formData.designation} onChange={handleChange} fullWidth required />
+            <TextField size='small' label="Bio" name="bio" multiline rows={2} value={formData.bio} onChange={handleChange} fullWidth required />
+            <TextField size='small' label="Experiences" name="experiences" multiline rows={2} value={formData.experiences} onChange={handleChange} fullWidth required />
+            <TextField size='small' label="Awards" name="awards" multiline rows={2} value={formData.awards} onChange={handleChange} fullWidth required />
+            <TextField size='small' label="Certifications" name="certifications" multiline rows={2} value={formData.certifications} onChange={handleChange} fullWidth required />
 
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+            <input type="file"  className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
             {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>

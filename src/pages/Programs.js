@@ -115,11 +115,11 @@ const Programs = () => {
               <TableCell>Program Name</TableCell>
               <TableCell>Image</TableCell>
               <TableCell>Description</TableCell>
-              <TableCell>Age</TableCell>
+              <TableCell width={100}>Age</TableCell>
               <TableCell>Fees</TableCell>
               <TableCell>Discount</TableCell>
               <TableCell>Final Amount</TableCell>
-              <TableCell align="center">Actions</TableCell>
+              <TableCell width={100} align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -128,7 +128,7 @@ const Programs = () => {
                 <TableCell>{row.program_name}</TableCell>
                 <TableCell>{row.program_image && <img src={`http://localhost:8000/${row.program_image}`} alt={row.program_name} width="50" height="50" />}</TableCell>
                 <TableCell>{row.program_desc}</TableCell>
-                <TableCell>{row.age_group} Years</TableCell>
+                <TableCell>{row.age_group} Yrs</TableCell>
                 <TableCell>{row.monthly_fee}</TableCell>
                 <TableCell>{row.discount_percent}</TableCell>
                 <TableCell>{row.final_amount}</TableCell>
@@ -181,13 +181,15 @@ const Programs = () => {
         }}>
           <Typography variant="h6" gutterBottom>{selectedRow ? 'Edit Program' : 'Create Program'}</Typography>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-
-            <TextField label="Program Name" name="program_name" value={formData.program_name} onChange={handleChange} fullWidth />
-            <TextField multiline rows={2} label="Programs Des" name="program_desc" value={formData.program_desc} onChange={handleChange} fullWidth />
-            <TextField label="Programs Age" name="age_group" value={formData.age_group} onChange={handleChange} fullWidth />
-            <TextField label="Program Fee" name="monthly_fee" value={formData.monthly_fee} onChange={handleChange} fullWidth />
-            <TextField label="Discount" name="discount_percent" value={formData.discount_percent} onChange={handleChange} fullWidth />
-
+            <Box className='d-flex' sx={{ gap: 2 }}>
+              <TextField size='small' label="Program Name" name="program_name" value={formData.program_name} onChange={handleChange} fullWidth />
+              <TextField size='small' label="Programs Age" name="age_group" value={formData.age_group} onChange={handleChange} fullWidth />
+            </Box>
+            <Box className='d-flex' sx={{ gap: 2 }}>
+              <TextField size='small' label="Program Fee" name="monthly_fee" value={formData.monthly_fee} onChange={handleChange} fullWidth />
+              <TextField size='small' label="Discount" name="discount_percent" value={formData.discount_percent} onChange={handleChange} fullWidth />
+            </Box>
+            <TextField size='small' multiline rows={2} label="Programs Description" name="program_desc" value={formData.program_desc} onChange={handleChange} fullWidth />
             <input type="file" accept="image/*" onChange={handleImageChange} />
             {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
           </Box>

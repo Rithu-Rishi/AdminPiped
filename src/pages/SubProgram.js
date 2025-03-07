@@ -203,34 +203,36 @@ const SubPrograms = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper', boxShadow: 12, p: 3, borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>{editId ? 'Edit Sub Program' : 'Create Sub Program'}</Typography>
-          <Select fullWidth name="program_id" value={formData.program_id} onChange={handleChange}>
-            {programs.map((program) => (
-              <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+          <Box component="form" sx={{ gap: 2 }}>
+            <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={handleChange}>
+              {programs.map((program) => (
+                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+              ))}
+            </Select>
+            <TextField size="small" className="mt-3" label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth required />
+            <TextField size="small" className="mt-3" label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
+            <input type="file" className="mt-3 border rounded-2 w-100 p-2" multiple accept="image/*" onChange={(e) => setFormData({ ...formData, images: [...formData.images, ...Array.from(e.target.files)] })} />
+            {formData.images.map((img, index) => (
+              <Box className='mt-3' key={index} style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: '16px' }}>
+                <img src={typeof img === 'string' ? `http://localhost:8000/${img}` : typeof img === 'object' && img instanceof File ? URL.createObjectURL(img) : img} alt="Preview" width="50" height="50" />
+                <TextField size="small" label="Image Title" value={formData.image_titles[index] || ""} onChange={(e) => {
+                  const updatedTitles = [...formData.image_titles];
+                  updatedTitles[index] = e.target.value;
+                  setFormData({ ...formData, image_titles: updatedTitles });
+                }} fullWidth required />
+                <TextField size="small" label="Image Color" value={formData.image_colors[index] || ""} onChange={(e) => {
+                  const updatedColors = [...formData.image_colors];
+                  updatedColors[index] = e.target.value;
+                  setFormData({ ...formData, image_colors: updatedColors });
+                }} fullWidth required />
+                <IconButton color="error" onClick={() => handleRemoveImage(index)}>
+                  <CloseIcon />
+                </IconButton>
+              </Box>
             ))}
-          </Select>
-          <TextField label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth required />
-          <TextField label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
-          <input type="file" multiple accept="image/*" onChange={(e) => setFormData({ ...formData, images: [...formData.images, ...Array.from(e.target.files)] })} />
-          {formData.images.map((img, index) => (
-            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-              <img src={typeof img === 'string' ? `http://localhost:8000/${img}` : typeof img === 'object' && img instanceof File ? URL.createObjectURL(img) : img} alt="Preview" width="50" height="50" />
-              <TextField label="Image Title" value={formData.image_titles[index] || ""} onChange={(e) => {
-                const updatedTitles = [...formData.image_titles];
-                updatedTitles[index] = e.target.value;
-                setFormData({ ...formData, image_titles: updatedTitles });
-              }} fullWidth required />
-              <TextField label="Image Color" value={formData.image_colors[index] || ""} onChange={(e) => {
-                const updatedColors = [...formData.image_colors];
-                updatedColors[index] = e.target.value;
-                setFormData({ ...formData, image_colors: updatedColors });
-              }} fullWidth required />
-              <IconButton color="error" onClick={() => handleRemoveImage(index)}>
-                <CloseIcon />
-              </IconButton>
-            </div>
-          ))}
+          </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             <Button variant="contained" color="primary" onClick={handleSubmit}>{editId ? 'Update' : 'Create'}</Button>
           </Box>

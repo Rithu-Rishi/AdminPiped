@@ -160,9 +160,9 @@ const SubProgramFocus = () => {
         }}>
           <Typography variant="h6" gutterBottom>{selectedRow ? 'Edit Sub Program Focus' : 'Create Sub Program Focus'}</Typography>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <TextField label="Upload Image" name="path" value={formData.path} onChange={handleChange} fullWidth />
-            <TextField label="Title" name="title" value={formData.title} onChange={handleChange} fullWidth />
-            <TextField type='color' label="Select Color" name="color_code" value={formData.color_code} onChange={handleChange} fullWidth />
+            <TextField size="small" label="Upload Image" name="path" value={formData.path} onChange={handleChange} fullWidth />
+            <TextField size="small" label="Title" name="title" value={formData.title} onChange={handleChange} fullWidth />
+            <TextField size="small" type='color' label="Select Color" name="color_code" value={formData.color_code} onChange={handleChange} fullWidth />
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             <Button onClick={closeFormModal} sx={{ mr: 1 }}>Cancel</Button>

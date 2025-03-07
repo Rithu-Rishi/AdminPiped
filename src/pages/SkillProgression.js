@@ -1,86 +1,144 @@
-import React, { useState } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import { DeleteOutline as DeleteOutlineIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
-import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import TablePagination from '@mui/material/TablePagination';
-
-// Sample Data
-function createData(title, description, image) {
-  return { title, description, image };
-}
-
-const initialRows = [
-  createData('Foundation Stage', 'Learn basic techniques, posture, and Sound production', 'Copy.png'),
-  createData('Exploration Stage', 'Learn basic techniques, posture, and Sound production', 'photo.png'),
-];
+import React, { useEffect, useState } from "react";
+import { getAllSkillProgressions, addSkillProgressions, updateSkillProgression, deleteSkillProgression } from "../services/skillProgressionApi";
+import { getAllPrograms } from "../services/programsApi";
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
+} from "@mui/material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
 
 const SkillProgression = () => {
-  const [rows, setRows] = useState(initialRows);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [progressions, setProgressions] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [formData, setFormData] = useState({ program_id: "", titles: [""], descriptions: [""], images: [], imagePreviews: [] });
+  const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [formData, setFormData] = useState({ title: '', description: '', image: '' });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Handle Pagination Changes
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  useEffect(() => {
+    fetchSkillProgressions(page);
+    fetchPrograms();
+  }, [page]);
+
+  const fetchSkillProgressions = async (page) => {
+    try {
+      const response = await getAllSkillProgressions(page);
+      setProgressions(response || []);
+      setTotalPages(response.last_page || 1);
+    } catch (err) {
+      console.error("Failed to fetch skill progressions.");
+    }
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  // Handle Open Modals
-  const openDeleteModal = (row) => {
-    setSelectedRow(row);
-    setDeleteModalOpen(true);
+  const fetchPrograms = async () => {
+    try {
+      const response = await getAllPrograms();
+      setPrograms(response || []);
+    } catch (err) {
+      console.error("Failed to fetch programs.");
+    }
   };
 
   const openFormModal = (row = null) => {
-    setSelectedRow(row);
-    setFormData(row || { title: '', description: '', image: '' });
+    if (row) {
+      // Edit - Handling single row update
+      setFormData({
+        program_id: row.program_id || "",
+        title: row.title || "", 
+        description: row.description || "", 
+        image: row.image || "", 
+        imagePreview: row.image_url || `http://localhost:8000/${row.image}`
+      });
+      setEditId(row.id);
+    } else {
+      setFormData({ program_id: "", titles: [""], descriptions: [""], images: [], imagePreviews: [] });
+      setEditId(null);
+    }
     setFormModalOpen(true);
   };
 
-  // Handle Close Modals
-  const closeDeleteModal = () => setDeleteModalOpen(false);
-  const closeFormModal = () => setFormModalOpen(false);
-
   // Handle Delete
-  const handleDelete = () => {
-    setRows(rows.filter((row) => row !== selectedRow));
-    closeDeleteModal();
+  const handleDelete = async () => {
+    await deleteSkillProgression(selectedRow.id);
+    setDeleteModalOpen(false);
+    fetchSkillProgressions(page);
   };
 
   // Handle Input Change in Form
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (index, field, value) => {
+    setFormData((prevData) => {
+      if (editId) {
+        // Edit - Handle Single Entry
+        return { ...prevData, [field]: value };
+      } else {
+        // Create - Handle Multiple Entries
+        const updatedField = [...prevData[field]];
+        updatedField[index] = value;
+        return { ...prevData, [field]: updatedField };
+      }
+    });
+  };
+
+  const handleFileChange = (index, files) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+
+    setFormData((prevData) => {
+      if (editId) {
+        // Edit - Single Image
+        return { ...prevData, image: file };
+      } else {
+        // Create - Multiple Images
+        const updatedImages = [...prevData.images];
+        const updatedPreviews = [...prevData.imagePreviews];
+
+        updatedImages[index] = file;
+        updatedPreviews[index] = URL.createObjectURL(file);
+
+        return { ...prevData, images: updatedImages, imagePreviews: updatedPreviews };
+      }
+    });
   };
 
   // Handle Create/Edit Submit
-  const handleSubmit = () => {
-    if (selectedRow) {
-      // Edit existing row
-      setRows(rows.map(row => (row === selectedRow ? formData : row)));
-    } else {
-      // Add new row
-      setRows([...rows, formData]);
+  const handleSubmit = async () => {
+    console.log("before submit", formData);
+    try {
+      if (editId) {
+        await updateSkillProgression(editId, formData);
+      } else {
+        await addSkillProgressions(formData);
+      }
+      setFormModalOpen(false);
+      fetchSkillProgressions(page);
+    } catch (err) {
+      console.error("Failed to save skill progression.");
     }
-    closeFormModal();
+  };
+
+  const addRow = () => {
+    setFormData({
+      ...formData,
+      titles: [...formData.titles, ""],
+      descriptions: [...formData.descriptions, ""],
+      images: [...formData.images, null],
+      imagePreviews: [...formData.imagePreviews, null],
+    });
+  };
+
+  const removeRow = (index) => {
+    setFormData({
+      ...formData,
+      titles: formData.titles.filter((_, i) => i !== index),
+      descriptions: formData.descriptions.filter((_, i) => i !== index),
+      images: formData.images.filter((_, i) => i !== index),
+      imagePreviews: formData.imagePreviews.filter((_, i) => i !== index),
+    });
   };
 
   return (
@@ -103,8 +161,8 @@ const SkillProgression = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-              <TableRow key={row.title}>
+            {progressions.map((row) => (
+              <TableRow key={row.id}>
                 <TableCell>{row.title}</TableCell>
                 <TableCell>{row.description}</TableCell>
                 <TableCell>{row.image}</TableCell>
@@ -112,7 +170,7 @@ const SkillProgression = () => {
                   <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
+                  <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
                     <DeleteOutlineIcon />
                   </IconButton>
                 </TableCell>
@@ -120,21 +178,18 @@ const SkillProgression = () => {
             ))}
           </TableBody>
         </Table>
-        {rows.length > 5 && (
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        )}
+        <TablePagination
+          component="div"
+          count={totalPages * rowsPerPage}
+          page={page - 1}
+          onPageChange={(event, newPage) => setPage(newPage + 1)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+        />
       </TableContainer>
 
       {/* Delete Confirmation Modal */}
-      <Modal open={deleteModalOpen} onClose={closeDeleteModal}>
+      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
@@ -145,29 +200,54 @@ const SkillProgression = () => {
             Are you sure you want to delete <b>{selectedRow?.title}</b>?
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={closeDeleteModal} sx={{ mr: 1 }}>Cancel</Button>
+            <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
         </Box>
       </Modal>
 
       {/* Add/Edit Child Modal */}
-      <Modal open={formModalOpen} onClose={closeFormModal}>
+      <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
           boxShadow: 12, p: 3, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>{selectedRow ? 'Edit Skill' : 'Create Skill'}</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <TextField label="Title" name="title" value={formData.title} onChange={handleChange} fullWidth />
-            <TextField label="Description" name="description" value={formData.description} onChange={handleChange} fullWidth />
-            <TextField label="Upload Image" name="image" value={formData.image} onChange={handleChange} fullWidth />
-          </Box>
+          <Typography variant="h6" gutterBottom>{editId ? 'Edit Skill Progression' : 'Create Skill Progression'}</Typography>
+          {!editId && (
+            <Select fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+              {programs.map((program) => (
+                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+              ))}
+            </Select>
+          )}
+          {editId ? (
+            // Edit: Single Entry Form
+            <>
+              <TextField label="Title" value={formData.title} onChange={(e) => handleChange(0, "title", e.target.value)} fullWidth required />
+              <TextField label="Description" value={formData.description} onChange={(e) => handleChange(0, "description", e.target.value)} fullWidth required />
+              <input type="file" accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} />
+              {formData.imagePreview && <img src={formData.imagePreview} alt="Preview" width="50" height="50" />}
+            </>
+          ) : (
+            // Create: Multiple Entries Form
+            formData.titles.map((_, index) => (
+              <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 2 }}>
+                <TextField label="Title" value={formData.titles[index]} onChange={(e) => handleChange(index, "titles", e.target.value)} fullWidth required />
+                <TextField label="Description" value={formData.descriptions[index]} onChange={(e) => handleChange(index, "descriptions", e.target.value)} fullWidth required />
+                <input type="file" accept="image/*" onChange={(e) => handleFileChange(index, e.target.files)} />
+                {formData.imagePreviews[index] && <img src={formData.imagePreviews[index]} alt="Preview" width="50" height="50" />}
+                <IconButton color="error" onClick={() => removeRow(index)}>
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            ))
+          )}
+          {!editId && <Button onClick={addRow} startIcon={<AddIcon />}>Add Row</Button>}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={closeFormModal} sx={{ mr: 1 }}>Cancel</Button>
+            <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
-              {selectedRow ? 'Update' : 'Create'}
+              {editId ? 'Update' : 'Create'}
             </Button>
           </Box>
         </Box>

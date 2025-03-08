@@ -18,14 +18,14 @@ import ReduceCapacityOutlinedIcon from '@mui/icons-material/ReduceCapacityOutlin
 import StarBorderPurple500OutlinedIcon from '@mui/icons-material/StarBorderPurple500Outlined';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import BeenhereOutlinedIcon from '@mui/icons-material/BeenhereOutlined';
-
+import logo from '../assets/images/logo1.png'
 const Sidebar = () => {
   const [open, setOpen] = React.useState(false);
   const handleClick = () => {
     setOpen(!open);
   };
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const toggleExpandedCollpse = () => {
     setIsExpanded(!isExpanded);
   }
@@ -42,6 +42,9 @@ const Sidebar = () => {
         aria-labelledby="nested-list-subheader"
 
       >
+        <div className='text-center'>
+          <img src={logo} alt="Preview" className='pe-3' height={50} />
+        </div>
         <Link to="/dashboard">
           <ListItemButton className='single_item'>
             <ListItemIcon className='icon_items'>

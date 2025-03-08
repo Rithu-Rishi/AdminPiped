@@ -23,8 +23,8 @@ p {
 }
 
 .sidebar {
-    max-height: calc(100vh - 62px);
-    min-height: calc(100vh - 62px);
+    max-height: calc(100vh);
+    min-height: calc(100vh);
     overflow: hidden;
     transition: width 0.3s ease-in-out;
     white-space: nowrap;
@@ -40,7 +40,7 @@ p {
 
 .content-container {
     overflow: auto;
-    max-height: calc(100vh - 62px);
+    max-height: calc(100vh - 0px);
     padding-bottom: 20px;
 }
 

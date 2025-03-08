@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Header from "./layouts/Header";
 import Container from 'react-bootstrap/Container';
 import { useLocation } from "react-router-dom";
@@ -10,10 +10,10 @@ const Layout = ({ children }) => {
 
     return (
         <main>
-            {!hideHeaderRoutes && <Header />}
             <div className="app-container d-flex">
-                <Sidebar />
+                {!hideHeaderRoutes && <Sidebar />}
                 <div className="content-container w-100">
+                    {!hideHeaderRoutes && <Header />}
                     <Container fluid className="mt-3">
                         {children}
                     </Container>

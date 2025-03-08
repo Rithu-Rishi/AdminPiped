@@ -23,17 +23,30 @@ p {
 }
 
 .sidebar {
-    height: calc(100vh - 56px);
+    max-height: calc(100vh - 62px);
+    min-height: calc(100vh - 62px);
     overflow: hidden;
     transition: width 0.3s ease-in-out;
     white-space: nowrap;
     background-color: #202947;
+    overflow: auto;
+    padding-bottom: 20px;
+    overflow-x: hidden;
+}
+
+.scoll_dev {
+    max-height: calc(100vh - 200px);
+}
+
+.content-container {
+    overflow: auto;
+    max-height: calc(100vh - 62px);
+    padding-bottom: 20px;
 }
 
 .sidebar nav {
     background-color: #202947;
 }
-
 
 .Sidebar_list a {
     text-decoration: none;

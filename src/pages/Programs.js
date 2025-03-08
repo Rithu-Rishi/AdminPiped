@@ -108,8 +108,8 @@ const Programs = () => {
           Create Program
         </Button>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <TableContainer component={Paper} className="scoll_dev">
+        <Table sx={{ }} stickyHeader aria-label="customized sticky table">
           <TableHead>
             <TableRow>
               <TableCell>Program Name</TableCell>
@@ -126,7 +126,7 @@ const Programs = () => {
             {programs.map((row) => (
               <TableRow key={row.id}>
                 <TableCell>{row.program_name}</TableCell>
-                <TableCell>{row.program_image && <img src={`http://localhost:8000/${row.program_image}`} alt={row.program_name} width="50" height="50" />}</TableCell>
+                <TableCell>{row.program_image && <img src={`https://pipe.mosol9.in/${row.program_image}`} alt={row.program_name} width="50" height="50" />}</TableCell>
                 <TableCell>{row.program_desc}</TableCell>
                 <TableCell>{row.age_group} Yrs</TableCell>
                 <TableCell>{row.monthly_fee}</TableCell>
@@ -143,8 +143,9 @@ const Programs = () => {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
-        <TablePagination
+        </Table>        
+      </TableContainer>
+      <TablePagination
           component="div"
           count={totalPages * rowsPerPage}
           page={page - 1}
@@ -152,7 +153,6 @@ const Programs = () => {
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
         />
-      </TableContainer>
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>

@@ -124,6 +124,22 @@ const Sidebar = () => {
               <ListItemText className='text_items' primary="Payment Plan" />
             </ListItemButton>
           </Link>
+          <Link to="/timeSlots">
+            <ListItemButton className='single_item' sx={{ pl: 4 }}>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Time Slots" />
+            </ListItemButton>
+          </Link>
+          <Link to="/assignTeachers">
+            <ListItemButton className='single_item' sx={{ pl: 4 }}>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Assign teachers" />
+            </ListItemButton>
+          </Link>
         </Collapse>
 
         <Link to='/teachers'>

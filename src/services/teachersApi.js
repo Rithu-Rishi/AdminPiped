@@ -70,3 +70,45 @@ export const deleteTeacher = async (id) => {
         throw error;
     }
 };
+
+// Assign teachers to a program
+export const assignTeachersToProgram = async (programId, teacherData) => {
+    try {
+        const response = await API.post(`/api/programs/${programId}/assign-teachers`, teacherData);
+        return response.data;
+    } catch (error) {
+        console.error("Error assigning teachers to program", error);
+        throw error;
+    }
+};
+
+// Fetch teachers based on Program
+export const getTeachersToProgram = async (programId) => {
+    try {
+        const response = await API.get(`/api/programs/${programId}/teachers`);
+        return response.data;
+    } catch (error) {
+        console.error("Error assigning teachers to program", error);
+        throw error;
+    }
+};
+
+export const getProgramsWithTeachers = async () => {
+    try {
+        const response = await API.get(`/api/programs-with-teachers`);
+        return response.data;
+    } catch (error) {
+        console.error("Error assigning teachers to program", error);
+        throw error;
+    }
+};
+
+export const removeTeacherFromProgram = async (programId, teacherId) => {
+    try {
+        const response = await API.delete(`/api/programs/${programId}/remove-teacher/${teacherId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error assigning teachers to program", error);
+        throw error;
+    }
+};

@@ -1,135 +1,139 @@
-import React, { useState } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import { DeleteOutline as DeleteOutlineIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
-import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import TablePagination from '@mui/material/TablePagination';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Checkbox from '@mui/material/Checkbox';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
-import ListItemText from '@mui/material/ListItemText';
+import React, { useEffect, useState } from "react";
+import { getAllPrograms } from "../services/programsApi";
+import {
+  getAllTeachers, getTeachersToProgram, assignTeachersToProgram, getProgramsWithTeachers,
+  removeTeacherFromProgram
+} from "../services/teachersApi";
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Button, IconButton, Modal, Box, Typography, Select, MenuItem, TablePagination
+} from "@mui/material";
+import { Add as AddIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
 
-// Sample Data
-function createData(ProgramName, teachers) {
-  return { ProgramName, teachers };
-}
-
-const initialRows = [
-  createData('Dance', 'Beginer', 'Mon, tue', '1 PM', '2 PM', 'slots'),
-];
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 4;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4 + ITEM_PADDING_TOP,
-     width: 200,
-    },
-  },
-};
-
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
 
 const AssignTeachers = () => {
-  const [rows, setRows] = useState(initialRows);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [programs, setPrograms] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState("");
+  const [selectedTeachers, setSelectedTeachers] = useState([]);
   const [formModalOpen, setFormModalOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [formData, setFormData] = useState({ ProgramName: '', teachers: '' });
-  const [personName, setPersonName] = React.useState([]);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [selectedProgramForDelete, setSelectedProgramForDelete] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Handle Pagination Changes
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  useEffect(() => {
+    fetchPrograms();
+    fetchTeachers();
+  }, [page]);
+
+  useEffect(() => {
+    fetchAssignments();
+  }, [page]);
+
+  const fetchPrograms = async () => {
+    try {
+      const response = await getAllPrograms();
+      setPrograms(response || []);
+    } catch (err) {
+      console.error("Failed to fetch programs.");
+    }
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const fetchTeachers = async () => {
+    try {
+      const response = await getAllTeachers();
+      setTeachers(response.data || []);
+    } catch (err) {
+      console.error("Failed to fetch teachers.");
+    }
   };
 
-  // Handle Open Modals
-  const openDeleteModal = (row) => {
-    setSelectedRow(row);
+  const fetchAssignments = async () => {
+    try {
+      const response = await getProgramsWithTeachers();
+      setAssignments(response || []);
+    } catch (err) {
+      console.error("Failed to fetch assigned teachers.");
+    }
+  };
+
+
+  // const openFormModal = (row = null) => {
+  //   setSelectedRow(row);
+  //   setFormData(row || { ProgramName: '', teachers: '' });
+  //   setFormModalOpen(true);
+  // };
+
+  // Handle Close Modals
+  // const closeDeleteModal = () => setDeleteModalOpen(false);
+  // const closeFormModal = () => setFormModalOpen(false);
+
+  // Handle Delete
+  // const handleDelete = () => {
+  //   setRows(rows.filter((row) => row !== selectedRow));
+  //   closeDeleteModal();
+  // };
+
+  // Handle Input Change in Form
+  // const handleChange = (e) => {
+  //   const {
+  //     target: { value },
+  //   } = e;
+  //   setPersonName(
+  //     // On autofill we get a stringified value.
+  //     typeof value === 'string' ? value.split(',') : value,
+  //   );
+
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
+
+  // Handle Create/Edit Submit
+  const handleSubmit = async () => {
+    if (!selectedProgram || selectedTeachers.length === 0) {
+      alert("Please select a program and at least one teacher.");
+      return;
+    }
+    try {
+      const existingTeachers = assignments.find(p => p.program_id === selectedProgram)?.teachers.map(t => t.id) || [];
+      const updatedTeachers = [...new Set([...existingTeachers, ...selectedTeachers])];
+
+      await assignTeachersToProgram(selectedProgram, { teacher_ids: updatedTeachers });
+      setFormModalOpen(false);
+      fetchAssignments();
+      alert("Teachers assigned successfully!");
+    } catch (err) {
+      console.error("Failed to assign teachers.");
+    }
+  };
+
+  const openDeleteModal = (programId, teacherId) => {
+    setSelectedProgramForDelete(programId);
+    setSelectedTeacher(teacherId);
     setDeleteModalOpen(true);
   };
 
-  const openFormModal = (row = null) => {
-    setSelectedRow(row);
-    setFormData(row || { ProgramName: '', teachers: '' });
-    setFormModalOpen(true);
-  };
-
-  // Handle Close Modals
-  const closeDeleteModal = () => setDeleteModalOpen(false);
-  const closeFormModal = () => setFormModalOpen(false);
-
-  // Handle Delete
-  const handleDelete = () => {
-    setRows(rows.filter((row) => row !== selectedRow));
-    closeDeleteModal();
-  };
-
-  // Handle Input Change in Form
-  const handleChange = (e) => {
-    const {
-      target: { value },
-    } = e;
-    setPersonName(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    );
-
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // Handle Create/Edit Submit
-  const handleSubmit = (event) => {
-    if (selectedRow) {
-      // Edit existing row
-      setRows(rows.map(row => (row === selectedRow ? formData : row)));
-    } else {
-      // Add new row
-      setRows([...rows, formData]);
+  const handleRemoveTeacher = async () => {
+    if (!selectedProgramForDelete || !selectedTeacher) return;
+    try {
+      await removeTeacherFromProgram(selectedProgramForDelete, selectedTeacher);
+      setDeleteModalOpen(false);
+      fetchAssignments();
+      alert("Teacher removed successfully!");
+    } catch (err) {
+      console.error("Failed to remove teacher.");
     }
-    closeFormModal();
   };
-
-
 
   return (
     <>
       {/* Table */}
       <div className='d-flex justify-content-between mb-2'>
         <h3>Time Slots</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Time Slot
+        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => setFormModalOpen(true)}>
+          Assign Teacher
         </Button>
       </div>
       <TableContainer component={Paper}>
@@ -137,20 +141,17 @@ const AssignTeachers = () => {
           <TableHead>
             <TableRow>
               <TableCell>Program Name</TableCell>
-              <TableCell>Assign teachers</TableCell>
+              <TableCell>Assigned Teachers</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-              <TableRow key={row.ProgramName}>
-                <TableCell>{row.ProgramName}</TableCell>
-                <TableCell>{row.teachers}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
+            {assignments.map((row) => (
+              <TableRow key={`${row.program_id}-${row.teacher_id}`}>
+                <TableCell>{row.program_name}</TableCell>
+                <TableCell>{row.teacher_name}</TableCell>
+                <TableCell>
+                  <IconButton color="error" size="small" onClick={() => openDeleteModal(row.program_id, row.teacher_id)}>
                     <DeleteOutlineIcon />
                   </IconButton>
                 </TableCell>
@@ -158,88 +159,66 @@ const AssignTeachers = () => {
             ))}
           </TableBody>
         </Table>
-        {rows.length > 5 && (
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        )}
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={assignments.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(_, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+        />
       </TableContainer>
 
       {/* Delete Confirmation Modal */}
-      <Modal open={deleteModalOpen} onClose={closeDeleteModal}>
-        <Box sx={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
-          boxShadow: 24, p: 3, borderRadius: 2
-        }}>
+      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
           <Typography variant="body1" gutterBottom>
-            Are you sure you want to delete <b>{selectedRow?.ProgramName}</b>?
+            Are you sure you want to remove this teacher from the program?
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={closeDeleteModal} sx={{ mr: 1 }}>Cancel</Button>
-            <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+            <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
+            <Button variant="contained" color="error" onClick={handleRemoveTeacher}>Remove</Button>
           </Box>
         </Box>
       </Modal>
 
       {/* Add/Edit Child Modal */}
-      <Modal open={formModalOpen} onClose={closeFormModal}>
+      <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <Box sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper',
           boxShadow: 24, p: 3, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>{selectedRow ? 'Edit Time Slot' : 'Create Time Slot'}</Typography>
+          <Typography variant="h6" gutterBottom>Assign Teacher</Typography>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-
-
-            <FormControl fullWidth>
-              <InputLabel>Program Name</InputLabel>
-              <Select size='small'
-                name="ProgramName"
-                value={formData.ProgramName}
-                onChange={handleChange}
-                label='Program Name'
-              >
-                <MenuItem value="dance">Dance</MenuItem>
-                <MenuItem value="music">Music</MenuItem>
-                <MenuItem value="vocal">Vocal</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl sx={{ m: 1, width: 300 }}>
-              <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
-              <Select
-                labelId="demo-multiple-checkbox-label"
-                id="demo-multiple-checkbox"
-                multiple
-                value={personName}
-                onChange={handleChange}
-                input={<OutlinedInput label="Tag" />}
-                renderValue={(selected) => selected.join(', ')}
-                MenuProps={MenuProps}
-              >
-                {names.map((name) => (
-                  <MenuItem key={name} value={name}>
-                    <Checkbox checked={personName.includes(name)} />
-                    <ListItemText primary={name} />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Select fullWidth name="program_id" value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
+              {programs.map((program) => (
+                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+              ))}
+            </Select>
+            <Select
+              fullWidth
+              multiple
+              value={selectedTeachers}
+              onChange={(e) => setSelectedTeachers(e.target.value)}
+              renderValue={(selected) => selected.map(id => teachers.find(t => t.id === id)?.name).join(", ")}
+              sx={{ mt: 2 }}
+            >
+              {teachers.map((teacher) => (
+                <MenuItem key={teacher.id} value={teacher.id}>{teacher.name}</MenuItem>
+              ))}
+            </Select>
 
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={closeFormModal} sx={{ mr: 1 }}>Cancel</Button>
+            <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
-              {selectedRow ? 'Update' : 'Create'}
+              Create
             </Button>
           </Box>
         </Box>

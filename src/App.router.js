@@ -15,6 +15,7 @@ import SkillProgression from "./pages/SkillProgression";
 import PaymentPlan from "./pages/PaymentPlan";
 import TimeSlots from "./pages/TimeSlots";
 import AssignTeachers from "./pages/AssignTeachers";
+import FacilityPaymentPlans from "./pages/FacilityPaymentPlan";
 
 const AppRouter = () => {
     return (
@@ -34,6 +35,7 @@ const AppRouter = () => {
                     <Route path="/paymentPlan" element={<PaymentPlan />} />
                     <Route path="/timeSlots" element={<TimeSlots />} />
                     <Route path="/assignTeachers" element={<AssignTeachers />} />
+                    <Route path="/facilityPlans" element={<FacilityPaymentPlans />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

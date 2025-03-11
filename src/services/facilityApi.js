@@ -56,3 +56,25 @@ export const deleteFacilityPlan = async (id) => {
         throw error;
     }
 };
+
+// Fetch all facility user payments
+export const getFacilityUserPayments = async () => {
+    try {
+        const response = await API.get("/api/payments/facility");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching facility payment plans", error);
+        throw error;
+    }
+};
+
+// Fetch all facility subscriptions
+export const getFacilityUserSubscriptions = async () => {
+    try {
+        const response = await API.get("/api/subscriptions/facility");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching facility payment plans", error);
+        throw error;
+    }
+};

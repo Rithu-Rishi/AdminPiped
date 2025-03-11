@@ -80,6 +80,24 @@ const Sidebar = () => {
           </ListItemButton>
         </Link>
 
+        <Link to="/facilityUserPayments">
+          <ListItemButton className='single_item'>
+            <ListItemIcon className='icon_items'>
+              <WcOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText className='text_items' primary="Facility Payments" />
+          </ListItemButton>
+        </Link>
+
+        <Link to="/facilitySubscriptions">
+          <ListItemButton className='single_item'>
+            <ListItemIcon className='icon_items'>
+              <WcOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText className='text_items' primary="Facility Subscriptions" />
+          </ListItemButton>
+        </Link>
+
         <ListItemButton className='single_item' onClick={handleClick}>
           <ListItemIcon className='icon_items'>
             <SchoolOutlinedIcon />

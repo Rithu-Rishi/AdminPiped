@@ -16,6 +16,8 @@ import PaymentPlan from "./pages/PaymentPlan";
 import TimeSlots from "./pages/TimeSlots";
 import AssignTeachers from "./pages/AssignTeachers";
 import FacilityPaymentPlans from "./pages/FacilityPaymentPlan";
+import FacilityUserPayments from "./pages/FacilityUserPayments";
+import FacilitySubscriptions from "./pages/FacilitySubscriptions";
 
 const AppRouter = () => {
     return (
@@ -36,6 +38,8 @@ const AppRouter = () => {
                     <Route path="/timeSlots" element={<TimeSlots />} />
                     <Route path="/assignTeachers" element={<AssignTeachers />} />
                     <Route path="/facilityPlans" element={<FacilityPaymentPlans />} />
+                    <Route path="/facilityUserPayments" element={<FacilityUserPayments />} />
+                    <Route path="/facilitySubscriptions" element={<FacilitySubscriptions />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

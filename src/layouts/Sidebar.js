@@ -196,7 +196,7 @@ const Sidebar = () => {
             <ListItemText className='text_items' primary="Transitions" />
           </ListItemButton>
         </Link>
-        <Link to='/'>
+        <Link to='/userBookings'>
           <ListItemButton className='single_item'>
             <ListItemIcon className='icon_items'>
               <BeenhereOutlinedIcon />

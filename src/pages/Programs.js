@@ -177,13 +177,13 @@ const Programs = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{
+        <Box className="custom_modal" sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
-          boxShadow: 12, p: 3, borderRadius: 2
+          boxShadow: 12, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>{selectedRow ? 'Edit Program' : 'Create Program'}</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{selectedRow ? 'Edit Program' : 'Create Program'}</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
             <Box className='d-flex' sx={{ gap: 2 }}>
               <TextField size='small' label="Program Name" name="program_name" value={formData.program_name} onChange={handleChange} fullWidth />
               <TextField size='small' label="Programs Age" name="age_group" value={formData.age_group} onChange={handleChange} fullWidth />
@@ -196,9 +196,9 @@ const Programs = () => {
             <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
             {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+            <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
               {selectedRow ? 'Update' : 'Create'}
             </Button>
           </Box>

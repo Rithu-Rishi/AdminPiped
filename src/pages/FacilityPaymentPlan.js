@@ -144,7 +144,7 @@ const FacilityPaymentPlans = () => {
                     </TableBody>
                 </Table>
                 <TablePagination
-          className="custom_pagination"
+                    className="custom_pagination"
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
                     count={plans.length}
@@ -171,20 +171,20 @@ const FacilityPaymentPlans = () => {
             </Modal>
 
             <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-                <Box sx={{ p: 3, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 600, mx: "auto", mt: 10 }}>
-                    <Typography variant="h6">{editId ? "Edit Facility Plan" : "Add Facility Plan"}</Typography>
-                    {formData.plans.map((plan, index) => (
-                        <Box key={index} sx={{ mb: 2, position: "relative" }}>
-                            <Box className='d-flex align-items-center' sx={{ gap: 2 }}>
+                <Box className="custom_modal" sx={{ bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 600, mx: "auto", mt: 10 }}>
+                    <Typography variant="h6" className="custom_heading_modal">{editId ? "Edit Facility Plan" : "Add Facility Plan"}</Typography>
+                    <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+                        {formData.plans.map((plan, index) => (
+                            <Box key={index} className='d-flex align-items-center' sx={{ gap: 2 }}>
                                 <div>
-                                    <Box className='d-flex' sx={{ gap: 2 }}>
-                                        <TextField size="small" label="Duration (Months)" name="duration_months" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth margin="normal" />
-                                        <TextField size="small" label="Initial Kit Amount" name="inital_kit_amount" value={plan.inital_kit_amount} onChange={(e) => handleChange(index, "inital_kit_amount", e.target.value)} fullWidth margin="normal" />
+                                    <Box className='d-flex' sx={{ gap: 2, mb: 2 }}>
+                                        <TextField size="small" label="Duration (Months)" name="duration_months" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth />
+                                        <TextField size="small" label="Initial Kit Amount" name="inital_kit_amount" value={plan.inital_kit_amount} onChange={(e) => handleChange(index, "inital_kit_amount", e.target.value)} fullWidth />
                                     </Box>
                                     <Box className='d-flex' sx={{ gap: 2 }}>
-                                        <TextField size="small" label="Amount" name="amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth margin="normal" />
-                                        <TextField size="small" label="Discount (%)" name="discount_percent" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth margin="normal" />
-                                        <TextField size="small" label="Final Amount" name="final_amount" value={plan.final_amount} disabled fullWidth margin="normal" />
+                                        <TextField size="small" label="Amount" name="amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth />
+                                        <TextField size="small" label="Discount (%)" name="discount_percent" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth />
+                                        <TextField size="small" label="Final Amount" name="final_amount" value={plan.final_amount} disabled fullWidth />
 
                                     </Box>
                                 </div>
@@ -195,14 +195,14 @@ const FacilityPaymentPlans = () => {
                                 )}
 
                             </Box>
-                        </Box>
-                    ))}
-                    {!editId && (
-                        <Button variant="contained" color="success" size="small" onClick={addRow} sx={{ mb: 2 }}>+ Add Row</Button>
-                    )}
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+                        ))}
+                        {!editId && (
+                            <Button variant="contained" color="success" size="small" onClick={addRow} sx={{ mb: 2 }}>+ Add Row</Button>
+                        )}
+                    </Box>
+                    <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
                         <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
-                        <Button variant="contained" color="primary" onClick={handleSubmit}>{editId ? "Update" : "Create"}</Button>
+                        <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>{editId ? "Update" : "Create"}</Button>
                     </Box>
                 </Box>
             </Modal>

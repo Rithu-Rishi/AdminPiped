@@ -192,13 +192,13 @@ const AssignTeachers = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{
+        <Box className="custom_modal" sx={{
           position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper',
-          boxShadow: 24, p: 3, borderRadius: 2
+          transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
+          boxShadow: 12, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>Assign Teacher</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>Assign Teacher</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
             <Select size="small" fullWidth name="program_id" value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
               {programs.map((program) => (
                 <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
@@ -210,15 +210,14 @@ const AssignTeachers = () => {
               value={selectedTeachers}
               onChange={(e) => setSelectedTeachers(e.target.value)}
               renderValue={(selected) => selected.map(id => teachers.find(t => t.id === id)?.name).join(", ")}
-              sx={{ mt: 2 }}
+
             >
               {teachers.map((teacher) => (
                 <MenuItem key={teacher.id} value={teacher.id}>{teacher.name}</MenuItem>
               ))}
             </Select>
-
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
               Create

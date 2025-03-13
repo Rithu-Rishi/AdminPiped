@@ -185,23 +185,34 @@ const ChildList = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{ p: 3, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 400, mx: "auto", mt: 10 }}>
-          <Typography variant="h6">{editId ? "Edit Child" : "Add Child"}</Typography>
-          <Select size="small" fullWidth name="parent_id" value={formData.parent_id} onChange={handleChange}>
-            {parents.map((parent) => (
-              <MenuItem key={parent.id} value={parent.id}>{parent.name}</MenuItem>
-            ))}
-          </Select>
-          <TextField size="small" label="Child Name" name="child_name" value={formData.child_name} onChange={handleChange} fullWidth margin="normal" />
-          <Select size="small" fullWidth name="gender" value={formData.gender} onChange={handleChange}>
-            <MenuItem value="Male">Male</MenuItem>
-            <MenuItem value="Female">Female</MenuItem>
-            <MenuItem value="Other">Other</MenuItem>
-          </Select>
-          <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth margin="normal" />
-          <input type="file" className="border p-2 rounded-2 w-100" accept="image/*" onChange={handleFileChange} />
-          {previewImage && <img src={previewImage} alt="Profile Preview" width="100" height="100" style={{ marginTop: 10 }} />}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <Box className="custom_modal" sx={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
+          boxShadow: 12, borderRadius: 2
+        }}>
+          <Typography variant="h6" className="custom_heading_modal">{editId ? "Edit Child" : "Add Child"}</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Select size="small" fullWidth name="parent_id" value={formData.parent_id} onChange={handleChange}>
+                {parents.map((parent) => (
+                  <MenuItem key={parent.id} value={parent.id}>{parent.name}</MenuItem>
+                ))}
+              </Select>
+              <TextField size="small" label="Child Name" name="child_name" value={formData.child_name} onChange={handleChange} fullWidth />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Select size="small" fullWidth name="gender" value={formData.gender} onChange={handleChange}>
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+              <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth />
+            </Box>
+            <input type="file" className="border p-2 rounded-2 w-100" accept="image/*" onChange={handleFileChange} />
+            {previewImage && <img src={previewImage} alt="Profile Preview" width="100" height="100" style={{ marginTop: 10 }} />}
+          </Box>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? "Update" : "Create"}

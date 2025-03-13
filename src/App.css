@@ -86,18 +86,21 @@ p {
     font-family: "Poppins", serif !important;
 }
 
-table tr td, table tr th {
-   padding: 6px 10px !important;
-   font-size: 12px !important;
+table tr td,
+table tr th {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
 }
 
-.custom_pagination p{margin-bottom:0  !important;}
+.custom_pagination p {
+    margin-bottom: 0 !important;
+}
 
 .collapsed {
     width: 52px;
 }
 
-.collapsed .logo{
+.collapsed .logo {
     visibility: hidden;
 }
 
@@ -114,4 +117,17 @@ table tr td, table tr th {
     left: 10px;
     top: 16px;
     z-index: 9;
+}
+
+.custom_modal {
+    background: #ececec !important;
+}
+
+.custom_heading_modal{
+    font-size: 16px !important;
+    padding: 10px;
+    margin-bottom: 0 !important;
+    text-transform: uppercase;
+    color: #000;
+    font-family: "Poppins", serif !important;
 }

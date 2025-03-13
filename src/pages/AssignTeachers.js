@@ -130,11 +130,13 @@ const AssignTeachers = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Time Slots</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => setFormModalOpen(true)}>
-          Assign Teacher
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Time Slots</h5>
+        <div>
+          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => setFormModalOpen(true)}>
+            Assign Teacher
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -160,6 +162,7 @@ const AssignTeachers = () => {
           </TableBody>
         </Table>
         <TablePagination
+          className="custom_pagination"
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={assignments.length}
@@ -196,12 +199,12 @@ const AssignTeachers = () => {
         }}>
           <Typography variant="h6" gutterBottom>Assign Teacher</Typography>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Select fullWidth name="program_id" value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
+            <Select size="small" fullWidth name="program_id" value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
               {programs.map((program) => (
                 <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
               ))}
             </Select>
-            <Select
+            <Select size="small"
               fullWidth
               multiple
               value={selectedTeachers}

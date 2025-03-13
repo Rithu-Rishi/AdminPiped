@@ -109,11 +109,13 @@ const Teacher = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Teacher List</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Teacher
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Teacher List</h5>
+        <div>
+          <Button size='small' variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Teacher
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -150,6 +152,7 @@ const Teacher = () => {
           </TableBody>
         </Table>
         <TablePagination
+          className="custom_pagination"
           component="div"
           count={totalPages * rowsPerPage}
           page={page - 1}
@@ -201,7 +204,7 @@ const Teacher = () => {
             <TextField size='small' label="Awards" name="awards" multiline rows={2} value={formData.awards} onChange={handleChange} fullWidth required />
             <TextField size='small' label="Certifications" name="certifications" multiline rows={2} value={formData.certifications} onChange={handleChange} fullWidth required />
 
-            <input type="file"  className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
+            <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
             {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>

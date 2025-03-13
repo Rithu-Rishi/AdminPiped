@@ -54,7 +54,7 @@ const ParentsList = () => {
     }
     setFormModalOpen(true);
   };
-  
+
 
   // Handle Input Change in Form
   const handleChange = (e) => {
@@ -101,11 +101,13 @@ const ParentsList = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Parents List</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Parent
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Parents List</h5>
+        <div>
+          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Parent
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -142,6 +144,7 @@ const ParentsList = () => {
           </TableBody>
         </Table>
         <TablePagination
+          className="custom_pagination"
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={parents.length}
@@ -175,16 +178,16 @@ const ParentsList = () => {
           boxShadow: 12, p: 3, borderRadius: 2
         }}>
           <Typography variant="h6" gutterBottom>{editId ? 'Edit Parent' : 'Create Parent'}</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box component="form" sx={{ display: 'flex', flexDirection: 'column' }}>
             <Box className='d-flex' sx={{ gap: 2 }}>
-              <TextField label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth margin="normal" />
-              <TextField label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth margin="normal" />
+              <TextField size="small" label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth margin="normal" />
+              <TextField size="small" label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth margin="normal" />
             </Box>
             <Box className='d-flex' sx={{ gap: 2 }}>
-              <TextField label="Mobile Number" name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth margin="normal" />
-              <TextField label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth margin="normal" />
+              <TextField size="small" label="Mobile Number" name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth margin="normal" />
+              <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth margin="normal" />
             </Box>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
+            <input type="file" className="border p-2 rounded-2" accept="image/*" onChange={handleFileChange} />
             {previewImage && <img src={previewImage} alt="Profile Preview" width="100" height="100" style={{ marginTop: 10 }} />}
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>

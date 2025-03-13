@@ -114,11 +114,13 @@ const PaymentPlan = () => {
     return (
         <>
             {/* Table */}
-            <div className='d-flex justify-content-between mb-2'>
-                <h3>All Payment Plans</h3>
-                <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-                    Create Payment Plan
-                </Button>
+            <div className='d-flex justify-content-between align-items-center mb-2'>
+                <h5 className="mb-0">Payment Plans</h5>
+                <div>
+                    <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+                        Create Payment Plan
+                    </Button>
+                </div>
             </div>
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -153,6 +155,7 @@ const PaymentPlan = () => {
                     </TableBody>
                 </Table>
                 <TablePagination
+                    className="custom_pagination"
                     component="div"
                     count={totalPages * rowsPerPage}
                     page={page - 1}
@@ -161,7 +164,7 @@ const PaymentPlan = () => {
                     onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
                 />
             </TableContainer >
-            
+
             {/* Delete Confirmation Modal */}
             < Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
                 <Box sx={{
@@ -185,7 +188,7 @@ const PaymentPlan = () => {
                 <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 700, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
                     <Typography variant="h6" gutterBottom>{editId ? 'Edit Payment Plan' : 'Create Payment Plans'}</Typography>
                     {!editId && (
-                        <Select fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                        <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
                             {programs.map((program) => (
                                 <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
                             ))}
@@ -193,10 +196,10 @@ const PaymentPlan = () => {
                     )}
                     {formData.plans.map((plan, index) => (
                         <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 2 }}>
-                            <TextField label="Duration (Months)" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth required />
-                            <TextField label="Amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth required />
-                            <TextField label="Discount (%)" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth required />
-                            <TextField label="Final Amount" value={plan.final_amount} fullWidth disabled />
+                            <TextField size="small" label="Duration (Months)" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth required />
+                            <TextField size="small" label="Amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth required />
+                            <TextField size="small" label="Discount (%)" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth required />
+                            <TextField size="small" label="Final Amount" value={plan.final_amount} fullWidth disabled />
                             {!editId && (
                                 <IconButton color="error" onClick={() => removeRow(index)}>
                                     <CloseIcon />

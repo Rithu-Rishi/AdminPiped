@@ -6,6 +6,7 @@ import {
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Link } from "react-router";
 
 const ProgramSkill = () => {
   const [skillLevels, setSkillLevels] = useState([]);
@@ -114,11 +115,13 @@ const ProgramSkill = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Skill Level</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Skill Level
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Skill Level</h5>
+        <div>
+          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Skill Level
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -155,6 +158,7 @@ const ProgramSkill = () => {
           </TableBody>
         </Table>
         <TablePagination
+          className="custom_pagination"
           component="div"
           count={totalPages * rowsPerPage}
           page={page - 1}
@@ -205,10 +209,12 @@ const ProgramSkill = () => {
                   <TextField size="small" label="Discount" type="number" value={skill.skill_discount} onChange={(e) => handleChange(index, "skill_discount", e.target.value)} fullWidth required />
                 </Box>
                 <TextField size="small" label="Description" multiline rows={2} value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required />
-                {!editId && (<IconButton color="error" onClick={() => handleRemoveRow(index)}>
-                  <CloseIcon />
-                </IconButton>
-                )}
+                <div className="text-end">
+                  {!editId && (<Link  color="error" className="text-danger rounded-5" onClick={() => handleRemoveRow(index)}>
+                    <CloseIcon />
+                  </Link>
+                  )}
+                </div>
               </Box>
             ))}
             {!editId && (

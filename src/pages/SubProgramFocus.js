@@ -86,11 +86,13 @@ const SubProgramFocus = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Sub Program Focus</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Sub Program Focus
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Sub Program Focus</h5>
+        <div>
+          <Button size='small' variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Sub Program Focus
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -122,6 +124,7 @@ const SubProgramFocus = () => {
         </Table>
         {rows.length > 5 && (
           <TablePagination
+            className="custom_pagination"
             rowsPerPageOptions={[5, 10, 15]}
             component="div"
             count={rows.length}

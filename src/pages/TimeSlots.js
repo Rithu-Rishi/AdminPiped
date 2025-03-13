@@ -157,11 +157,13 @@ const TimeSlots = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Time Slots</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Time Slot
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Time Slots</h5>
+        <div>
+          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Time Slot
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -198,6 +200,7 @@ const TimeSlots = () => {
           </TableBody>
         </Table>
         <TablePagination
+          className="custom_pagination"
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={timeSlots.length}
@@ -230,32 +233,37 @@ const TimeSlots = () => {
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>{editId ? 'Edit Time Slot' : 'Create Time Slot'}</Typography>
-          <Select fullWidth name="program_id" value={formData.program_id} onChange={handleProgramChange}>
-            {programs.map((program) => (
-              <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-            ))}
-          </Select>
-          <Select fullWidth name="skill_level_id" value={formData.skill_level_id} onChange={(e) => setFormData({ ...formData, skill_level_id: e.target.value })}>
-            {skillLevels.map((level) => (
-              <MenuItem key={level.id} value={level.id}>{level.skill_name}</MenuItem>
-            ))}
-          </Select>
-          <Typography>Select Week Days:</Typography>
-          <ToggleButtonGroup size="small" value={formData.week_days} onChange={handleWeekDayChange} aria-label="week days" fullWidth>
-            {weekDaysList.map((day, index) => (
-              <ToggleButton key={index} value={index}>{day}</ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-          <Button onClick={handleAddTimeRange}>Add Time Range</Button>
-          {formData.time_ranges.map((range, index) => (
-            <Box key={index}>
-              <TextField label="Start Time" value={range.start_time} onChange={(e) => handleChangeTimeRange(index, "start_time", e.target.value)} />
-              <TextField label="End Time" value={range.end_time} onChange={(e) => handleChangeTimeRange(index, "end_time", e.target.value)} />
-              <TextField label="Available Slots" value={range.available_slots} onChange={(e) => handleChangeTimeRange(index, "available_slots", e.target.value)} />
-              <IconButton onClick={() => handleRemoveTimeRange(index)}><CloseIcon /></IconButton>
+          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+            <Box className="d-flex" sx={{ gap: 2 }}>
+              <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={handleProgramChange}>
+                {programs.map((program) => (
+                  <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                ))}
+              </Select>
+              <Select size="small" fullWidth name="skill_level_id" value={formData.skill_level_id} onChange={(e) => setFormData({ ...formData, skill_level_id: e.target.value })}>
+                {skillLevels.map((level) => (
+                  <MenuItem key={level.id} value={level.id}>{level.skill_name}</MenuItem>
+                ))}
+              </Select>
             </Box>
-          ))}
-
+            <h6 className="mb-0">Select Week Days:</h6>
+            <ToggleButtonGroup size="small" value={formData.week_days} onChange={handleWeekDayChange} aria-label="week days" fullWidth>
+              {weekDaysList.map((day, index) => (
+                <ToggleButton key={index} value={index}>{day}</ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+            <div>
+              <Button size="small" variant="outlined" onClick={handleAddTimeRange}>Add Time Range</Button>
+            </div>
+            {formData.time_ranges.map((range, index) => (
+              <Box key={index} className="d-flex align-items-center" sx={{ gap: 2 }}>
+                <TextField size="small" label="Start Time" value={range.start_time} onChange={(e) => handleChangeTimeRange(index, "start_time", e.target.value)} />
+                <TextField size="small" label="End Time" value={range.end_time} onChange={(e) => handleChangeTimeRange(index, "end_time", e.target.value)} />
+                <TextField size="small" label="Available Slots" value={range.available_slots} onChange={(e) => handleChangeTimeRange(index, "available_slots", e.target.value)} />
+                <IconButton className="text-danger" onClick={() => handleRemoveTimeRange(index)}><CloseIcon /></IconButton>
+              </Box>
+            ))}
+          </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}

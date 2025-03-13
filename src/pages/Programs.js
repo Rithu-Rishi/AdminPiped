@@ -102,14 +102,16 @@ const Programs = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>All Programs</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Program
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Programs</h5>
+        <div>
+          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Program
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper} className="scoll_dev">
-        <Table sx={{ }} stickyHeader aria-label="customized sticky table">
+        <Table sx={{}} stickyHeader aria-label="customized sticky table">
           <TableHead>
             <TableRow>
               <TableCell>Program Name</TableCell>
@@ -143,16 +145,17 @@ const Programs = () => {
               </TableRow>
             ))}
           </TableBody>
-        </Table>        
+        </Table>
       </TableContainer>
       <TablePagination
-          component="div"
-          count={totalPages * rowsPerPage}
-          page={page - 1}
-          onPageChange={(event, newPage) => setPage(newPage + 1)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-        />
+        className="custom_pagination"
+        component="div"
+        count={totalPages * rowsPerPage}
+        page={page - 1}
+        onPageChange={(event, newPage) => setPage(newPage + 1)}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+      />
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -190,7 +193,7 @@ const Programs = () => {
               <TextField size='small' label="Discount" name="discount_percent" value={formData.discount_percent} onChange={handleChange} fullWidth />
             </Box>
             <TextField size='small' multiline rows={2} label="Programs Description" name="program_desc" value={formData.program_desc} onChange={handleChange} fullWidth />
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+            <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
             {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>

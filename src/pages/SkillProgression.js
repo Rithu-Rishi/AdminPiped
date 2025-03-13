@@ -145,11 +145,13 @@ const SkillProgression = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Skill Progression</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Skill Progression
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Skill Progression</h5>
+        <div>
+          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Skill Progression
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -182,6 +184,7 @@ const SkillProgression = () => {
           </TableBody>
         </Table>
         <TablePagination
+          className="custom_pagination"
           component="div"
           count={totalPages * rowsPerPage}
           page={page - 1}

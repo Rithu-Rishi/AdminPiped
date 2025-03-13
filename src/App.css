@@ -84,11 +84,21 @@ p {
     font-size: 0.9em;
     color: #b2b8c7;
     font-family: "Poppins", serif !important;
-
 }
+
+table tr td, table tr th {
+   padding: 6px 10px !important;
+   font-size: 12px !important;
+}
+
+.custom_pagination p{margin-bottom:0  !important;}
 
 .collapsed {
     width: 52px;
+}
+
+.collapsed .logo{
+    visibility: hidden;
 }
 
 .expanded {

@@ -5,6 +5,7 @@ import {
     Button, IconButton, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Link } from "react-router";
 
 const FacilityPaymentPlans = () => {
     const [plans, setPlans] = useState([]);
@@ -101,9 +102,14 @@ const FacilityPaymentPlans = () => {
 
     return (
         <>
-            <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-                Add Facility Plan
-            </Button>
+            <div className='d-flex justify-content-between align-items-center mb-2'>
+                <h5 className="mb-0">Facility Plans</h5>
+                <div>
+                    <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+                        Add Facility Plan
+                    </Button>
+                </div>
+            </div>
 
             <TableContainer component={Paper} sx={{ mt: 2 }}>
                 <Table>
@@ -138,6 +144,7 @@ const FacilityPaymentPlans = () => {
                     </TableBody>
                 </Table>
                 <TablePagination
+          className="custom_pagination"
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
                     count={plans.length}
@@ -164,24 +171,34 @@ const FacilityPaymentPlans = () => {
             </Modal>
 
             <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-                <Box sx={{ p: 3, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 10 }}>
+                <Box sx={{ p: 3, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 600, mx: "auto", mt: 10 }}>
                     <Typography variant="h6">{editId ? "Edit Facility Plan" : "Add Facility Plan"}</Typography>
                     {formData.plans.map((plan, index) => (
                         <Box key={index} sx={{ mb: 2, position: "relative" }}>
-                            <TextField label="Duration (Months)" name="duration_months" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth margin="normal" />
-                            <TextField label="Amount" name="amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth margin="normal" />
-                            <TextField label="Discount (%)" name="discount_percent" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth margin="normal" />
-                            <TextField label="Initial Kit Amount" name="inital_kit_amount" value={plan.inital_kit_amount} onChange={(e) => handleChange(index, "inital_kit_amount", e.target.value)} fullWidth margin="normal" />
-                            <TextField label="Final Amount" name="final_amount" value={plan.final_amount} disabled fullWidth margin="normal" />
-                            {!editId && (
-                                <IconButton color="error" onClick={() => removeRow(index)} sx={{ position: "absolute", top: 10, right: 10 }}>
-                                    <CloseIcon />
-                                </IconButton>
-                            )}
+                            <Box className='d-flex align-items-center' sx={{ gap: 2 }}>
+                                <div>
+                                    <Box className='d-flex' sx={{ gap: 2 }}>
+                                        <TextField size="small" label="Duration (Months)" name="duration_months" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth margin="normal" />
+                                        <TextField size="small" label="Initial Kit Amount" name="inital_kit_amount" value={plan.inital_kit_amount} onChange={(e) => handleChange(index, "inital_kit_amount", e.target.value)} fullWidth margin="normal" />
+                                    </Box>
+                                    <Box className='d-flex' sx={{ gap: 2 }}>
+                                        <TextField size="small" label="Amount" name="amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth margin="normal" />
+                                        <TextField size="small" label="Discount (%)" name="discount_percent" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth margin="normal" />
+                                        <TextField size="small" label="Final Amount" name="final_amount" value={plan.final_amount} disabled fullWidth margin="normal" />
+
+                                    </Box>
+                                </div>
+                                {!editId && (
+                                    <Link className="text-white bg-danger rounded-5" color="error" onClick={() => removeRow(index)} >
+                                        <CloseIcon />
+                                    </Link>
+                                )}
+
+                            </Box>
                         </Box>
                     ))}
                     {!editId && (
-                        <Button variant="outlined" color="primary" onClick={addRow} sx={{ mb: 2 }}>+ Add Row</Button>
+                        <Button variant="contained" color="success" size="small" onClick={addRow} sx={{ mb: 2 }}>+ Add Row</Button>
                     )}
                     <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
                         <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>

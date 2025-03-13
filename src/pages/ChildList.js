@@ -5,7 +5,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
 
 const ChildList = () => {
   const [children, setChildren] = useState([]);
@@ -114,17 +114,19 @@ const ChildList = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Child List</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Child
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Child List</h5>
+        <div>
+          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Child
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Parent</TableCell>
+              {/* <TableCell>Parent</TableCell> */}
               <TableCell>Child Name</TableCell>
               <TableCell>Gender</TableCell>
               <TableCell>Date of Birth</TableCell>
@@ -135,7 +137,7 @@ const ChildList = () => {
           <TableBody>
             {children.map((row) => (
               <TableRow key={row.id}>
-                <TableCell>{row.child_name}</TableCell>
+                {/* <TableCell>{row.child_name}</TableCell> */}
                 <TableCell>{row.child_name}</TableCell>
                 <TableCell>{row.gender}</TableCell>
                 <TableCell>{row.date_of_birth}</TableCell>
@@ -155,6 +157,7 @@ const ChildList = () => {
           </TableBody>
         </Table>
         <TablePagination
+          className="custom_pagination"
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={children.length}
@@ -184,19 +187,19 @@ const ChildList = () => {
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <Box sx={{ p: 3, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 400, mx: "auto", mt: 10 }}>
           <Typography variant="h6">{editId ? "Edit Child" : "Add Child"}</Typography>
-          <Select fullWidth name="parent_id" value={formData.parent_id} onChange={handleChange}>
+          <Select size="small" fullWidth name="parent_id" value={formData.parent_id} onChange={handleChange}>
             {parents.map((parent) => (
               <MenuItem key={parent.id} value={parent.id}>{parent.name}</MenuItem>
             ))}
           </Select>
-          <TextField label="Child Name" name="child_name" value={formData.child_name} onChange={handleChange} fullWidth margin="normal" />
-          <Select fullWidth name="gender" value={formData.gender} onChange={handleChange}>
+          <TextField size="small" label="Child Name" name="child_name" value={formData.child_name} onChange={handleChange} fullWidth margin="normal" />
+          <Select size="small" fullWidth name="gender" value={formData.gender} onChange={handleChange}>
             <MenuItem value="Male">Male</MenuItem>
             <MenuItem value="Female">Female</MenuItem>
             <MenuItem value="Other">Other</MenuItem>
           </Select>
-          <TextField label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth margin="normal" />
-          <input type="file" accept="image/*" onChange={handleFileChange} />
+          <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth margin="normal" />
+          <input type="file" className="border p-2 rounded-2 w-100" accept="image/*" onChange={handleFileChange} />
           {previewImage && <img src={previewImage} alt="Profile Preview" width="100" height="100" style={{ marginTop: 10 }} />}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>

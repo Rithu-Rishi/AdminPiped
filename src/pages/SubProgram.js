@@ -119,11 +119,13 @@ const SubPrograms = () => {
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between mb-2'>
-        <h3>Sub Programs</h3>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-          Create Sub Program
-        </Button>
+      <div className='d-flex justify-content-between align-items-center mb-2'>
+        <h5 className="mb-0">Sub Programs</h5>
+        <div>
+          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+            Create Sub Program
+          </Button>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -154,6 +156,7 @@ const SubPrograms = () => {
           </TableBody>
         </Table>
         <TablePagination
+          className="custom_pagination"
           component="div"
           count={totalPages * rowsPerPage}
           page={page - 1}
@@ -214,7 +217,7 @@ const SubPrograms = () => {
             </Select>
             <TextField size="small" className="mt-3" label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth required />
             <TextField size="small" className="mt-3" label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
-            <input type="file" multiple accept="image/*" onChange={(e) => setFormData({ ...formData, images: [...formData.images, ...Array.from(e.target.files)] })} />
+            <input type="file" className="mt-3 rounded-2 border w-100 p-2" multiple accept="image/*" onChange={(e) => setFormData({ ...formData, images: [...formData.images, ...Array.from(e.target.files)] })} />
             {formData.images.map((img, index) => (
               <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: '16px' }}>
                 <img src={typeof img === 'string' ? `http://localhost:8000/${img}` : URL.createObjectURL(img)} alt="Preview" width="50" height="50" />

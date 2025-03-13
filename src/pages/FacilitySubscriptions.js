@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getFacilityUserSubscriptions } from "../services/facilityApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Typography, TablePagination
+ TablePagination
 } from "@mui/material";
 
 const FacilitySubscriptions = () => {
@@ -34,7 +34,7 @@ const FacilitySubscriptions = () => {
 
     return (
         <>
-            <Typography variant="h5" sx={{ mb: 2 }}>Facility Subscriptions</Typography>
+            <h5>Facility Subscriptions</h5>
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
@@ -61,6 +61,7 @@ const FacilitySubscriptions = () => {
                     </TableBody>
                 </Table>
                 <TablePagination
+                    className="custom_pagination"
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
                     count={subscriptions.length}

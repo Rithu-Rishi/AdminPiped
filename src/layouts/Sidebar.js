@@ -33,7 +33,7 @@ const Sidebar = () => {
   return (
     <div className={`sidebar ${isExpanded ? "expanded" : "collapsed"}`}>
       <span className='togglebtn' onClick={toggleExpandedCollpse}>
-        {isExpanded ? <CloseIcon /> : <MenuIcon />}
+        {isExpanded ? <MenuIcon /> : <CloseIcon />}
       </span>
 
       <List className='Sidebar_list'
@@ -42,7 +42,7 @@ const Sidebar = () => {
         aria-labelledby="nested-list-subheader"
 
       >
-        <div className='text-center'>
+        <div className='text-center logo'>
           <img src={logo} alt="Preview" className='pe-3' height={50} />
         </div>
         <Link to="/dashboard">

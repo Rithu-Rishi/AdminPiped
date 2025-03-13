@@ -27,6 +27,7 @@ const PaymentPlan = () => {
     const fetchPaymentPlans = async (page) => {
         try {
             const response = await getAllPaymentPlans(page);
+            console.log("payment plan ", response);
             setPlans(response || []);
             setTotalPages(response.last_page || 1);
         } catch (err) {
@@ -134,7 +135,7 @@ const PaymentPlan = () => {
                     <TableBody>
                         {plans.map((row, index) => (
                             < TableRow key={row.id} >
-                                <TableCell>sdfsdf</TableCell>
+                                <TableCell>{row.program.program_name}</TableCell>
                                 <TableCell>{row.duration_months}</TableCell>
                                 <TableCell>{row.amount}</TableCell>
                                 <TableCell>{row.discount_percent}</TableCell>

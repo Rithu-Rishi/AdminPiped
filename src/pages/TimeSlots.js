@@ -36,6 +36,7 @@ const TimeSlots = () => {
   const fetchTimeSlots = async () => {
     try {
       const response = await getAllTimeSlots();
+      console.log("time slots ", response);
       setTimeSlots(response || []);
       setTotalPages(response.last_page || 1);
       // Reset page if out of range
@@ -176,8 +177,8 @@ const TimeSlots = () => {
           <TableBody>
             {timeSlots.map((slot) => (
               <TableRow key={slot.id}>
-                <TableCell>{slot.program_name}</TableCell>
-                <TableCell>{slot.skill_level_name}</TableCell>
+                <TableCell>{slot.program.program_name}</TableCell>
+                <TableCell>{slot.skill_level.skill_name}</TableCell>
                 <TableCell>{slot.week_days.map((day) => weekDaysList[day]).join(", ")}</TableCell>
                 <TableCell>
                   {slot.time_ranges.map((range, index) => (

@@ -122,14 +122,6 @@ const Sidebar = () => {
               <ListItemText className='text_items' primary="Sub Programs" />
             </ListItemButton>
           </Link>
-          <Link to="/subProgramFocus">
-            <ListItemButton className='single_item' sx={{ pl: 4 }}>
-              <ListItemIcon className='icon_items'>
-                <RemoveIcon />
-              </ListItemIcon>
-              <ListItemText className='text_items' primary="Program Focus" />
-            </ListItemButton>
-          </Link>
           <Link to="/programSkill">
             <ListItemButton className='single_item' sx={{ pl: 4 }}>
               <ListItemIcon className='icon_items'>

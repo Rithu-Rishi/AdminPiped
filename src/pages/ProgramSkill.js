@@ -27,6 +27,7 @@ const ProgramSkill = () => {
   const fetchSkillLevels = async (page) => {
     try {
       const response = await getAllSkillLevels(page);
+      console.log("skill level", response);
       setSkillLevels(response || []);
       setTotalPages(response.last_page || 1);
     } catch (err) {
@@ -135,7 +136,7 @@ const ProgramSkill = () => {
           <TableBody>
             {skillLevels.map((row) => (
               <TableRow key={row.id}>
-                <TableCell>{row.id}</TableCell>
+                <TableCell>{row.program.program_name}</TableCell>
                 <TableCell>{row.skill_name}</TableCell>
                 <TableCell>{row.skill_description}</TableCell>
                 <TableCell>{row.skill_period}</TableCell>

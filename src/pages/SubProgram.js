@@ -11,7 +11,7 @@ const SubPrograms = () => {
   const [subPrograms, setSubPrograms] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [formData, setFormData] = useState({
-    program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: []
+    program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [], deleted_images: []
   });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
@@ -29,6 +29,7 @@ const SubPrograms = () => {
   const fetchSubPrograms = async (page) => {
     try {
       const response = await getAllSubPrograms(page);
+      console.log(response);
       setSubPrograms(response || []);
       setTotalPages(response.last_page || 1);
     } catch (err) {
@@ -90,28 +91,28 @@ const SubPrograms = () => {
         sub_title: subProgram.sub_title,
         keywords: subProgram.keywords,
         images: subProgram.images.map(img => img.path) || [],
-        image_titles: subProgram.images.map(img => img.title) || [],
-        image_colors: subProgram.images.map(img => img.color_code) || [],
+        image_titles: subProgram.images ? subProgram.images.map(img => img.title || "") : [],
+        image_colors: subProgram.images ? subProgram.images.map(img => img.color_code || "") : [],
+        deleted_images: []
       });
       setEditId(subProgram.id);
     } else {
-      setFormData({ program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [] });
+      setFormData({ program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [], deleted_images: [] });
       setEditId(null);
     }
     setFormModalOpen(true);
   };
 
-  const handleRemoveImage = (index) => {
+  const handleRemoveImage = (index, imageId) => {
     setFormData((prevData) => {
       const updatedImages = [...prevData.images];
       const updatedTitles = [...prevData.image_titles];
       const updatedColors = [...prevData.image_colors];
-
       updatedImages.splice(index, 1);
       updatedTitles.splice(index, 1);
       updatedColors.splice(index, 1);
-
-      return { ...prevData, images: updatedImages, image_titles: updatedTitles, image_colors: updatedColors };
+      const updatedDeletedImages = imageId ? [...prevData.deleted_images, imageId] : prevData.deleted_images;
+      return { ...prevData, images: updatedImages, image_titles: updatedTitles, image_colors: updatedColors, deleted_images: updatedDeletedImages };
     });
   };
 
@@ -137,7 +138,7 @@ const SubPrograms = () => {
           <TableBody>
             {subPrograms.map((row) => (
               <TableRow key={row.id}>
-                <TableCell>{row.id}</TableCell>
+                <TableCell>{row.program.program_name}</TableCell>
                 <TableCell>{row.sub_title}</TableCell>
                 <TableCell>{row.keywords}</TableCell>
                 <TableCell align="center">
@@ -213,21 +214,21 @@ const SubPrograms = () => {
             </Select>
             <TextField size="small" className="mt-3" label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth required />
             <TextField size="small" className="mt-3" label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
-            <input type="file" className="mt-3 border rounded-2 w-100 p-2" multiple accept="image/*" onChange={(e) => setFormData({ ...formData, images: [...formData.images, ...Array.from(e.target.files)] })} />
+            <input type="file" multiple accept="image/*" onChange={(e) => setFormData({ ...formData, images: [...formData.images, ...Array.from(e.target.files)] })} />
             {formData.images.map((img, index) => (
-              <Box className='mt-3' key={index} style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: '16px' }}>
-                <img src={typeof img === 'string' ? `http://localhost:8000/${img}` : typeof img === 'object' && img instanceof File ? URL.createObjectURL(img) : img} alt="Preview" width="50" height="50" />
-                <TextField size="small" label="Image Title" value={formData.image_titles[index] || ""} onChange={(e) => {
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: '16px' }}>
+                <img src={typeof img === 'string' ? `http://localhost:8000/${img}` : URL.createObjectURL(img)} alt="Preview" width="50" height="50" />
+                <TextField label="Image Title" value={formData.image_titles[index] || ""} onChange={(e) => {
                   const updatedTitles = [...formData.image_titles];
                   updatedTitles[index] = e.target.value;
                   setFormData({ ...formData, image_titles: updatedTitles });
                 }} fullWidth required />
-                <TextField size="small" label="Image Color" value={formData.image_colors[index] || ""} onChange={(e) => {
+                <TextField label="Image Color" value={formData.image_colors[index] || ""} onChange={(e) => {
                   const updatedColors = [...formData.image_colors];
                   updatedColors[index] = e.target.value;
                   setFormData({ ...formData, image_colors: updatedColors });
                 }} fullWidth required />
-                <IconButton color="error" onClick={() => handleRemoveImage(index)}>
+                <IconButton color="error" onClick={() => handleRemoveImage(index, img.id)}>
                   <CloseIcon />
                 </IconButton>
               </Box>

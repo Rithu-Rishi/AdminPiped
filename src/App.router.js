@@ -9,7 +9,6 @@ import Teacher from "./pages/Teacher";
 import Login from "./pages/Login";
 import Programs from "./pages/Programs";
 import SubPrograms from "./pages/SubProgram";
-import SubProgramFocus from "./pages/SubProgramFocus";
 import ProgramSkill from "./pages/ProgramSkill";
 import SkillProgression from "./pages/SkillProgression";
 import PaymentPlan from "./pages/PaymentPlan";
@@ -32,7 +31,6 @@ const AppRouter = () => {
                     <Route path="/teachers" element={<Teacher />} />
                     <Route path="/programs" element={<Programs />} />
                     <Route path="/subPrograms" element={<SubPrograms />} />
-                    <Route path="/subProgramFocus" element={<SubProgramFocus />} />
                     <Route path="/programSkill" element={<ProgramSkill />} />
                     <Route path="/skillProgression" element={<SkillProgression />} />
                     <Route path="/paymentPlan" element={<PaymentPlan />} />

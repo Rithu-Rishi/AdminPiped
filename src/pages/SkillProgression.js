@@ -27,6 +27,7 @@ const SkillProgression = () => {
   const fetchSkillProgressions = async (page) => {
     try {
       const response = await getAllSkillProgressions(page);
+      console.log("skill progression ", response);
       setProgressions(response || []);
       setTotalPages(response.last_page || 1);
     } catch (err) {
@@ -154,6 +155,7 @@ const SkillProgression = () => {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
+              <TableCell>Program</TableCell>
               <TableCell>Title</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Image</TableCell>
@@ -163,6 +165,7 @@ const SkillProgression = () => {
           <TableBody>
             {progressions.map((row) => (
               <TableRow key={row.id}>
+                <TableCell>{row.program.program_name}</TableCell>
                 <TableCell>{row.title}</TableCell>
                 <TableCell>{row.description}</TableCell>
                 <TableCell>{row.image}</TableCell>
@@ -228,7 +231,7 @@ const SkillProgression = () => {
               <TextField size="small" multiline rows={2} className="mb-3" label="Description" value={formData.description} onChange={(e) => handleChange(0, "description", e.target.value)} fullWidth required />
               <Box className="d-flex" sx={{ gap: 2 }}>
                 <TextField size="small" className="mb-3" label="Title" value={formData.title} onChange={(e) => handleChange(0, "title", e.target.value)} fullWidth required />
-                <input type="file" className="border rounded-2 w-100 p-2" style={{height:'40px'}} accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} />
+                <input type="file" className="border rounded-2 w-100 p-2" style={{ height: '40px' }} accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} />
               </Box>
 
               {formData.imagePreview && <img src={formData.imagePreview} className="mt-2" alt="Preview" width="50" height="50" />}

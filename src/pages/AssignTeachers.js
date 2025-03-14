@@ -9,6 +9,8 @@ import {
   Button, IconButton, Modal, Box, Typography, Select, MenuItem, TablePagination
 } from "@mui/material";
 import { Add as AddIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 
 const AssignTeachers = () => {
@@ -23,6 +25,8 @@ const AssignTeachers = () => {
   const [selectedProgramForDelete, setSelectedProgramForDelete] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   useEffect(() => {
     fetchPrograms();
@@ -43,21 +47,25 @@ const AssignTeachers = () => {
   };
 
   const fetchTeachers = async () => {
+    setLoading(true);
     try {
       const response = await getAllTeachers();
       setTeachers(response.data || []);
     } catch (err) {
       console.error("Failed to fetch teachers.");
     }
+    setLoading(false);
   };
 
   const fetchAssignments = async () => {
+    setLoading(true);
     try {
       const response = await getProgramsWithTeachers();
       setAssignments(response || []);
     } catch (err) {
       console.error("Failed to fetch assigned teachers.");
     }
+    setLoading(false);
   };
 
 
@@ -92,6 +100,7 @@ const AssignTeachers = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    setLoading(true);
     if (!selectedProgram || selectedTeachers.length === 0) {
       alert("Please select a program and at least one teacher.");
       return;
@@ -107,6 +116,7 @@ const AssignTeachers = () => {
     } catch (err) {
       console.error("Failed to assign teachers.");
     }
+    setLoading(false);
   };
 
   const openDeleteModal = (programId, teacherId) => {
@@ -116,6 +126,7 @@ const AssignTeachers = () => {
   };
 
   const handleRemoveTeacher = async () => {
+    setLoading(true);
     if (!selectedProgramForDelete || !selectedTeacher) return;
     try {
       await removeTeacherFromProgram(selectedProgramForDelete, selectedTeacher);
@@ -125,6 +136,7 @@ const AssignTeachers = () => {
     } catch (err) {
       console.error("Failed to remove teacher.");
     }
+    setLoading(false);
   };
 
   return (
@@ -138,43 +150,50 @@ const AssignTeachers = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Program Name</TableCell>
-              <TableCell>Assigned Teachers</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {assignments.map((row) => (
-              <TableRow key={`${row.program_id}-${row.teacher_id}`}>
-                <TableCell>{row.program_name}</TableCell>
-                <TableCell>{row.teacher_name}</TableCell>
-                <TableCell>
-                  <IconButton color="error" size="small" onClick={() => openDeleteModal(row.program_id, row.teacher_id)}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className="custom_pagination"
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={assignments.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(event) => {
-            setRowsPerPage(parseInt(event.target.value, 10));
-            setPage(0);
-          }}
-        />
-      </TableContainer>
+
+      {loading ? <Spinner loading={loading} /> : (
+        assignments.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Program Name</TableCell>
+                  <TableCell>Assigned Teachers</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {assignments.map((row) => (
+                  <TableRow key={`${row.program_id}-${row.teacher_id}`}>
+                    <TableCell>{row.program_name}</TableCell>
+                    <TableCell>{row.teacher_name}</TableCell>
+                    <TableCell>
+                      <IconButton color="error" size="small" onClick={() => openDeleteModal(row.program_id, row.teacher_id)}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={assignments.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setPage(0);
+              }}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -225,6 +244,9 @@ const AssignTeachers = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 }

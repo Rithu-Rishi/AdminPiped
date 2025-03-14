@@ -18,13 +18,14 @@ import FacilityPaymentPlans from "./pages/FacilityPaymentPlan";
 import FacilityUserPayments from "./pages/FacilityUserPayments";
 import FacilitySubscriptions from "./pages/FacilitySubscriptions";
 import UserBookings from "./pages/UserBookings";
+import Transitions from "./pages/Transitions";
 
 const AppRouter = () => {
     return (
         <Layout>
             <Routes>
                 {/* Protected Route */}
-                <Route>
+                <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/perantslist" element={<ParentsList />} />
                     <Route path="/childlist" element={<ChildList />} />
@@ -40,6 +41,7 @@ const AppRouter = () => {
                     <Route path="/facilityUserPayments" element={<FacilityUserPayments />} />
                     <Route path="/facilitySubscriptions" element={<FacilitySubscriptions />} />
                     <Route path="/userBookings" element={<UserBookings />} />
+                    <Route path="/transitions" element={<Transitions />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

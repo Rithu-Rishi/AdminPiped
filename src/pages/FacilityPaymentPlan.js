@@ -6,6 +6,8 @@ import {
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
 import { Link } from "react-router";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const FacilityPaymentPlans = () => {
     const [plans, setPlans] = useState([]);
@@ -20,18 +22,22 @@ const FacilityPaymentPlans = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [loading, setLoading] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
     useEffect(() => {
         fetchFacilityPlans();
     }, [page]);
 
     const fetchFacilityPlans = async () => {
+        setLoading(true);
         try {
             const response = await getAllFacilityPlans();
             setPlans(response || []);
         } catch (err) {
             console.error("Failed to fetch facility payment plans.");
         }
+        setLoading(false);
     };
 
     const openFormModal = (plan = null) => {
@@ -71,6 +77,7 @@ const FacilityPaymentPlans = () => {
     };
 
     const handleSubmit = async () => {
+        setLoading(true);
         try {
             if (editId) {
                 await updateFacilityPlan(editId, formData);
@@ -82,6 +89,7 @@ const FacilityPaymentPlans = () => {
         } catch (err) {
             console.error("Failed to save facility payment plan.");
         }
+        setLoading(false);
     };
 
     const openDeleteModal = (plan) => {
@@ -90,6 +98,7 @@ const FacilityPaymentPlans = () => {
     };
 
     const handleDelete = async () => {
+        setLoading(true);
         if (!selectedPlan) return;
         try {
             await deleteFacilityPlan(selectedPlan.id);
@@ -98,6 +107,7 @@ const FacilityPaymentPlans = () => {
         } catch (err) {
             console.error("Failed to delete facility payment plan.");
         }
+        setLoading(false);
     };
 
     return (
@@ -111,52 +121,58 @@ const FacilityPaymentPlans = () => {
                 </div>
             </div>
 
-            <TableContainer component={Paper} sx={{ mt: 2 }}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Duration (Months)</TableCell>
-                            <TableCell>Amount</TableCell>
-                            <TableCell>Discount (%)</TableCell>
-                            <TableCell>Initial Kit Amount</TableCell>
-                            <TableCell>Final Amount</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {plans.map((plan) => (
-                            <TableRow key={plan.id}>
-                                <TableCell>{plan.duration_months}</TableCell>
-                                <TableCell>{plan.amount}</TableCell>
-                                <TableCell>{plan.discount_percent}</TableCell>
-                                <TableCell>{plan.inital_kit_amount}</TableCell>
-                                <TableCell>{plan.final_amount}</TableCell>
-                                <TableCell>
-                                    <IconButton color="primary" onClick={() => openFormModal(plan)}>
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton color="error" onClick={() => openDeleteModal(plan)}>
-                                        <DeleteOutlineIcon />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    className="custom_pagination"
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={plans.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={(_, newPage) => setPage(newPage)}
-                    onRowsPerPageChange={(event) => {
-                        setRowsPerPage(parseInt(event.target.value, 10));
-                        setPage(0);
-                    }}
-                />
-            </TableContainer>
+            {loading ? <Spinner loading={loading} /> : (
+                plans.length > 0 ? (
+                    <TableContainer component={Paper} sx={{ mt: 2 }}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Duration (Months)</TableCell>
+                                    <TableCell>Amount</TableCell>
+                                    <TableCell>Discount (%)</TableCell>
+                                    <TableCell>Initial Kit Amount</TableCell>
+                                    <TableCell>Final Amount</TableCell>
+                                    <TableCell>Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {plans.map((plan) => (
+                                    <TableRow key={plan.id}>
+                                        <TableCell>{plan.duration_months}</TableCell>
+                                        <TableCell>{plan.amount}</TableCell>
+                                        <TableCell>{plan.discount_percent}</TableCell>
+                                        <TableCell>{plan.inital_kit_amount}</TableCell>
+                                        <TableCell>{plan.final_amount}</TableCell>
+                                        <TableCell>
+                                            <IconButton color="primary" onClick={() => openFormModal(plan)}>
+                                                <EditIcon />
+                                            </IconButton>
+                                            <IconButton color="error" onClick={() => openDeleteModal(plan)}>
+                                                <DeleteOutlineIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <TablePagination
+                            className="custom_pagination"
+                            rowsPerPageOptions={[5, 10, 25]}
+                            component="div"
+                            count={plans.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={(_, newPage) => setPage(newPage)}
+                            onRowsPerPageChange={(event) => {
+                                setRowsPerPage(parseInt(event.target.value, 10));
+                                setPage(0);
+                            }}
+                        />
+                    </TableContainer>
+                ) : (
+                    <Typography variant="body1" align="center">No Data Available</Typography>
+                )
+            )}
 
             {/* Delete Confirmation Modal */}
             <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -206,6 +222,9 @@ const FacilityPaymentPlans = () => {
                     </Box>
                 </Box>
             </Modal>
+
+            {/* Snackbar Alert */}
+            <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
         </>
     );
 };

@@ -7,6 +7,8 @@ import {
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
 import { Link } from "react-router";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const ProgramSkill = () => {
   const [skillLevels, setSkillLevels] = useState([]);
@@ -19,6 +21,8 @@ const ProgramSkill = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   useEffect(() => {
     fetchSkillLevels(page);
@@ -26,6 +30,7 @@ const ProgramSkill = () => {
   }, [page]);
 
   const fetchSkillLevels = async (page) => {
+    setLoading(true);
     try {
       const response = await getAllSkillLevels(page);
       console.log("skill level", response);
@@ -34,6 +39,7 @@ const ProgramSkill = () => {
     } catch (err) {
       console.error("Failed to fetch skill levels.");
     }
+    setLoading(false);
   };
 
   const fetchPrograms = async () => {
@@ -68,8 +74,10 @@ const ProgramSkill = () => {
 
   // Handle Delete
   const handleDelete = async () => {
+    setLoading(true);
     await deleteSkillLevel(selectedRow.id);
     setDeleteModalOpen(false);
+    setLoading(false);
     fetchSkillLevels(page);
   };
 
@@ -83,6 +91,7 @@ const ProgramSkill = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       if (editId) {
         await updateSkillLevels(editId, formData.skills[0]);
@@ -98,6 +107,7 @@ const ProgramSkill = () => {
     } catch (err) {
       console.error("Failed to save skill levels.");
     }
+    setLoading(false);
   };
 
   // Add a Row
@@ -123,50 +133,57 @@ const ProgramSkill = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Program</TableCell>
-              <TableCell>Skill Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Period</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>Discount</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {skillLevels.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.program.program_name}</TableCell>
-                <TableCell>{row.skill_name}</TableCell>
-                <TableCell>{row.skill_description}</TableCell>
-                <TableCell>{row.skill_period}</TableCell>
-                <TableCell>{row.skill_amount}</TableCell>
-                <TableCell>{row.skill_discount}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className="custom_pagination"
-          component="div"
-          count={totalPages * rowsPerPage}
-          page={page - 1}
-          onPageChange={(event, newPage) => setPage(newPage + 1)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-        />
-      </TableContainer>
+
+      {loading ? <Spinner loading={loading} /> : (
+        skillLevels.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Program</TableCell>
+                  <TableCell>Skill Name</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Period</TableCell>
+                  <TableCell>Amount</TableCell>
+                  <TableCell>Discount</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {skillLevels.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.program.program_name}</TableCell>
+                    <TableCell>{row.skill_name}</TableCell>
+                    <TableCell>{row.skill_description}</TableCell>
+                    <TableCell>{row.skill_period}</TableCell>
+                    <TableCell>{row.skill_amount}</TableCell>
+                    <TableCell>{row.skill_discount}</TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              component="div"
+              count={totalPages * rowsPerPage}
+              page={page - 1}
+              onPageChange={(event, newPage) => setPage(newPage + 1)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -210,7 +227,7 @@ const ProgramSkill = () => {
                 </Box>
                 <TextField size="small" label="Description" multiline rows={2} value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required />
                 <div className="text-end">
-                  {!editId && (<Link  color="error" className="text-danger rounded-5" onClick={() => handleRemoveRow(index)}>
+                  {!editId && (<Link color="error" className="text-danger rounded-5" onClick={() => handleRemoveRow(index)}>
                     <CloseIcon />
                   </Link>
                   )}
@@ -227,9 +244,11 @@ const ProgramSkill = () => {
               {editId ? 'Update' : 'Create'}
             </Button>
           </Box>
-
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 }

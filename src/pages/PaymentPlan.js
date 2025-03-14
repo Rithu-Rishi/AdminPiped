@@ -6,6 +6,8 @@ import {
     Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const PaymentPlan = () => {
     const [plans, setPlans] = useState([]);
@@ -18,6 +20,8 @@ const PaymentPlan = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [loading, setLoading] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
     useEffect(() => {
         fetchPaymentPlans(page);
@@ -25,6 +29,7 @@ const PaymentPlan = () => {
     }, [page]);
 
     const fetchPaymentPlans = async (page) => {
+        setLoading(true);
         try {
             const response = await getAllPaymentPlans(page);
             console.log("payment plan ", response);
@@ -33,6 +38,7 @@ const PaymentPlan = () => {
         } catch (err) {
             console.error("Failed to fetch payment plans.");
         }
+        setLoading(false);
     };
 
     const fetchPrograms = async () => {
@@ -62,6 +68,7 @@ const PaymentPlan = () => {
 
 
     const handleSubmit = async () => {
+        setLoading(true);
         try {
             if (editId) {
                 await updatePaymentPlan(editId, formData.plans[0]);
@@ -74,6 +81,7 @@ const PaymentPlan = () => {
         } catch (err) {
             console.error("Failed to save payment plan.");
         }
+        setLoading(false);
     };
 
     const openFormModal = (row = null) => {
@@ -88,6 +96,7 @@ const PaymentPlan = () => {
     };
 
     const handleDelete = async () => {
+        setLoading(true);
         try {
             await deletePaymentPlan(selectedRow.id);
             fetchPaymentPlans(page);
@@ -95,6 +104,7 @@ const PaymentPlan = () => {
         } catch (err) {
             console.error("Failed to delete payment plan.");
         }
+        setLoading(false);
     };
 
     const addRow = () => {
@@ -122,48 +132,55 @@ const PaymentPlan = () => {
                     </Button>
                 </div>
             </div>
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Program Name</TableCell>
-                            <TableCell>Duration (Months)</TableCell>
-                            <TableCell>Amount</TableCell>
-                            <TableCell>Discount (%)</TableCell>
-                            <TableCell>Final Amount</TableCell>
-                            <TableCell width={100} align="center">Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {plans.map((row, index) => (
-                            < TableRow key={row.id} >
-                                <TableCell>{row.program.program_name}</TableCell>
-                                <TableCell>{row.duration_months}</TableCell>
-                                <TableCell>{row.amount}</TableCell>
-                                <TableCell>{row.discount_percent}</TableCell>
-                                <TableCell>{row.final_amount}</TableCell>
-                                <TableCell align="center">
-                                    <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
-                                        <DeleteOutlineIcon />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    className="custom_pagination"
-                    component="div"
-                    count={totalPages * rowsPerPage}
-                    page={page - 1}
-                    onPageChange={(event, newPage) => setPage(newPage + 1)}
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-                />
-            </TableContainer >
+
+            {loading ? <Spinner loading={loading} /> : (
+                plans.length > 0 ? (
+                    <TableContainer component={Paper}>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Program Name</TableCell>
+                                    <TableCell>Duration (Months)</TableCell>
+                                    <TableCell>Amount</TableCell>
+                                    <TableCell>Discount (%)</TableCell>
+                                    <TableCell>Final Amount</TableCell>
+                                    <TableCell width={100} align="center">Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {plans.map((row, index) => (
+                                    < TableRow key={row.id} >
+                                        <TableCell>{row.program.program_name}</TableCell>
+                                        <TableCell>{row.duration_months}</TableCell>
+                                        <TableCell>{row.amount}</TableCell>
+                                        <TableCell>{row.discount_percent}</TableCell>
+                                        <TableCell>{row.final_amount}</TableCell>
+                                        <TableCell align="center">
+                                            <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                                                <EditIcon />
+                                            </IconButton>
+                                            <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
+                                                <DeleteOutlineIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <TablePagination
+                            className="custom_pagination"
+                            component="div"
+                            count={totalPages * rowsPerPage}
+                            page={page - 1}
+                            onPageChange={(event, newPage) => setPage(newPage + 1)}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+                        />
+                    </TableContainer>
+                ) : (
+                    <Typography variant="body1" align="center">No Data Available</Typography>
+                )
+            )}
 
             {/* Delete Confirmation Modal */}
             < Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -214,7 +231,10 @@ const PaymentPlan = () => {
                         </Button>
                     </Box>
                 </Box>
-            </Modal >
+            </Modal>
+
+            {/* Snackbar Alert */}
+            <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
         </>
     );
 };

@@ -10,3 +10,15 @@ export const getUserBookings = async () => {
         throw error;
     }
 };
+
+// Fetch all Program Transitions
+
+export const getProgramTransactions = async () => {
+    try {
+        const response = await API.get("/api/program-transactions");
+        return response.data;
+    } catch (error) {
+        console.error("error fetching user bookings", error);
+        throw error;
+    }
+};

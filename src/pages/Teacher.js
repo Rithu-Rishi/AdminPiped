@@ -4,9 +4,13 @@ import {
   Button, IconButton, Modal, Box, Typography, TextField,
   TablePagination
 } from "@mui/material";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { IMAGE_BASE_URL } from "../config/constants";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
 import { getAllTeachers, addTeacher, updateTeacher, deleteTeacher } from "../services/teachersApi";
-
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
@@ -23,6 +27,8 @@ const Teacher = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   // Fetch teachers on component mount
   useEffect(() => {
@@ -30,6 +36,7 @@ const Teacher = () => {
   }, [page]);
 
   const fetchTeachers = async (page) => {
+    setLoading(true);
     try {
       const response = await getAllTeachers(page);
       setTeachers(response.data || []);
@@ -37,6 +44,7 @@ const Teacher = () => {
     } catch (err) {
       setError("Failed to fetch teachers.");
     }
+    setLoading(false);
   };
 
   const openFormModal = (teacher = null) => {
@@ -57,8 +65,10 @@ const Teacher = () => {
 
   // Handle Delete
   const handleDelete = async () => {
+    setLoading(true);
     await deleteTeacher(selectedRow.id);
     setDeleteModalOpen(false);
+    setLoading(false);
     fetchTeachers();
   };
 
@@ -88,6 +98,7 @@ const Teacher = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       if (editId) {
         await updateTeacher(editId, formData);
@@ -99,6 +110,7 @@ const Teacher = () => {
     } catch (err) {
       setError("Failed to save teacher.");
     }
+    setLoading(false);
   };
 
   // Handle Pagination
@@ -117,50 +129,57 @@ const Teacher = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Photo</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Mobile</TableCell>
-              <TableCell>DOB</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Array.isArray(teachers) && teachers.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>
-                  {row.teacher_image && <img src={`https://pipe.mosol9.in/${row.teacher_image}`} alt={row.name} width="50" height="50" />}
-                </TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.email}</TableCell>
-                <TableCell>{row.mobile_number}</TableCell>
-                <TableCell>{row.date_of_birth}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className="custom_pagination"
-          component="div"
-          count={totalPages * rowsPerPage}
-          page={page - 1}
-          onPageChange={handlePageChange}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={() => { }}
-        />
-      </TableContainer>
+
+      {loading ? <Spinner loading={loading} /> : (
+        teachers.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Photo</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Mobile</TableCell>
+                  <TableCell>DOB</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Array.isArray(teachers) && teachers.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>
+                      {row.teacher_image && <img src={`${IMAGE_BASE_URL}${row.teacher_image}`} alt={row.name} width="50" height="50" />}
+                    </TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.email}</TableCell>
+                    <TableCell>{row.mobile_number}</TableCell>
+                    <TableCell>{row.date_of_birth}</TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              component="div"
+              count={totalPages * rowsPerPage}
+              page={page - 1}
+              onPageChange={handlePageChange}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={() => { }}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -196,7 +215,14 @@ const Teacher = () => {
 
             <Box className='d-flex' sx={{ gap: 2 }}>
               <TextField size='small' label="Mobile Number" name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth required />
-              <TextField size='small' label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth required />
+              {/* <TextField size='small' label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth required /> */}
+              <DatePicker
+                selected={formData.date_of_birth}
+                onChange={(date) => setFormData({ ...formData, date_of_birth: date ? date.toISOString().split("T")[0] : "" })}
+                dateFormat="dd MMM, yyyy"
+                className="form-control" fullWidth required
+                placeholderText="Date of Birth"
+              />
             </Box>
             <TextField size='small' label="Designation" name="designation" value={formData.designation} onChange={handleChange} fullWidth required />
             <TextField size='small' label="Bio" name="bio" multiline rows={2} value={formData.bio} onChange={handleChange} fullWidth required />
@@ -214,6 +240,9 @@ const Teacher = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 };

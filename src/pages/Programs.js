@@ -4,28 +4,35 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
+import { IMAGE_BASE_URL } from "../config/constants";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const Programs = () => {
   const [programs, setPrograms] = useState([]);
   const [formData, setFormData] = useState({
-    program_name: "", program_desc: "", program_image: null,
+    program_name: "", program_desc: "", program_image: null, program_banner: null,
     age_group: "", monthly_fee: "", discount_percent: "", final_amount: ""
   });
   const [editId, setEditId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [previewBanner, setPreviewBanner] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   useEffect(() => {
     fetchPrograms(page);
   }, [page]);
 
   const fetchPrograms = async (page) => {
+    setLoading(true);
     try {
       const response = await getAllPrograms(page);
       console.log(response);
@@ -34,6 +41,7 @@ const Programs = () => {
     } catch (err) {
       console.error("Failed to fetch programs.");
     }
+    setLoading(false);
   };
 
   // Handle Input Change in Form
@@ -51,6 +59,7 @@ const Programs = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       if (editId) {
         await updateProgram(editId, formData);
@@ -62,6 +71,7 @@ const Programs = () => {
     } catch (err) {
       console.error("Failed to save program.");
     }
+    setLoading(false);
   };
 
   const openFormModal = (program = null) => {
@@ -81,21 +91,32 @@ const Programs = () => {
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     await deleteProgram(selectedRow.id);
     setDeleteModalOpen(false);
+    setLoading(false);
     fetchPrograms(page);
   };
 
   // Handle Image Upload
-  const handleImageChange = (e) => {
+  const handleImageChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, program_image: file });
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      if (type === "image") {
+        setFormData({ ...formData, program_image: file });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else if (type === "banner") {
+        setFormData({ ...formData, program_banner: file });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewBanner(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -110,52 +131,60 @@ const Programs = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper} className="scoll_dev">
-        <Table sx={{}} stickyHeader aria-label="customized sticky table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Program Name</TableCell>
-              <TableCell>Image</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell width={100}>Age</TableCell>
-              <TableCell>Fees</TableCell>
-              <TableCell>Discount</TableCell>
-              <TableCell>Final Amount</TableCell>
-              <TableCell width={100} align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {programs.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.program_name}</TableCell>
-                <TableCell>{row.program_image && <img src={`https://pipe.mosol9.in/${row.program_image}`} alt={row.program_name} width="50" height="50" />}</TableCell>
-                <TableCell>{row.program_desc}</TableCell>
-                <TableCell>{row.age_group} Yrs</TableCell>
-                <TableCell>{row.monthly_fee}</TableCell>
-                <TableCell>{row.discount_percent}</TableCell>
-                <TableCell>{row.final_amount}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        className="custom_pagination"
-        component="div"
-        count={totalPages * rowsPerPage}
-        page={page - 1}
-        onPageChange={(event, newPage) => setPage(newPage + 1)}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-      />
+
+      {loading ? <Spinner loading={loading} /> : (
+        programs.length > 0 ? (
+          <TableContainer component={Paper} className="scoll_dev">
+            <Table sx={{}} stickyHeader aria-label="customized sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Program Name</TableCell>
+                  <TableCell>Image</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell width={100}>Age</TableCell>
+                  <TableCell>Fees</TableCell>
+                  <TableCell>Discount</TableCell>
+                  <TableCell>Final Amount</TableCell>
+                  <TableCell width={100} align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {programs.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.program_name}</TableCell>
+                    <TableCell>{row.program_image && <img src={`${IMAGE_BASE_URL}${row.program_image}`} alt={row.program_name} width="50" height="50" />}</TableCell>
+                    <TableCell>{row.program_desc}</TableCell>
+                    <TableCell>{row.age_group} Yrs</TableCell>
+                    <TableCell>{row.monthly_fee}</TableCell>
+                    <TableCell>{row.discount_percent}</TableCell>
+                    <TableCell>{row.final_amount}</TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              component="div"
+              count={totalPages * rowsPerPage}
+              page={page - 1}
+              onPageChange={(event, newPage) => setPage(newPage + 1)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
+
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -193,8 +222,10 @@ const Programs = () => {
               <TextField size='small' label="Discount" name="discount_percent" value={formData.discount_percent} onChange={handleChange} fullWidth />
             </Box>
             <TextField size='small' multiline rows={2} label="Programs Description" name="program_desc" value={formData.program_desc} onChange={handleChange} fullWidth />
-            <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
+            <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "image")} />
             {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
+            <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "banner")} />
+            {previewBanner && <img src={previewBanner} alt="Preview" width="100" height="100" />}
           </Box>
           <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
@@ -204,6 +235,9 @@ const Programs = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 }

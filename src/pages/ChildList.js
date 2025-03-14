@@ -5,7 +5,12 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { IMAGE_BASE_URL } from "../config/constants";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const ChildList = () => {
   const [children, setChildren] = useState([]);
@@ -24,6 +29,8 @@ const ChildList = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   useEffect(() => {
     fetchChildren();
@@ -31,12 +38,14 @@ const ChildList = () => {
   }, [page]);
 
   const fetchChildren = async () => {
+    setLoading(true);
     try {
       const response = await getAllChildren();
       setChildren(response.data || []);
     } catch (err) {
       console.error("Failed to fetch children.");
     }
+    setLoading(false);
   };
 
   const fetchParents = async () => {
@@ -60,7 +69,7 @@ const ChildList = () => {
         parent_id: child.parent_id ? String(child.parent_id) : "", // Ensure it's a string for Select
         child_name: child.child_name || "",
         gender: child.gender ? String(child.gender) : "", // Ensure it's a string for Select
-        date_of_birth: child.date_of_birth || "",
+        date_of_birth: child.date_of_birth ? new Date(child.date_of_birth) : null,
         profile_image: null
       });
       setPreviewImage(child.profile_image);
@@ -75,6 +84,7 @@ const ChildList = () => {
 
   // Handle Delete
   const handleDelete = async () => {
+    setLoading(true);
     if (!selectedChild) return;
     try {
       await deleteChild(selectedChild.id);
@@ -83,6 +93,7 @@ const ChildList = () => {
     } catch (err) {
       console.error("Failed to delete child.");
     }
+    setLoading(false);
   };
 
   // Handle Input Change in Form
@@ -98,6 +109,7 @@ const ChildList = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       if (editId) {
         await updateChild(editId, formData);
@@ -109,6 +121,7 @@ const ChildList = () => {
     } catch (err) {
       console.error("Failed to save child.");
     }
+    setLoading(false);
   };
 
   return (
@@ -122,54 +135,61 @@ const ChildList = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              {/* <TableCell>Parent</TableCell> */}
-              <TableCell>Child Name</TableCell>
-              <TableCell>Gender</TableCell>
-              <TableCell>Date of Birth</TableCell>
-              <TableCell>Profile Image</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {children.map((row) => (
-              <TableRow key={row.id}>
-                {/* <TableCell>{row.child_name}</TableCell> */}
-                <TableCell>{row.child_name}</TableCell>
-                <TableCell>{row.gender}</TableCell>
-                <TableCell>{row.date_of_birth}</TableCell>
-                <TableCell>
-                  {row.profile_image && <img src={row.profile_image} alt="Profile" width="50" height="50" />}
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className="custom_pagination"
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={children.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(event) => {
-            setRowsPerPage(parseInt(event.target.value, 10));
-            setPage(0);
-          }}
-        />
-      </TableContainer>
+
+      {loading ? <Spinner loading={loading} /> : (
+        children.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  {/* <TableCell>Parent</TableCell> */}
+                  <TableCell>Child Name</TableCell>
+                  <TableCell>Gender</TableCell>
+                  <TableCell>Date of Birth</TableCell>
+                  <TableCell>Profile Image</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {children.map((row) => (
+                  <TableRow key={row.id}>
+                    {/* <TableCell>{row.child_name}</TableCell> */}
+                    <TableCell>{row.child_name}</TableCell>
+                    <TableCell>{row.gender}</TableCell>
+                    <TableCell>{row.date_of_birth}</TableCell>
+                    <TableCell>
+                      {row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" width="50" height="50" />}
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={children.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setPage(0);
+              }}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -200,6 +220,7 @@ const ChildList = () => {
                 ))}
               </Select>
               <TextField size="small" label="Child Name" name="child_name" value={formData.child_name} onChange={handleChange} fullWidth />
+
             </Box>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Select size="small" fullWidth name="gender" value={formData.gender} onChange={handleChange}>
@@ -207,7 +228,14 @@ const ChildList = () => {
                 <MenuItem value="Female">Female</MenuItem>
                 <MenuItem value="Other">Other</MenuItem>
               </Select>
-              <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth />
+              {/* <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth /> */}
+              <DatePicker
+                selected={formData.date_of_birth}
+                onChange={(date) => setFormData({ ...formData, date_of_birth: date ? date.toISOString().split("T")[0] : "" })}
+                dateFormat="dd MMM, yyyy"
+                className="form-control"
+                placeholderText="Select Date of Birth"
+              />
             </Box>
             <input type="file" className="border p-2 rounded-2 w-100" accept="image/*" onChange={handleFileChange} />
             {previewImage && <img src={previewImage} alt="Profile Preview" width="100" height="100" style={{ marginTop: 10 }} />}
@@ -220,6 +248,9 @@ const ChildList = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 }

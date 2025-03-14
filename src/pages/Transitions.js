@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { getFacilityUserSubscriptions } from "../services/facilityApi";
+import { getProgramTransactions } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     TablePagination, Typography
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
 
-const FacilitySubscriptions = () => {
-    const [subscriptions, setSubscriptions] = useState([]);
+const Transitions = () => {
+    const [transactions, setTransitions] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        fetchSubscriptions();
+        fetchTransitions();
     }, [page]);
 
-    const fetchSubscriptions = async () => {
+    const fetchTransitions = async () => {
         setLoading(true);
         try {
-            const response = await getFacilityUserSubscriptions();
-            setSubscriptions(response || []);
+            const response = await getProgramTransactions();
+            console.log("data ", response);
+            setTransitions(response.transactions || []);
         } catch (err) {
-            console.error("Failed to fetch facility subscriptions.");
+            console.error("Failed to fetch transactions");
         }
         setLoading(false);
     };
@@ -38,31 +39,29 @@ const FacilitySubscriptions = () => {
 
     return (
         <>
-            <h5>Facility Subscriptions</h5>
+            <h5>Program Transactions</h5>
 
             {loading ? <Spinner loading={loading} /> : (
-                subscriptions.length > 0 ? (
+                transactions.length > 0 ? (
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Parent</TableCell>
-                                    <TableCell>Mobile Number</TableCell>
-                                    <TableCell>Child Name</TableCell>
-                                    <TableCell>Start Date</TableCell>
-                                    <TableCell>End Date</TableCell>
-                                    <TableCell>Status</TableCell>
+                                    <TableCell>Ampunt Paid</TableCell>
+                                    <TableCell>Transaction ID</TableCell>
+                                    <TableCell>Payment Status</TableCell>
+                                    <TableCell>Date</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {subscriptions.map((subscription) => (
-                                    <TableRow key={subscription.id}>
-                                        <TableCell>{subscription.parent?.name || "N/A"}</TableCell>
-                                        <TableCell>{subscription.parent?.mobile_number || "N/A"}</TableCell>
-                                        <TableCell>{subscription.child?.child_name || "N/A"}</TableCell>
-                                        <TableCell>{subscription.start_date || "N/A"}</TableCell>
-                                        <TableCell>{subscription.end_date || "N/A"}</TableCell>
-                                        <TableCell>{subscription.status || "N/A"}</TableCell>
+                                {transactions.map((transaction) => (
+                                    <TableRow key={transaction.id}>
+                                        <TableCell>{transaction.parent?.name || "N/A"}</TableCell>
+                                        <TableCell>{transaction.amount_paid || "N/A"}</TableCell>
+                                        <TableCell>{transaction.transaction_id || "N/A"}</TableCell>
+                                        <TableCell>{transaction.payment_status || "N/A"}</TableCell>
+                                        <TableCell>{transaction.created_at || "N/A"}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -71,7 +70,7 @@ const FacilitySubscriptions = () => {
                             className="custom_pagination"
                             rowsPerPageOptions={[5, 10, 25]}
                             component="div"
-                            count={subscriptions.length}
+                            count={transactions.length}
                             rowsPerPage={rowsPerPage}
                             page={page}
                             onPageChange={handleChangePage}
@@ -86,4 +85,4 @@ const FacilitySubscriptions = () => {
     );
 };
 
-export default FacilitySubscriptions;
+export default Transitions;

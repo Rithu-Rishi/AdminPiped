@@ -6,6 +6,8 @@ import {
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const SubPrograms = () => {
   const [subPrograms, setSubPrograms] = useState([]);
@@ -20,6 +22,8 @@ const SubPrograms = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   useEffect(() => {
     fetchSubPrograms(page);
@@ -27,6 +31,7 @@ const SubPrograms = () => {
   }, [page]);
 
   const fetchSubPrograms = async (page) => {
+    setLoading(true);
     try {
       const response = await getAllSubPrograms(page);
       console.log(response);
@@ -35,6 +40,7 @@ const SubPrograms = () => {
     } catch (err) {
       console.error("Failed to fetch sub-programs.");
     }
+    setLoading(false);
   };
 
   const fetchPrograms = async () => {
@@ -48,9 +54,11 @@ const SubPrograms = () => {
 
   // Handle Delete
   const handleDelete = async () => {
+    setLoading(true);
     await deleteSubProgram(selectedRow.id);
     setDeleteModalOpen(false);
     fetchSubPrograms(page);
+    setLoading(false);
   };
 
   // Handle Input Change in Form
@@ -71,30 +79,63 @@ const SubPrograms = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       if (editId) {
-        await updateSubProgram(editId, formData);
+        let payload = new FormData();
+
+        payload.append("program_id", formData.program_id);
+        payload.append("sub_title", formData.sub_title);
+        payload.append("keywords", formData.keywords);
+
+        // Filter and send only NEWLY uploaded images
+        formData.images.forEach((img, index) => {
+          if (img instanceof File) {
+            // Only send new image files
+            payload.append("images[]", img);
+            payload.append("image_titles[]", formData.image_titles[index]);
+            payload.append("image_colors[]", formData.image_colors[index]);
+          }
+        });
+        
+        if (formData.deleted_images.length > 0) {
+          formData.deleted_images.forEach((imageId) => {
+            formData.append("deleted_images", imageId);
+          });
+        } else {
+          // If no new images but deletions exist, send an empty array
+          formData.append("deleted_images", "");
+        }
+
+        await updateSubProgram(editId, payload);
+        setAlertMessage({ open: true, type: "success", message: "Sub Program updated successfully!" });
       } else {
         await addSubProgram(formData);
+        setAlertMessage({ open: true, type: "success", message: "Sub Program created successfully!" });
       }
       setFormModalOpen(false);
       fetchSubPrograms(page);
     } catch (err) {
       console.error("Failed to save sub-program.");
+      setAlertMessage({ open: true, type: "error", message: "Failed to save sub-program." });
     }
+    setLoading(false);
   };
 
   const openFormModal = (subProgram = null) => {
     if (subProgram) {
+      console.log(subProgram);
+      console.log(subProgram.images);
       setFormData({
         program_id: subProgram.program_id,
         sub_title: subProgram.sub_title,
         keywords: subProgram.keywords,
-        images: subProgram.images.map(img => img.path) || [],
+        images: subProgram.images || [],
         image_titles: subProgram.images ? subProgram.images.map(img => img.title || "") : [],
         image_colors: subProgram.images ? subProgram.images.map(img => img.color_code || "") : [],
         deleted_images: []
       });
+      console.log(formData.images);
       setEditId(subProgram.id);
     } else {
       setFormData({ program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [], deleted_images: [] });
@@ -108,12 +149,21 @@ const SubPrograms = () => {
       const updatedImages = [...prevData.images];
       const updatedTitles = [...prevData.image_titles];
       const updatedColors = [...prevData.image_colors];
+      // const imageToDelete = updatedImages[index];
       updatedImages.splice(index, 1);
       updatedTitles.splice(index, 1);
       updatedColors.splice(index, 1);
       const updatedDeletedImages = imageId ? [...prevData.deleted_images, imageId] : prevData.deleted_images;
       return { ...prevData, images: updatedImages, image_titles: updatedTitles, image_colors: updatedColors, deleted_images: updatedDeletedImages };
     });
+  };
+
+  const handleNewImageUpload = (event) => {
+    const files = Array.from(event.target.files);
+    setFormData((prevData) => ({
+      ...prevData,
+      images: [...prevData.images, ...files]
+    }));
   };
 
   return (
@@ -127,44 +177,52 @@ const SubPrograms = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Program</TableCell>
-              <TableCell>Sub Program Title</TableCell>
-              <TableCell>Keywords</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {subPrograms.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.program.program_name}</TableCell>
-                <TableCell>{row.sub_title}</TableCell>
-                <TableCell>{row.keywords}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className="custom_pagination"
-          component="div"
-          count={totalPages * rowsPerPage}
-          page={page - 1}
-          onPageChange={(event, newPage) => setPage(newPage + 1)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-        />
-      </TableContainer>
+
+      {/* Show Spinner while loading */}
+      {loading ? <Spinner loading={loading} /> : (
+        subPrograms.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Program</TableCell>
+                  <TableCell>Sub Program Title</TableCell>
+                  <TableCell>Keywords</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {subPrograms.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.program.program_name}</TableCell>
+                    <TableCell>{row.sub_title}</TableCell>
+                    <TableCell>{row.keywords}</TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              component="div"
+              count={totalPages * rowsPerPage}
+              page={page - 1}
+              onPageChange={(event, newPage) => setPage(newPage + 1)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -185,27 +243,6 @@ const SubPrograms = () => {
       </Modal>
 
       {/* Add/Edit Child Modal */}
-      {/* <Modal open={formModalOpen} onClose={closeFormModal}>
-        <Box sx={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
-          boxShadow: 12, p: 3, borderRadius: 2
-        }}>
-          <Typography variant="h6" gutterBottom>{selectedRow ? 'Edit Sub Program' : 'Create Sub Program'}</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <TextField label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth />
-            <TextField label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth />
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={closeFormModal} sx={{ mr: 1 }}>Cancel</Button>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              {selectedRow ? 'Update' : 'Create'}
-            </Button>
-          </Box>
-        </Box>
-      </Modal> */}
-
-      {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper', boxShadow: 12, p: 3, borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>{editId ? 'Edit Sub Program' : 'Create Sub Program'}</Typography>
@@ -217,16 +254,16 @@ const SubPrograms = () => {
             </Select>
             <TextField size="small" className="mt-3" label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth required />
             <TextField size="small" className="mt-3" label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
-            <input type="file" className="mt-3 rounded-2 border w-100 p-2" multiple accept="image/*" onChange={(e) => setFormData({ ...formData, images: [...formData.images, ...Array.from(e.target.files)] })} />
+            <input type="file" className="mt-3 rounded-2 border w-100 p-2 mb-2" multiple accept="image/*" onChange={handleNewImageUpload} />
             {formData.images.map((img, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: '16px' }}>
-                <img src={typeof img === 'string' ? `http://localhost:8000/${img}` : URL.createObjectURL(img)} alt="Preview" width="50" height="50" />
-                <TextField label="Image Title" value={formData.image_titles[index] || ""} onChange={(e) => {
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
+                <img src={typeof img.path === 'string' ? `http://localhost:8000/${img.path}` : URL.createObjectURL(img)} alt="Preview" width="50" height="50" />
+                <TextField label="Image Title" size="small" value={formData.image_titles[index] || ""} onChange={(e) => {
                   const updatedTitles = [...formData.image_titles];
                   updatedTitles[index] = e.target.value;
                   setFormData({ ...formData, image_titles: updatedTitles });
                 }} fullWidth required />
-                <TextField label="Image Color" value={formData.image_colors[index] || ""} onChange={(e) => {
+                <TextField label="Image Color" type="color" size="small" value={formData.image_colors[index] || ""} onChange={(e) => {
                   const updatedColors = [...formData.image_colors];
                   updatedColors[index] = e.target.value;
                   setFormData({ ...formData, image_colors: updatedColors });
@@ -242,6 +279,9 @@ const SubPrograms = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 }

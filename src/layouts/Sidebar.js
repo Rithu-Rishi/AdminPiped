@@ -180,7 +180,7 @@ const Sidebar = () => {
             <ListItemText className='text_items' primary="Teachers Feedback" />
           </ListItemButton>
         </Link>
-        <Link to='/'>
+        <Link to='/transitions'>
           <ListItemButton className='single_item'>
             <ListItemIcon className='icon_items'>
               <AccountBalanceWalletOutlinedIcon />

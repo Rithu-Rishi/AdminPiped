@@ -5,7 +5,10 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
+import { IMAGE_BASE_URL } from "../config/constants";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const SkillProgression = () => {
   const [progressions, setProgressions] = useState([]);
@@ -18,6 +21,8 @@ const SkillProgression = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   useEffect(() => {
     fetchSkillProgressions(page);
@@ -25,6 +30,7 @@ const SkillProgression = () => {
   }, [page]);
 
   const fetchSkillProgressions = async (page) => {
+    setLoading(true);
     try {
       const response = await getAllSkillProgressions(page);
       console.log("skill progression ", response);
@@ -33,6 +39,7 @@ const SkillProgression = () => {
     } catch (err) {
       console.error("Failed to fetch skill progressions.");
     }
+    setLoading(false);
   };
 
   const fetchPrograms = async () => {
@@ -64,8 +71,10 @@ const SkillProgression = () => {
 
   // Handle Delete
   const handleDelete = async () => {
+    setLoading(true);
     await deleteSkillProgression(selectedRow.id);
     setDeleteModalOpen(false);
+    setLoading(false);
     fetchSkillProgressions(page);
   };
 
@@ -108,6 +117,7 @@ const SkillProgression = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    setLoading(true);
     console.log("before submit", formData);
     try {
       if (editId) {
@@ -120,6 +130,7 @@ const SkillProgression = () => {
     } catch (err) {
       console.error("Failed to save skill progression.");
     }
+    setLoading(false);
   };
 
   const addRow = () => {
@@ -153,46 +164,53 @@ const SkillProgression = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Program</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Image</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {progressions.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.program.program_name}</TableCell>
-                <TableCell>{row.title}</TableCell>
-                <TableCell>{row.description}</TableCell>
-                <TableCell>{row.image}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className="custom_pagination"
-          component="div"
-          count={totalPages * rowsPerPage}
-          page={page - 1}
-          onPageChange={(event, newPage) => setPage(newPage + 1)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-        />
-      </TableContainer>
+
+      {loading ? <Spinner loading={loading} /> : (
+        progressions.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Program</TableCell>
+                  <TableCell>Title</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Image</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {progressions.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.program.program_name}</TableCell>
+                    <TableCell>{row.title}</TableCell>
+                    <TableCell>{row.description}</TableCell>
+                    <TableCell>{row.image && <img src={`${IMAGE_BASE_URL}${row.image}`} alt={row.program_name} width="50" height="50" />}</TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              component="div"
+              count={totalPages * rowsPerPage}
+              page={page - 1}
+              onPageChange={(event, newPage) => setPage(newPage + 1)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -262,6 +280,9 @@ const SkillProgression = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 }

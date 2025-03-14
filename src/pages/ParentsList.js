@@ -4,7 +4,10 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
+import { IMAGE_BASE_URL } from "../config/constants";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const ParentsList = () => {
   const [parents, setParents] = useState([]);
@@ -22,18 +25,22 @@ const ParentsList = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   useEffect(() => {
     fetchParents();
   }, [page]);
 
   const fetchParents = async () => {
+    setLoading(true);
     try {
       const response = await getAllParents();
       setParents(response.data || []);
     } catch (err) {
       console.error("Failed to fetch parents.");
     }
+    setLoading(false);
   };
 
   const openFormModal = (parent = null) => {
@@ -69,6 +76,7 @@ const ParentsList = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       if (editId) {
         await updateParent(editId, formData);
@@ -80,6 +88,7 @@ const ParentsList = () => {
     } catch (err) {
       console.error("Failed to save parent.");
     }
+    setLoading(false);
   };
 
   const openDeleteModal = (parent) => {
@@ -88,6 +97,7 @@ const ParentsList = () => {
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     if (!selectedParent) return;
     try {
       await deleteParent(selectedParent.id);
@@ -96,6 +106,7 @@ const ParentsList = () => {
     } catch (err) {
       console.error("Failed to delete parent.");
     }
+    setLoading(false);
   };
 
   return (
@@ -109,54 +120,61 @@ const ParentsList = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Mobile</TableCell>
-              <TableCell>DOB</TableCell>
-              <TableCell>Profile Image</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {parents.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.email}</TableCell>
-                <TableCell>{row.mobile_number}</TableCell>
-                <TableCell>{row.date_of_birth}</TableCell>
-                <TableCell>
-                  {row.profile_image && <img src={row.profile_image} alt="Profile" width="50" height="50" />}
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className="custom_pagination"
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={parents.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(event) => {
-            setRowsPerPage(parseInt(event.target.value, 10));
-            setPage(0);
-          }}
-        />
-      </TableContainer>
+
+      {loading ? <Spinner loading={loading} /> : (
+        parents.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Mobile</TableCell>
+                  <TableCell>DOB</TableCell>
+                  <TableCell>Profile Image</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {parents.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.email}</TableCell>
+                    <TableCell>{row.mobile_number}</TableCell>
+                    <TableCell>{row.date_of_birth}</TableCell>
+                    <TableCell>
+                      {row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" width="50" height="50" />}
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={parents.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setPage(0);
+              }}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -198,6 +216,9 @@ const ParentsList = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 }

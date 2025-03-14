@@ -7,6 +7,8 @@ import {
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, ToggleButton, ToggleButtonGroup
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
+import AlertMessage from "../includes/AlertMessage";
 
 const weekDaysList = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -27,6 +29,8 @@ const TimeSlots = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
   useEffect(() => {
     fetchTimeSlots();
@@ -34,6 +38,7 @@ const TimeSlots = () => {
   }, [page]);
 
   const fetchTimeSlots = async () => {
+    setLoading(true);
     try {
       const response = await getAllTimeSlots();
       console.log("time slots ", response);
@@ -46,6 +51,7 @@ const TimeSlots = () => {
     } catch (err) {
       console.error("Failed to fetch timeslots.");
     }
+    setLoading(false);
   };
 
   const fetchPrograms = async () => {
@@ -118,8 +124,10 @@ const TimeSlots = () => {
 
   // Handle Delete
   const handleDelete = async () => {
+    setLoading(true);
     await deleteTimeSlot(selectedRow.id);
     setDeleteModalOpen(false);
+    setLoading(false);
     fetchTimeSlots();
   };
 
@@ -132,6 +140,7 @@ const TimeSlots = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       if (editId) {
         await updateTimeSlot(editId, formData);
@@ -143,6 +152,7 @@ const TimeSlots = () => {
     } catch (err) {
       console.error("Failed to save timeslot.");
     }
+    setLoading(false);
   };
 
   const handleChangePage = (_, newPage) => {
@@ -165,51 +175,58 @@ const TimeSlots = () => {
           </Button>
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Program</TableCell>
-              <TableCell>Skill Level</TableCell>
-              <TableCell>Week Days</TableCell>
-              <TableCell>Time Ranges</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {timeSlots.map((slot) => (
-              <TableRow key={slot.id}>
-                <TableCell>{slot.program.program_name}</TableCell>
-                <TableCell>{slot.skill_level.skill_name}</TableCell>
-                <TableCell>{slot.week_days.map((day) => weekDaysList[day]).join(", ")}</TableCell>
-                <TableCell>
-                  {slot.time_ranges.map((range, index) => (
-                    <div key={index}>{range.start_time} - {range.end_time} ({range.available_slots} slots)</div>
-                  ))}
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small" onClick={() => openFormModal(slot)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" size="small" onClick={() => setSelectedRow(slot) || setDeleteModalOpen(true)}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className="custom_pagination"
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={timeSlots.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </TableContainer>
+
+      {loading ? <Spinner loading={loading} /> : (
+        timeSlots.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Program</TableCell>
+                  <TableCell>Skill Level</TableCell>
+                  <TableCell>Week Days</TableCell>
+                  <TableCell>Time Ranges</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {timeSlots.map((slot) => (
+                  <TableRow key={slot.id}>
+                    <TableCell>{slot.program.program_name}</TableCell>
+                    <TableCell>{slot.skill_level.skill_name}</TableCell>
+                    <TableCell>{slot.week_days.map((day) => weekDaysList[day]).join(", ")}</TableCell>
+                    <TableCell>
+                      {slot.time_ranges.map((range, index) => (
+                        <div key={index}>{range.start_time} - {range.end_time} ({range.available_slots} slots)</div>
+                      ))}
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" size="small" onClick={() => openFormModal(slot)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" size="small" onClick={() => setSelectedRow(slot) || setDeleteModalOpen(true)}>
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              className="custom_pagination"
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={timeSlots.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" align="center">No Data Available</Typography>
+        )
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
@@ -271,6 +288,9 @@ const TimeSlots = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Snackbar Alert */}
+      <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>
   );
 }

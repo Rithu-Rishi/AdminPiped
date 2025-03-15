@@ -225,6 +225,9 @@ const Teacher = () => {
                 selected={formData.date_of_birth}
                 onChange={(date) => setFormData({ ...formData, date_of_birth: date ? date.toISOString().split("T")[0] : "" })}
                 dateFormat="dd MMM, yyyy"
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
                 className="form-control" fullWidth required
                 placeholderText="Date of Birth"
               />

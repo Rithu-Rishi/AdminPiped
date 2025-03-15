@@ -88,9 +88,46 @@ p {
 
 table tr td,
 table tr th {
-    padding: 6px 10px !important;
+    padding: 8px 10px !important;
     font-size: 12px !important;
 }
+
+table tr td {
+    color: #6d6b77 !important;
+    font-weight: 500 !important;
+}
+
+table tr th {
+    color: #444050 !important
+}
+
+.custom_dropdown .dropdown-toggle::after {
+    display: none;
+}
+
+.custom_dropdown .btn {
+    background: none;
+    color: #6d6b77;
+    border: none;
+    padding: 0;
+}
+
+.custom_dropdown .btn:hover,
+.custom_dropdown .btn.show {
+    background: none !important;
+    color: #6d6b77;
+    border: none;
+}
+
+.custom_dropdown .dropdown-menu {
+    padding: 5px;
+}
+
+.custom_dropdown .dropdown-menu a{
+    padding: 8px;
+    border-radius: 5px;
+}
+
 
 .custom_pagination p {
     margin-bottom: 0 !important;
@@ -136,14 +173,17 @@ table tr th {
     font-size: 10px !important;
 }
 
+.fs-14 {
+    font-size: 14px !important;
+}
 
 .loginMain {
     height: calc(100vh - 30px);
     font-weight: 500;
 }
 
-.loginMain h1{
-   font-weight: 600;
+.loginMain h1 {
+    font-weight: 600;
 }
 
 .loginMain .form-control {

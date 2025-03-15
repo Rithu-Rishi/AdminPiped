@@ -5,9 +5,11 @@ import {
   Button, IconButton, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const Programs = () => {
   const [programs, setPrograms] = useState([]);
@@ -135,7 +137,7 @@ const Programs = () => {
       {loading ? <Spinner loading={loading} /> : (
         programs.length > 0 ? (
           <TableContainer component={Paper} className="scoll_dev">
-            <Table sx={{}} stickyHeader aria-label="customized sticky table">
+            <Table stickyHeader aria-label="customized sticky table simple table">
               <TableHead>
                 <TableRow>
                   <TableCell>Program Name</TableCell>
@@ -159,12 +161,15 @@ const Programs = () => {
                     <TableCell>{row.discount_percent}</TableCell>
                     <TableCell>{row.final_amount}</TableCell>
                     <TableCell align="center">
-                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
-                        <DeleteOutlineIcon />
-                      </IconButton>
+                    <DropdownButton
+                        align="end"
+                        title={<Menu />}
+                        size='sm'
+                        className="custom_dropdown"
+                      >
+                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                        <Dropdown.Item className="text-danger fs-14" size="small"  onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>Delete</Dropdown.Item>
+                      </DropdownButton>
                     </TableCell>
                   </TableRow>
                 ))}

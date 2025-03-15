@@ -5,9 +5,11 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const SubPrograms = () => {
   const [subPrograms, setSubPrograms] = useState([]);
@@ -198,12 +200,15 @@ const SubPrograms = () => {
                     <TableCell>{row.sub_title}</TableCell>
                     <TableCell>{row.keywords}</TableCell>
                     <TableCell align="center">
-                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
-                        <DeleteOutlineIcon />
-                      </IconButton>
+                      <DropdownButton
+                        align="end"
+                        title={<Menu />}
+                        size='sm'
+                        className="custom_dropdown"
+                      >
+                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                        <Dropdown.Item className="text-danger fs-14" size="small"  onClick={() => { setSelectedRow(row); setDeleteModalOpen(true)}}>Delete</Dropdown.Item>
+                      </DropdownButton>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -7,10 +7,12 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
 import { getAllTeachers, addTeacher, updateTeacher, deleteTeacher } from "../services/teachersApi";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
@@ -148,19 +150,22 @@ const Teacher = () => {
                 {Array.isArray(teachers) && teachers.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>
-                      {row.profile_pic_url && <img src={`${IMAGE_BASE_URL}${row.profile_pic_url}`} alt={row.name} width="50" height="50" />}
+                      {row.profile_pic_url && <img src={`${IMAGE_BASE_URL}${row.profile_pic_url}`} alt={row.name} width="40" height="40" className='rounded-5 border border-2' />}
                     </TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.email}</TableCell>
                     <TableCell>{row.mobile_number}</TableCell>
                     <TableCell>{row.date_of_birth}</TableCell>
                     <TableCell align="center">
-                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
-                        <DeleteOutlineIcon />
-                      </IconButton>
+                    <DropdownButton
+                        align="end"
+                        title={<Menu />}
+                        size='sm'
+                        className="custom_dropdown"
+                      >
+                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                        <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>Delete</Dropdown.Item>
+                      </DropdownButton>
                     </TableCell>
                   </TableRow>
                 ))}

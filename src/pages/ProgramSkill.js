@@ -5,10 +5,12 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu  } from "@mui/icons-material";
 import { Link } from "react-router";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const ProgramSkill = () => {
   const [skillLevels, setSkillLevels] = useState([]);
@@ -159,12 +161,16 @@ const ProgramSkill = () => {
                     <TableCell>{row.skill_amount}</TableCell>
                     <TableCell>{row.skill_discount}</TableCell>
                     <TableCell align="center">
-                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
-                        <DeleteOutlineIcon />
-                      </IconButton>
+                      <DropdownButton
+                        align="end"
+                        title={<Menu />}
+                        size='sm'
+                        className="custom_dropdown"
+                      >
+                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                        <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true) }}>Delete</Dropdown.Item>
+                      </DropdownButton>
+
                     </TableCell>
                   </TableRow>
                 ))}
@@ -235,7 +241,7 @@ const ProgramSkill = () => {
               </Box>
             ))}
             {!editId && (
-              <Button onClick={handleAddRow}  variant="contained" size="small" color="success" startIcon={<AddIcon />}>Add Row</Button>
+              <Button onClick={handleAddRow} variant="contained" size="small" color="success" startIcon={<AddIcon />}>Add Row</Button>
             )}
           </Box>
           <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>

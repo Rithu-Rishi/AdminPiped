@@ -4,10 +4,12 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Button, IconButton, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu  } from "@mui/icons-material";
 import { Link } from "react-router";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const FacilityPaymentPlans = () => {
     const [plans, setPlans] = useState([]);
@@ -127,7 +129,7 @@ const FacilityPaymentPlans = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Duration (Months)</TableCell>
+                                    <TableCell>Duration</TableCell>
                                     <TableCell>Amount</TableCell>
                                     <TableCell>Discount (%)</TableCell>
                                     <TableCell>Initial Kit Amount</TableCell>
@@ -138,18 +140,22 @@ const FacilityPaymentPlans = () => {
                             <TableBody>
                                 {plans.map((plan) => (
                                     <TableRow key={plan.id}>
-                                        <TableCell>{plan.duration_months}</TableCell>
-                                        <TableCell>{plan.amount}</TableCell>
+                                        <TableCell>{plan.duration_months} Months</TableCell>
+                                        <TableCell>&#8377; {plan.amount}</TableCell>
                                         <TableCell>{plan.discount_percent}</TableCell>
-                                        <TableCell>{plan.inital_kit_amount}</TableCell>
-                                        <TableCell>{plan.final_amount}</TableCell>
+                                        <TableCell>&#8377; {plan.inital_kit_amount}</TableCell>
+                                        <TableCell>&#8377; {plan.final_amount}</TableCell>
                                         <TableCell>
-                                            <IconButton color="primary" onClick={() => openFormModal(plan)}>
-                                                <EditIcon />
-                                            </IconButton>
-                                            <IconButton color="error" onClick={() => openDeleteModal(plan)}>
-                                                <DeleteOutlineIcon />
-                                            </IconButton>
+                                            <DropdownButton
+                                                align="end"
+                                                title={<Menu />}
+                                                size='sm'
+                                                className="custom_dropdown"
+                                            >
+                                                <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(plan)}>Edit</Dropdown.Item>
+                                                <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(plan)}>Delete</Dropdown.Item>
+                                            </DropdownButton>
+
                                         </TableCell>
                                     </TableRow>
                                 ))}

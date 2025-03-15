@@ -26,6 +26,7 @@ const AppRouter = () => {
             <Routes>
                 {/* Protected Route */}
                 <Route element={<ProtectedRoute />}>
+                    <Route path="/" element={<Dashboard />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/perantslist" element={<ParentsList />} />
                     <Route path="/childlist" element={<ChildList />} />

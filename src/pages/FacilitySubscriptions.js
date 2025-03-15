@@ -62,7 +62,11 @@ const FacilitySubscriptions = () => {
                                         <TableCell>{subscription.child?.child_name || "N/A"}</TableCell>
                                         <TableCell>{subscription.start_date || "N/A"}</TableCell>
                                         <TableCell>{subscription.end_date || "N/A"}</TableCell>
-                                        <TableCell>{subscription.status || "N/A"}</TableCell>
+                                        <TableCell>
+                                            <span className={`px-3 py-1 rounded-1 bg-opacity-10 ${subscription.status === 'active' ? 'bg-success text-success' : 'bg-danger text-dangr'}`}>
+                                                {subscription.status || "N/A"}
+                                            </span>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

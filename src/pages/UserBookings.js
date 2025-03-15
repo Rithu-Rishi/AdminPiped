@@ -51,7 +51,7 @@ const UserBookings = () => {
                                     <TableCell>Child Name</TableCell>
                                     <TableCell>Program Name</TableCell>
                                     <TableCell>Skill Name</TableCell>
-                                    <TableCell>Duration (Months)</TableCell>
+                                    <TableCell>Duration</TableCell>
                                     <TableCell>Transaction ID</TableCell>
                                     <TableCell>Amount Paid</TableCell>
                                 </TableRow>
@@ -63,7 +63,7 @@ const UserBookings = () => {
                                         <TableCell>{booking.child?.child_name || "N/A"}</TableCell>
                                         <TableCell>{booking.program?.program_name || "N/A"}</TableCell>
                                         <TableCell>{booking.skill_level?.skill_name || "N/A"}</TableCell>
-                                        <TableCell>{booking.payment_plan?.duration_months || "N/A"}</TableCell>
+                                        <TableCell>{booking.payment_plan?.duration_months || "N/A"} Months</TableCell>
                                         <TableCell>{booking.transaction?.transaction_id || "N/A"}</TableCell>
                                         <TableCell>{booking.transaction?.amount_paid || "N/A"}</TableCell>
                                     </TableRow>

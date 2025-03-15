@@ -8,9 +8,11 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const ChildList = () => {
   const [children, setChildren] = useState([]);
@@ -155,18 +157,21 @@ const ChildList = () => {
                   <TableRow key={row.id}>
                     {/* <TableCell>{row.child_name}</TableCell> */}
                     <TableCell>{row.child_name}</TableCell>
-                    <TableCell>{row.gender}</TableCell>
+                    <TableCell><span className={`px-3 py-1 rounded-1 bg-opacity-10 ${row.gender === 'Male' ? 'bg-success text-success' : 'bg-danger text-danger'}`}>{row.gender}</span></TableCell>
                     <TableCell>{row.date_of_birth}</TableCell>
                     <TableCell>
                       {row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" width="50" height="50" />}
                     </TableCell>
                     <TableCell align="center">
-                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="error" size="small" onClick={() => openDeleteModal(row)}>
-                        <DeleteOutlineIcon />
-                      </IconButton>
+                      <DropdownButton
+                        align="end"
+                        title={<Menu />}
+                        size='sm'
+                        className="custom_dropdown"
+                      >
+                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                        <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(row)}>Delete</Dropdown.Item>
+                      </DropdownButton>
                     </TableCell>
                   </TableRow>
                 ))}

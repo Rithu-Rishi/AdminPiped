@@ -14,7 +14,7 @@ const Layout = ({ children }) => {
                 {!hideHeaderRoutes && <Sidebar />}
                 <div className="content-container w-100">
                     {!hideHeaderRoutes && <Header />}
-                    <Container fluid className="mt-3">
+                    <Container fluid className={hideHeaderRoutes ? "" : "mt-3"}>
                         {children}
                     </Container>
                 </div>

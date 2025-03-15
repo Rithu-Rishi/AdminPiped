@@ -234,7 +234,7 @@ const ChildList = () => {
                 onChange={(date) => setFormData({ ...formData, date_of_birth: date ? date.toISOString().split("T")[0] : "" })}
                 dateFormat="dd MMM, yyyy"
                 className="form-control"
-                placeholderText="Select Date of Birth"
+                placeholderText="Date of Birth"
               />
             </Box>
             <input type="file" className="border p-2 rounded-2 w-100" accept="image/*" onChange={handleFileChange} />

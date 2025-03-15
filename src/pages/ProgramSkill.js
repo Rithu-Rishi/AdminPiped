@@ -205,13 +205,13 @@ const ProgramSkill = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{
+        <Box className="custom_modal" sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
-          boxShadow: 12, p: 3, borderRadius: 2
+          boxShadow: 12, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>{editId ? 'Edit Skill' : 'Create Skill'}</Typography>
-          <Box component="form" sx={{ maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Skill' : 'Create Skill'}</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
             <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
               {programs.map((program) => (
                 <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
@@ -235,10 +235,10 @@ const ProgramSkill = () => {
               </Box>
             ))}
             {!editId && (
-              <Button onClick={handleAddRow} startIcon={<AddIcon />}>Add Row</Button>
+              <Button onClick={handleAddRow}  variant="contained" size="small" color="success" startIcon={<AddIcon />}>Add Row</Button>
             )}
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}

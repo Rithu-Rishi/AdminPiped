@@ -97,7 +97,7 @@ const SubPrograms = () => {
             payload.append("image_colors[]", formData.image_colors[index]);
           }
         });
-        
+
         if (formData.deleted_images.length > 0) {
           formData.deleted_images.forEach((imageId) => {
             formData.append("deleted_images", imageId);
@@ -244,9 +244,9 @@ const SubPrograms = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper', boxShadow: 12, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" gutterBottom>{editId ? 'Edit Sub Program' : 'Create Sub Program'}</Typography>
-          <Box component="form" sx={{ gap: 2 }}>
+        <Box className="custom_modal" sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper', boxShadow: 12, borderRadius: 2 }}>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Sub Program' : 'Create Sub Program'}</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
             <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={handleChange}>
               {programs.map((program) => (
                 <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
@@ -256,7 +256,7 @@ const SubPrograms = () => {
             <TextField size="small" className="mt-3" label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
             <input type="file" className="mt-3 rounded-2 border w-100 p-2 mb-2" multiple accept="image/*" onChange={handleNewImageUpload} />
             {formData.images.map((img, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <img src={typeof img.path === 'string' ? `http://localhost:8000/${img.path}` : URL.createObjectURL(img)} alt="Preview" width="50" height="50" />
                 <TextField label="Image Title" size="small" value={formData.image_titles[index] || ""} onChange={(e) => {
                   const updatedTitles = [...formData.image_titles];
@@ -274,7 +274,7 @@ const SubPrograms = () => {
               </Box>
             ))}
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button variant="contained" color="primary" onClick={handleSubmit}>{editId ? 'Update' : 'Create'}</Button>
           </Box>
         </Box>

@@ -117,7 +117,7 @@ const Teacher = () => {
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
-
+  
   return (
     <>
       {/* Table */}
@@ -148,7 +148,7 @@ const Teacher = () => {
                 {Array.isArray(teachers) && teachers.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>
-                      {row.teacher_image && <img src={`${IMAGE_BASE_URL}${row.teacher_image}`} alt={row.name} width="50" height="50" />}
+                      {row.profile_pic_url && <img src={`${IMAGE_BASE_URL}${row.profile_pic_url}`} alt={row.name} width="50" height="50" />}
                     </TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.email}</TableCell>

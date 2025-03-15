@@ -211,7 +211,7 @@ const Programs = () => {
           transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
           boxShadow: 12, borderRadius: 2
         }}>
-          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{selectedRow ? 'Edit Program' : 'Create Program'}</Typography>
+          <Typography variant="h6"  className="custom_heading_modal" gutterBottom>{selectedRow ? 'Edit Program' : 'Create Program'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
             <Box className='d-flex' sx={{ gap: 2 }}>
               <TextField size='small' label="Program Name" name="program_name" value={formData.program_name} onChange={handleChange} fullWidth />
@@ -222,10 +222,18 @@ const Programs = () => {
               <TextField size='small' label="Discount" name="discount_percent" value={formData.discount_percent} onChange={handleChange} fullWidth />
             </Box>
             <TextField size='small' multiline rows={2} label="Programs Description" name="program_desc" value={formData.program_desc} onChange={handleChange} fullWidth />
-            <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "image")} />
-            {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
-            <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "banner")} />
-            {previewBanner && <img src={previewBanner} alt="Preview" width="100" height="100" />}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <div>
+                <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "image")} />
+                <div class="form-text fs-10">&#128712; Programs Small Image</div>
+                {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
+              </div>
+              <div>
+                <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "banner")} />
+                <div class="form-text fs-10">&#128712; Program Banner Image</div>
+                {previewBanner && <img src={previewBanner} alt="Preview" width="100" height="100" />}
+              </div>
+            </Box>
           </Box>
           <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>

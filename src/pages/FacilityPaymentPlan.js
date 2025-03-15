@@ -4,7 +4,7 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Button, IconButton, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu  } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon  } from "@mui/icons-material";
 import { Link } from "react-router";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
@@ -141,10 +141,10 @@ const FacilityPaymentPlans = () => {
                                 {plans.map((plan) => (
                                     <TableRow key={plan.id}>
                                         <TableCell>{plan.duration_months} Months</TableCell>
-                                        <TableCell>&#8377; {plan.amount}</TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{plan.amount}</TableCell>
                                         <TableCell>{plan.discount_percent}</TableCell>
-                                        <TableCell>&#8377; {plan.inital_kit_amount}</TableCell>
-                                        <TableCell>&#8377; {plan.final_amount}</TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{plan.inital_kit_amount}</TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{plan.final_amount}</TableCell>
                                         <TableCell>
                                             <DropdownButton
                                                 align="end"

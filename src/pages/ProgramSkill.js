@@ -5,7 +5,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu  } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon  } from "@mui/icons-material";
 import { Link } from "react-router";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
@@ -157,8 +157,8 @@ const ProgramSkill = () => {
                     <TableCell>{row.program.program_name}</TableCell>
                     <TableCell>{row.skill_name}</TableCell>
                     <TableCell>{row.skill_description}</TableCell>
-                    <TableCell>{row.skill_period}</TableCell>
-                    <TableCell>{row.skill_amount}</TableCell>
+                    <TableCell>{row.skill_period} Months</TableCell>
+                    <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{row.skill_amount}</TableCell>
                     <TableCell>{row.skill_discount}</TableCell>
                     <TableCell align="center">
                       <DropdownButton

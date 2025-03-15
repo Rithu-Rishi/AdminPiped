@@ -6,9 +6,11 @@ import {
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const SkillProgression = () => {
   const [progressions, setProgressions] = useState([]);
@@ -172,9 +174,10 @@ const SkillProgression = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Program</TableCell>
+                  <TableCell>Image</TableCell>
                   <TableCell>Title</TableCell>
                   <TableCell>Description</TableCell>
-                  <TableCell>Image</TableCell>
+                 
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -182,16 +185,19 @@ const SkillProgression = () => {
                 {progressions.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>{row.program.program_name}</TableCell>
+                    <TableCell>{row.image && <img src={`${IMAGE_BASE_URL}${row.image}`} alt={row.program_name} className="border border-2 rounded-1 p-1" width="40" height="40" />}</TableCell>
                     <TableCell>{row.title}</TableCell>
-                    <TableCell>{row.description}</TableCell>
-                    <TableCell>{row.image && <img src={`${IMAGE_BASE_URL}${row.image}`} alt={row.program_name} width="50" height="50" />}</TableCell>
+                    <TableCell>{row.description}</TableCell>                   
                     <TableCell align="center">
-                      <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="error" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>
-                        <DeleteOutlineIcon />
-                      </IconButton>
+                      <DropdownButton
+                        align="end"
+                        title={<Menu />}
+                        size='sm'
+                        className="custom_dropdown"
+                      >
+                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                        <Dropdown.Item className="text-danger fs-14" size="small"onClick={() => { setSelectedRow(row); setDeleteModalOpen(true)}}>Delete</Dropdown.Item>
+                      </DropdownButton>
                     </TableCell>
                   </TableRow>
                 ))}

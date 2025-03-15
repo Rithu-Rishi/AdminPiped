@@ -5,7 +5,7 @@ import {
     TablePagination, Typography
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
-
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, CurrencyRupee as CurrencyRupeeIcon, MoreVert as Menu } from "@mui/icons-material";
 
 const UserBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -64,8 +64,8 @@ const UserBookings = () => {
                                         <TableCell>{booking.program?.program_name || "N/A"}</TableCell>
                                         <TableCell>{booking.skill_level?.skill_name || "N/A"}</TableCell>
                                         <TableCell>{booking.payment_plan?.duration_months || "N/A"} Months</TableCell>
-                                        <TableCell>{booking.transaction?.transaction_id || "N/A"}</TableCell>
-                                        <TableCell>{booking.transaction?.amount_paid || "N/A"}</TableCell>
+                                        <TableCell><span className="px-3 py-1 rounded-1 bg-opacity-10 bg-success text-success">{booking.transaction?.transaction_id || "N/A"}</span></TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{booking.transaction?.amount_paid || "N/A"}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

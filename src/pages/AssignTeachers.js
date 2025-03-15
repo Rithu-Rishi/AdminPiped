@@ -8,9 +8,11 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, IconButton, Modal, Box, Typography, Select, MenuItem, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, DeleteOutline as DeleteOutlineIcon } from "@mui/icons-material";
+import { Add as AddIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 
 const AssignTeachers = () => {
@@ -143,7 +145,7 @@ const AssignTeachers = () => {
     <>
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
-        <h5 className="mb-0">Time Slots</h5>
+        <h5 className="mb-0">Assign Teachers</h5>
         <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => setFormModalOpen(true)}>
             Assign Teacher
@@ -167,10 +169,15 @@ const AssignTeachers = () => {
                   <TableRow key={`${row.program_id}-${row.teacher_id}`}>
                     <TableCell>{row.program_name}</TableCell>
                     <TableCell>{row.teacher_name}</TableCell>
-                    <TableCell>
-                      <IconButton color="error" size="small" onClick={() => openDeleteModal(row.program_id, row.teacher_id)}>
-                        <DeleteOutlineIcon />
-                      </IconButton>
+                    <TableCell align="center">
+                      <DropdownButton
+                        align="end"
+                        title={<Menu />}
+                        size='sm'
+                        className="custom_dropdown"
+                      >
+                        <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(row.program_id, row.teacher_id)}>Delete</Dropdown.Item>
+                      </DropdownButton>
                     </TableCell>
                   </TableRow>
                 ))}

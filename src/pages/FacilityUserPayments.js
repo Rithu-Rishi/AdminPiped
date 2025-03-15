@@ -5,6 +5,7 @@ import {
     TablePagination, Typography
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 
 const FacilityUserPayments = () => {
     const [payments, setPayments] = useState([]);
@@ -49,7 +50,7 @@ const FacilityUserPayments = () => {
                                     <TableCell>Parent</TableCell>
                                     <TableCell>Mobile</TableCell>
                                     <TableCell>Child Name</TableCell>
-                                    <TableCell>Duration (Months)</TableCell>
+                                    <TableCell>Duration</TableCell>
                                     <TableCell>Amount Paid</TableCell>
                                     <TableCell>Transaction ID</TableCell>
                                     <TableCell>Payment Date</TableCell>
@@ -61,9 +62,9 @@ const FacilityUserPayments = () => {
                                         <TableCell>{payment.parent?.name || "N/A"}</TableCell>
                                         <TableCell>{payment.parent?.mobile_number || "N/A"}</TableCell>
                                         <TableCell>{payment.child?.child_name || "N/A"}</TableCell>
-                                        <TableCell>{payment.paymentplan?.duration_months || "N/A"}</TableCell>
-                                        <TableCell>{payment.amount_paid}</TableCell>
-                                        <TableCell>{payment.transaction_id}</TableCell>
+                                        <TableCell>{payment.paymentplan?.duration_months || "N/A"} Months</TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{payment.amount_paid}</TableCell>
+                                        <TableCell><span className="px-3 py-1 rounded-1 bg-opacity-10 bg-success text-success">{payment.transaction_id}</span></TableCell>
                                         <TableCell>{payment.payment_date}</TableCell>
                                     </TableRow>
                                 ))}

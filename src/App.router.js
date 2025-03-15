@@ -19,6 +19,7 @@ import FacilityUserPayments from "./pages/FacilityUserPayments";
 import FacilitySubscriptions from "./pages/FacilitySubscriptions";
 import UserBookings from "./pages/UserBookings";
 import Transitions from "./pages/Transitions";
+import Sliders from "./pages/Sliders";
 
 const AppRouter = () => {
     return (
@@ -43,6 +44,7 @@ const AppRouter = () => {
                     <Route path="/facilitySubscriptions" element={<FacilitySubscriptions />} />
                     <Route path="/userBookings" element={<UserBookings />} />
                     <Route path="/transitions" element={<Transitions />} />
+                    <Route path="/sliders" element={<Sliders />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

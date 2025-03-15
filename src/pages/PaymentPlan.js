@@ -5,9 +5,11 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, CurrencyRupee as CurrencyRupeeIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const PaymentPlan = () => {
     const [plans, setPlans] = useState([]);
@@ -140,7 +142,7 @@ const PaymentPlan = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Program Name</TableCell>
-                                    <TableCell>Duration (Months)</TableCell>
+                                    <TableCell>Duration</TableCell>
                                     <TableCell>Amount</TableCell>
                                     <TableCell>Discount (%)</TableCell>
                                     <TableCell>Final Amount</TableCell>
@@ -151,17 +153,20 @@ const PaymentPlan = () => {
                                 {plans.map((row, index) => (
                                     < TableRow key={row.id} >
                                         <TableCell>{row.program.program_name}</TableCell>
-                                        <TableCell>{row.duration_months}</TableCell>
-                                        <TableCell>{row.amount}</TableCell>
+                                        <TableCell>{row.duration_months} Months</TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{row.amount}</TableCell>
                                         <TableCell>{row.discount_percent}</TableCell>
-                                        <TableCell>{row.final_amount}</TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{row.final_amount}</TableCell>
                                         <TableCell align="center">
-                                            <IconButton color="primary" size="small" onClick={() => openFormModal(row)}>
-                                                <EditIcon />
-                                            </IconButton>
-                                            <IconButton color="error" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>
-                                                <DeleteOutlineIcon />
-                                            </IconButton>
+                                            <DropdownButton
+                                                align="end"
+                                                title={<Menu />}
+                                                size='sm'
+                                                className="custom_dropdown"
+                                            >
+                                                <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                                                <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => setSelectedRow(row) || setDeleteModalOpen(true)}>Delete</Dropdown.Item>
+                                            </DropdownButton>
                                         </TableCell>
                                     </TableRow>
                                 ))}

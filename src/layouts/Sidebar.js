@@ -19,10 +19,23 @@ import StarBorderPurple500OutlinedIcon from '@mui/icons-material/StarBorderPurpl
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import BeenhereOutlinedIcon from '@mui/icons-material/BeenhereOutlined';
 import logo from '../assets/images/logo1.png'
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+
 const Sidebar = () => {
   const [open, setOpen] = React.useState(false);
+  const [openOne, setOpenOne] = React.useState(false);
+  const [openTwo, setOpenTwo] = React.useState(false);
   const handleClick = () => {
     setOpen(!open);
+  };
+
+  const handleClickOne = () => {
+    setOpenOne(!openOne);
+  };
+
+  const handleClickTwo = () => {
+    setOpenTwo(!openTwo);
   };
 
   const [isExpanded, setIsExpanded] = useState(true);
@@ -71,32 +84,7 @@ const Sidebar = () => {
           </ListItemButton>
         </Link>
 
-        <Link to="/facilityPlans">
-          <ListItemButton className='single_item'>
-            <ListItemIcon className='icon_items'>
-              <WcOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText className='text_items' primary="Facility Plans" />
-          </ListItemButton>
-        </Link>
 
-        <Link to="/facilityUserPayments">
-          <ListItemButton className='single_item'>
-            <ListItemIcon className='icon_items'>
-              <WcOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText className='text_items' primary="Facility Payments" />
-          </ListItemButton>
-        </Link>
-
-        <Link to="/facilitySubscriptions">
-          <ListItemButton className='single_item'>
-            <ListItemIcon className='icon_items'>
-              <WcOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText className='text_items' primary="Facility Subscriptions" />
-          </ListItemButton>
-        </Link>
 
         <ListItemButton className='single_item' onClick={handleClick}>
           <ListItemIcon className='icon_items'>
@@ -164,6 +152,42 @@ const Sidebar = () => {
           </Link>
         </Collapse>
 
+        <ListItemButton className='single_item' onClick={handleClickOne}>
+          <ListItemIcon className='icon_items'>
+            <SettingsBrightnessIcon />
+          </ListItemIcon>
+          <ListItemText className='text_items' primary="Facilities" />
+          {openOne ? <ExpandLess className='icon_down' /> : <ExpandMore className='icon_down' />}
+        </ListItemButton>
+        <Collapse in={openOne} timeout="auto" unmountOnExit>
+          <Link to="/facilityPlans">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Facility Plans" />
+            </ListItemButton>
+          </Link>
+
+          <Link to="/facilityUserPayments">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Facility Payments" />
+            </ListItemButton>
+          </Link>
+
+          <Link to="/facilitySubscriptions">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Facility Subscriptions" />
+            </ListItemButton>
+          </Link>
+        </Collapse>
+
         <Link to='/teachers'>
           <ListItemButton className='single_item'>
             <ListItemIcon className='icon_items'>
@@ -196,6 +220,51 @@ const Sidebar = () => {
             <ListItemText className='text_items' primary="Class Bookings" />
           </ListItemButton>
         </Link>
+
+        <ListItemButton className='single_item' onClick={handleClickTwo}>
+          <ListItemIcon className='icon_items'>
+            <AccountTreeIcon />
+          </ListItemIcon>
+          <ListItemText className='text_items' primary="Others" />
+          {openTwo ? <ExpandLess className='icon_down' /> : <ExpandMore className='icon_down' />}
+        </ListItemButton>
+        <Collapse in={openTwo} timeout="auto" unmountOnExit>
+          <Link to="/sliders">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Home Slider" />
+            </ListItemButton>
+          </Link>
+
+          <Link to="/">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Work Shop" />
+            </ListItemButton>
+          </Link>
+
+          <Link to="/">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Offers" />
+            </ListItemButton>
+          </Link>
+
+          <Link to="/">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Notice Board" />
+            </ListItemButton>
+          </Link>
+        </Collapse>
 
       </List>
 

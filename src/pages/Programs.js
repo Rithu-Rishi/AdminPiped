@@ -5,7 +5,7 @@ import {
   Button, IconButton, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -154,12 +154,12 @@ const Programs = () => {
                 {programs.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>{row.program_name}</TableCell>
-                    <TableCell>{row.program_image && <img src={`${IMAGE_BASE_URL}${row.program_image}`} alt={row.program_name} width="50" height="50" />}</TableCell>
+                    <TableCell>{row.program_image && <img src={`${IMAGE_BASE_URL}${row.program_image}`} alt={row.program_name} width="40" height="40" />}</TableCell>
                     <TableCell>{row.program_desc}</TableCell>
                     <TableCell>{row.age_group} Yrs</TableCell>
-                    <TableCell>{row.monthly_fee}</TableCell>
+                    <TableCell width={85}><CurrencyRupeeIcon className="fs-14 text-black" />{row.monthly_fee}</TableCell>
                     <TableCell>{row.discount_percent}</TableCell>
-                    <TableCell>{row.final_amount}</TableCell>
+                    <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{row.final_amount}</TableCell>
                     <TableCell align="center">
                     <DropdownButton
                         align="end"

@@ -20,6 +20,9 @@ import FacilitySubscriptions from "./pages/FacilitySubscriptions";
 import UserBookings from "./pages/UserBookings";
 import Transitions from "./pages/Transitions";
 import Sliders from "./pages/Sliders";
+import WorkShop from "./pages/Workshop";
+import MembershipOffers from "./pages/offers";
+import NoticeBoard from "./pages/NoticeBoard";
 
 const AppRouter = () => {
     return (
@@ -45,6 +48,9 @@ const AppRouter = () => {
                     <Route path="/userBookings" element={<UserBookings />} />
                     <Route path="/transitions" element={<Transitions />} />
                     <Route path="/sliders" element={<Sliders />} />
+                    <Route path="/workshop" element={<WorkShop />} />
+                    <Route path="/offers" element={<MembershipOffers />} />
+                    <Route path="/noticeboard" element={<NoticeBoard />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

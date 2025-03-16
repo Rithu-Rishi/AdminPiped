@@ -119,7 +119,7 @@ const Teacher = () => {
   const handlePageChange = (event, newPage) => {
     setPage(newPage + 1);
   };
-  
+
   return (
     <>
       {/* Table */}
@@ -157,7 +157,7 @@ const Teacher = () => {
                     <TableCell>{row.mobile_number}</TableCell>
                     <TableCell>{row.date_of_birth}</TableCell>
                     <TableCell align="center">
-                    <DropdownButton
+                      <DropdownButton
                         align="end"
                         title={<Menu />}
                         size='sm'
@@ -206,13 +206,13 @@ const Teacher = () => {
 
       {/* Add/Edit Teacher Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{
+        <Box className="custom_modal" sx={{
           position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
-          boxShadow: 24, p: 3, borderRadius: 2
+          transform: 'translate(-50%, -50%)', width: 800, bgcolor: 'background.paper',
+          boxShadow: 12, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>{editId ? 'Edit Teacher' : 'Create Teacher'}</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 2, pr: 2 }}>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Teacher' : 'Create Teacher'}</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box className='d-flex' sx={{ gap: 2 }}>
               <TextField size='small' label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth required />
               <TextField size='small' label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth required />
@@ -228,21 +228,28 @@ const Teacher = () => {
                 showYearDropdown
                 showMonthDropdown
                 dropdownMode="select"
-                className="form-control" fullWidth required
+                className="form-control date_filed" required
                 placeholderText="Date of Birth"
               />
+              <TextField size='small' label="Designation" name="designation" value={formData.designation} onChange={handleChange} fullWidth required />
             </Box>
-            <TextField size='small' label="Designation" name="designation" value={formData.designation} onChange={handleChange} fullWidth required />
-            <TextField size='small' label="Bio" name="bio" multiline rows={2} value={formData.bio} onChange={handleChange} fullWidth required />
-            <TextField size='small' label="Experiences" name="experiences" multiline rows={2} value={formData.experiences} onChange={handleChange} fullWidth required />
-            <TextField size='small' label="Awards" name="awards" multiline rows={2} value={formData.awards} onChange={handleChange} fullWidth required />
-            <TextField size='small' label="Certifications" name="certifications" multiline rows={2} value={formData.certifications} onChange={handleChange} fullWidth required />
+            <Box className='d-flex' sx={{ gap: 2 }}>
+              <TextField size='small' label="Bio" name="bio" multiline rows={2} value={formData.bio} onChange={handleChange} fullWidth required />
+              <TextField size='small' label="Experiences" name="experiences" multiline rows={2} value={formData.experiences} onChange={handleChange} fullWidth required />
+            </Box>
+            <Box className='d-flex' sx={{ gap: 2 }}>
+              <TextField size='small' label="Awards" name="awards" multiline rows={2} value={formData.awards} onChange={handleChange} fullWidth required />
+              <TextField size='small' label="Certifications" name="certifications" multiline rows={2} value={formData.certifications} onChange={handleChange} fullWidth required />
+            </Box>
+
+
+
 
             <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
             {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
+            <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}
             </Button>
           </Box>

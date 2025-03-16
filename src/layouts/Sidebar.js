@@ -238,7 +238,7 @@ const Sidebar = () => {
             </ListItemButton>
           </Link>
 
-          <Link to="/">
+          <Link to="/workshop">
             <ListItemButton className='single_item'>
               <ListItemIcon className='icon_items'>
                 <RemoveIcon />
@@ -247,7 +247,7 @@ const Sidebar = () => {
             </ListItemButton>
           </Link>
 
-          <Link to="/">
+          <Link to="/offers">
             <ListItemButton className='single_item'>
               <ListItemIcon className='icon_items'>
                 <RemoveIcon />
@@ -256,7 +256,7 @@ const Sidebar = () => {
             </ListItemButton>
           </Link>
 
-          <Link to="/">
+          <Link to="/noticeboard">
             <ListItemButton className='single_item'>
               <ListItemIcon className='icon_items'>
                 <RemoveIcon />

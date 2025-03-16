@@ -253,9 +253,13 @@ const TimeSlots = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" gutterBottom>{editId ? 'Edit Time Slot' : 'Create Time Slot'}</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+        <Box className="custom_modal" sx={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
+          boxShadow: 12, borderRadius: 2
+        }}>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Time Slot' : 'Create Time Slot'}</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box className="d-flex" sx={{ gap: 2 }}>
               <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={handleProgramChange}>
                 {programs.map((program) => (
@@ -271,12 +275,10 @@ const TimeSlots = () => {
             <h6 className="mb-0">Select Week Days:</h6>
             <ToggleButtonGroup size="small" value={formData.week_days} onChange={handleWeekDayChange} aria-label="week days" fullWidth>
               {weekDaysList.map((day, index) => (
-                <ToggleButton key={index} value={index}>{day}</ToggleButton>
+                <ToggleButton key={index} className="selected" value={index}>{day}</ToggleButton>
               ))}
             </ToggleButtonGroup>
-            <div>
-              <Button size="small" variant="outlined" onClick={handleAddTimeRange}>Add Time Range</Button>
-            </div>
+
             {formData.time_ranges.map((range, index) => (
               <Box key={index} className="d-flex align-items-center" sx={{ gap: 2 }}>
                 <TextField size="small" label="Start Time" value={range.start_time} onChange={(e) => handleChangeTimeRange(index, "start_time", e.target.value)} />
@@ -285,9 +287,12 @@ const TimeSlots = () => {
                 <IconButton className="text-danger" onClick={() => handleRemoveTimeRange(index)}><CloseIcon /></IconButton>
               </Box>
             ))}
+            <div>
+              <Button size="small" color="success" variant="contained" onClick={handleAddTimeRange} startIcon={<AddIcon />}>Add Time Range</Button>
+            </div>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
+            <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}
             </Button>
           </Box>

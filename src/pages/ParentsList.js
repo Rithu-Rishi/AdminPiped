@@ -5,7 +5,7 @@ import {
   Button, IconButton, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Add as AddIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -196,27 +196,27 @@ const ParentsList = () => {
 
       {/* Add/Edit Parent Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{
+        <Box className="custom_modal" sx={{
           position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper',
-          boxShadow: 12, p: 3, borderRadius: 2
+          transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
+          boxShadow: 12, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>{editId ? 'Edit Parent' : 'Create Parent'}</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Parent' : 'Create Parent'}</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box className='d-flex' sx={{ gap: 2 }}>
-              <TextField size="small" label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth margin="normal" />
-              <TextField size="small" label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth margin="normal" />
+              <TextField size="small" label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth />
+              <TextField size="small" label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth />
             </Box>
             <Box className='d-flex' sx={{ gap: 2 }}>
-              <TextField size="small" label="Mobile Number" name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth margin="normal" />
-              <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth margin="normal" />
+              <TextField size="small" label="Mobile Number" name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth />
+              <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth />
             </Box>
             <input type="file" className="border p-2 rounded-2" accept="image/*" onChange={handleFileChange} />
             {previewImage && <img src={previewImage} alt="Profile Preview" width="100" height="100" style={{ marginTop: 10 }} />}
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+            <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}
             </Button>
           </Box>

@@ -177,7 +177,7 @@ const SkillProgression = () => {
                   <TableCell>Image</TableCell>
                   <TableCell>Title</TableCell>
                   <TableCell>Description</TableCell>
-                 
+
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -187,7 +187,7 @@ const SkillProgression = () => {
                     <TableCell>{row.program.program_name}</TableCell>
                     <TableCell>{row.image && <img src={`${IMAGE_BASE_URL}${row.image}`} alt={row.program_name} className="border border-2 rounded-1 p-1" width="40" height="40" />}</TableCell>
                     <TableCell>{row.title}</TableCell>
-                    <TableCell>{row.description}</TableCell>                   
+                    <TableCell>{row.description}</TableCell>
                     <TableCell align="center">
                       <DropdownButton
                         align="end"
@@ -196,7 +196,7 @@ const SkillProgression = () => {
                         className="custom_dropdown"
                       >
                         <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
-                        <Dropdown.Item className="text-danger fs-14" size="small"onClick={() => { setSelectedRow(row); setDeleteModalOpen(true)}}>Delete</Dropdown.Item>
+                        <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true) }}>Delete</Dropdown.Item>
                       </DropdownButton>
                     </TableCell>
                   </TableRow>
@@ -238,49 +238,51 @@ const SkillProgression = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <Box sx={{
+        <Box className="custom_modal" sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
-          boxShadow: 12, p: 3, borderRadius: 2
+          boxShadow: 12, borderRadius: 2
         }}>
-          <Typography variant="h6" gutterBottom>{editId ? 'Edit Skill Progression' : 'Create Skill Progression'}</Typography>
-          {!editId && (
-            <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
-              {programs.map((program) => (
-                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-              ))}
-            </Select>
-          )}
-          {editId ? (
-            // Edit: Single Entry Form
-            <>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Skill Progression' : 'Create Skill Progression'}</Typography>
+          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {!editId && (
+              <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                {programs.map((program) => (
+                  <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                ))}
+              </Select>
+            )}
+            {editId ? (
+              // Edit: Single Entry Form
+              <>
 
-              <TextField size="small" multiline rows={2} className="mb-3" label="Description" value={formData.description} onChange={(e) => handleChange(0, "description", e.target.value)} fullWidth required />
-              <Box className="d-flex" sx={{ gap: 2 }}>
-                <TextField size="small" className="mb-3" label="Title" value={formData.title} onChange={(e) => handleChange(0, "title", e.target.value)} fullWidth required />
-                <input type="file" className="border rounded-2 w-100 p-2" style={{ height: '40px' }} accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} />
-              </Box>
+                <TextField size="small" multiline rows={2} className="mb-3" label="Description" value={formData.description} onChange={(e) => handleChange(0, "description", e.target.value)} fullWidth required />
+                <Box className="d-flex" sx={{ gap: 2 }}>
+                  <TextField size="small" className="mb-3" label="Title" value={formData.title} onChange={(e) => handleChange(0, "title", e.target.value)} fullWidth required />
+                  <input type="file" className="border rounded-2 w-100 p-2" style={{ height: '40px' }} accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} />
+                </Box>
 
-              {formData.imagePreview && <img src={formData.imagePreview} className="mt-2" alt="Preview" width="50" height="50" />}
-            </>
-          ) : (
-            // Create: Multiple Entries Form
-            formData.titles.map((_, index) => (
-              <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 2 }}>
-                <TextField size="small" label="Title" value={formData.titles[index]} onChange={(e) => handleChange(index, "titles", e.target.value)} fullWidth required />
-                <TextField size="small" label="Description" value={formData.descriptions[index]} onChange={(e) => handleChange(index, "descriptions", e.target.value)} fullWidth required />
-                <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleFileChange(index, e.target.files)} />
-                {formData.imagePreviews[index] && <img src={formData.imagePreviews[index]} alt="Preview" width="50" height="50" />}
-                <IconButton color="error" onClick={() => removeRow(index)}>
-                  <CloseIcon />
-                </IconButton>
-              </Box>
-            ))
-          )}
-          {!editId && <Button onClick={addRow} startIcon={<AddIcon />}>Add Row</Button>}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                {formData.imagePreview && <img src={formData.imagePreview} className="mt-2" alt="Preview" width="50" height="50" />}
+              </>
+            ) : (
+              // Create: Multiple Entries Form
+              formData.titles.map((_, index) => (
+                <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <TextField size="small" label="Title" value={formData.titles[index]} onChange={(e) => handleChange(index, "titles", e.target.value)} fullWidth required />
+                  <TextField size="small" label="Description" value={formData.descriptions[index]} onChange={(e) => handleChange(index, "descriptions", e.target.value)} fullWidth required />
+                  <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleFileChange(index, e.target.files)} />
+                  {formData.imagePreviews[index] && <img src={formData.imagePreviews[index]} alt="Preview" width="50" height="50" />}
+                  <IconButton color="error" onClick={() => removeRow(index)}>
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              ))
+            )}
+            {!editId && <Button variant="contained" color="success" onClick={addRow} startIcon={<AddIcon />}>Add Row</Button>}
+          </Box>
+          <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+            <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}
             </Button>
           </Box>

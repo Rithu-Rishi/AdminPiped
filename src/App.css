@@ -112,6 +112,11 @@ table tr th {
     padding: 0;
 }
 
+.selected.Mui-selected {
+    background-color: hsla(123, 46%, 34%, 0.69) !important;
+    color: #fff !important;
+}
+
 .custom_dropdown .btn:hover,
 .custom_dropdown .btn.show {
     background: none !important;
@@ -123,11 +128,14 @@ table tr th {
     padding: 5px;
 }
 
-.custom_dropdown .dropdown-menu a{
+.custom_dropdown .dropdown-menu a {
     padding: 8px;
     border-radius: 5px;
 }
 
+.date_filed {
+    width: 200px !important
+}
 
 .custom_pagination p {
     margin-bottom: 0 !important;
@@ -177,6 +185,10 @@ table tr th {
     font-size: 14px !important;
 }
 
+.fw-600{
+    font-weight: 600 !important;
+}
+
 .loginMain {
     height: calc(100vh - 30px);
     font-weight: 500;
@@ -192,4 +204,48 @@ table tr th {
     font-size: 14px;
     background-color: #fff4f3;
 
+}
+
+.Cards {
+    box-shadow: 0 0.25rem 1.125rem 0 rgba(47, 43, 61, 0.16);
+    transition: all .2s ease-in-out;
+    border: transparent !important;
+}
+
+.border_success {
+    border-bottom: 3px solid #198754a8 !important
+}
+
+.border_success:hover {
+    border-bottom: 3px solid #198754 !important
+}
+
+.border_danger {
+    border-bottom: 3px solid #dc354587 !important;
+}
+
+.border_danger:hover {
+    border-bottom: 3px solid #dc3545 !important;
+}
+
+.border_info {
+    border-bottom: 3px solid #0dcaf0a6 !important;
+}
+
+.border_info:hover {
+    border-bottom: 3px solid #0dcaf0 !important;
+}
+
+.border_primary {
+    border-bottom: 3px solid #0d6efd9c !important;
+}
+
+.border_primary:hover {
+    border-bottom: 3px solid #0d6efd !important;
+}
+
+.Cards .card-title,
+.Cards .card-text {
+    font-size: 14px;
+    color: #6d6b77;
 }

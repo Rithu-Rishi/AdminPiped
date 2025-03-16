@@ -207,31 +207,37 @@ const PaymentPlan = () => {
 
             {/* Add/Edit Child Modal */}
             < Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-                <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 700, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
-                    <Typography variant="h6" gutterBottom>{editId ? 'Edit Payment Plan' : 'Create Payment Plans'}</Typography>
-                    {!editId && (
-                        <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
-                            {programs.map((program) => (
-                                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-                            ))}
-                        </Select>
-                    )}
-                    {formData.plans.map((plan, index) => (
-                        <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 2 }}>
-                            <TextField size="small" label="Duration (Months)" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth required />
-                            <TextField size="small" label="Amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth required />
-                            <TextField size="small" label="Discount (%)" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth required />
-                            <TextField size="small" label="Final Amount" value={plan.final_amount} fullWidth disabled />
-                            {!editId && (
-                                <IconButton color="error" onClick={() => removeRow(index)}>
-                                    <CloseIcon />
-                                </IconButton>
-                            )}
-                        </Box>
-                    ))}
-                    {!editId && <Button onClick={addRow} startIcon={<AddIcon />}>Add Row</Button>}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                        <Button variant="contained" color="primary" onClick={handleSubmit}>
+                <Box className="custom_modal" sx={{
+                    position: 'absolute', top: '50%', left: '50%',
+                    transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
+                    boxShadow: 12, borderRadius: 2
+                }}>
+                    <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Payment Plan' : 'Create Payment Plans'}</Typography>
+                    <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {!editId && (
+                            <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                                {programs.map((program) => (
+                                    <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                                ))}
+                            </Select>
+                        )}
+                        {formData.plans.map((plan, index) => (
+                            <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                <TextField size="small" label="Duration (Months)" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth required />
+                                <TextField size="small" label="Amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth required />
+                                <TextField size="small" label="Discount (%)" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth required />
+                                <TextField size="small" label="Final Amount" value={plan.final_amount} fullWidth disabled />
+                                {!editId && (
+                                    <IconButton color="error" onClick={() => removeRow(index)}>
+                                        <CloseIcon />
+                                    </IconButton>
+                                )}
+                            </Box>
+                        ))}
+                        {!editId && <Button size="small" variant="contained" color="success" onClick={addRow} startIcon={<AddIcon />}>Add Row</Button>}
+                    </Box>
+                    <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
+                        <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
                             {editId ? 'Update' : 'Create'}
                         </Button>
                     </Box>

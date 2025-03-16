@@ -53,9 +53,9 @@ const FacilityPaymentPlans = () => {
         setFormModalOpen(true);
     };
 
-    const calculateFinalAmount = (amount, discount, kitAmount) => {
+    const calculateFinalAmount = (amount, discount) => {
         const discountAmount = (amount * discount) / 100;
-        return Number(amount) - discountAmount + Number(kitAmount);
+        return Number(amount) - discountAmount;
     };
 
     const handleChange = (index, field, value) => {

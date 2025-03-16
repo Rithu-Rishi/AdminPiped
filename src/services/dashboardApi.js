@@ -1,0 +1,12 @@
+import API from "../config/api";
+
+// Fetch Dashboard Data
+export const getDashboardData = async () => {
+  try {
+    const response = await API.get("/api/admin/dashboard");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    throw error;
+  }
+};

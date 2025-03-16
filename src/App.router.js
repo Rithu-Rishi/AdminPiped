@@ -21,7 +21,7 @@ import UserBookings from "./pages/UserBookings";
 import Transitions from "./pages/Transitions";
 import Sliders from "./pages/Sliders";
 import WorkShop from "./pages/Workshop";
-import MembershipOffers from "./pages/offers";
+import MembershipOffers from "./pages/MembershipOffers";
 import NoticeBoard from "./pages/NoticeBoard";
 
 const AppRouter = () => {

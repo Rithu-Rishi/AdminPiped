@@ -230,12 +230,12 @@ const Programs = () => {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <div>
                 <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "image")} />
-                <div class="form-text fs-10">&#128712; Programs Small Image</div>
+                <div className="form-text fs-10">&#128712; Programs Small Image</div>
                 {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
               </div>
               <div>
                 <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "banner")} />
-                <div class="form-text fs-10">&#128712; Program Banner Image</div>
+                <div className="form-text fs-10">&#128712; Program Banner Image</div>
                 {previewBanner && <img src={previewBanner} alt="Preview" width="100" height="100" />}
               </div>
             </Box>

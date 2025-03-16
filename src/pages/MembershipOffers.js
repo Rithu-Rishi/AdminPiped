@@ -4,19 +4,17 @@ import {
   Paper, Button, IconButton, Modal, Box, Typography, TextField,
   TablePagination, CircularProgress, Snackbar, Alert, Switch
 } from "@mui/material";
-import { getAllWorkshops, addWorkshop, updateWorkshop, deleteWorkshop, toggleWorkshopStatus } from "../services/workShopApi";
+import { getAllOffers, addOffer, updateOffer, deleteOffer, toggleOfferStatus } from "../services/offersApi";
 import { Add as AddIcon, MoreVert as Menu } from "@mui/icons-material";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { IMAGE_BASE_URL } from "../config/constants";
 import AlertMessage from "../includes/AlertMessage";
 
-const WorkShop = () => {
-  const [workshops, setWorkshops] = useState([]);
+const MembershipOffers = () => {
+  const [offers, setOffers] = useState([]);
   const [formData, setFormData] = useState({
-    workshop_name: "", date: "", time: "", link: "", image: "", is_active: true,
+    link: "", image: "", is_active: true,
   });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
@@ -29,16 +27,16 @@ const WorkShop = () => {
   const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
-    fetchWorkshops();
+    fetchOffers();
   }, []);
 
-  const fetchWorkshops = async () => {
+  const fetchOffers = async () => {
     setLoading(true);
     try {
-      const response = await getAllWorkshops();
-      setWorkshops(response.workshops || []);
+      const response = await getAllOffers();
+      setOffers(response.offers || []);
     } catch (err) {
-      console.error("Failed to fetch workshops.");
+      console.error("Failed to fetch offers.");
     }
     setLoading(false);
   };
@@ -47,16 +45,16 @@ const WorkShop = () => {
     setLoading(true);
     try {
       if (editId) {
-        await updateWorkshop(editId, formData);
-        setAlertMessage({ open: true, type: "success", message: "Workshop updated successfully!" });
+        await updateOffer(editId, formData);
+        setAlertMessage({ open: true, type: "success", message: "Offer updated successfully!" });
       } else {
-        await addWorkshop(formData);
-        setAlertMessage({ open: true, type: "success", message: "Workshop created successfully!" });
+        await addOffer(formData);
+        setAlertMessage({ open: true, type: "success", message: "Offer created successfully!" });
       }
       setFormModalOpen(false);
-      fetchWorkshops();
+      fetchOffers();
     } catch (err) {
-      setAlertMessage({ open: true, type: "error", message: "Failed to save workshop." });
+      setAlertMessage({ open: true, type: "error", message: "Failed to save offer." });
     }
     setLoading(false);
   };
@@ -64,15 +62,15 @@ const WorkShop = () => {
   const handleDelete = async () => {
     setLoading(true);
     try {
-      await deleteWorkshop(selectedRow.id);
+      await deleteOffer(selectedRow.id);
       setDeleteModalOpen(false);
       setAlertMessage({
-        open: true, type: "success", message: "Workshop deleted successfully!",
+        open: true, type: "success", message: "Offer deleted successfully!",
       });
-      fetchWorkshops();
+      fetchOffers();
     } catch (err) {
       setAlertMessage({
-        open: true, type: "error", message: "Failed to delete workshop.",
+        open: true, type: "error", message: "Failed to delete Offer.",
       });
     }
     setLoading(false);
@@ -80,8 +78,8 @@ const WorkShop = () => {
 
   const handleToggleStatus = async (id) => {
     try {
-      await toggleWorkshopStatus(id);
-      fetchWorkshops();
+      await toggleOfferStatus(id);
+      fetchOffers();
     } catch (err) {
       console.error("Failed to update status.");
     }
@@ -90,9 +88,6 @@ const WorkShop = () => {
   const openFormModal = (row = null) => {
     if (row) {
       setFormData({
-        workshop_name: row.workshop_name,
-        date: row.date ? new Date(row.date) : null,
-        time: row.time,
         link: row.link,
         image: row.image,
         is_active: row.is_active
@@ -101,7 +96,7 @@ const WorkShop = () => {
       setEditId(row.id);
     } else {
       setFormData({
-        workshop_name: "", date: "", time: "", link: "", image: "", is_active: true
+        link: "", image: "", is_active: true
       });
       setPreviewImage("");
       setEditId(null);
@@ -125,36 +120,30 @@ const WorkShop = () => {
     <>
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
-        <h5 className="mb-0">Workshop Days</h5>
+        <h5 className="mb-0">Membership Offers</h5>
         <div>
           <Button size="small" variant="contained" color="success" onClick={() => openFormModal()} startIcon={<AddIcon />}>
-            Add Workshop
+            Add Offer
           </Button>
         </div>
       </div>
 
       {loading ? <CircularProgress /> : (
-        workshops.length > 0 ? (
+        offers.length > 0 ? (
           <TableContainer component={Paper}>
             <Table aria-label=" simple table">
               <TableHead>
                 <TableRow>
                   <TableCell>Image</TableCell>
-                  <TableCell>Workshop Name</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Time</TableCell>
                   <TableCell>Link</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {workshops.map((row) => (
+                {offers.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell><img src={`${IMAGE_BASE_URL}${row.image}`} className="border border-1 rounded-2 p-1" width={60} /></TableCell>
-                    <TableCell>{row.workshop_name}</TableCell>
-                    <TableCell>{row.date}</TableCell>
-                    <TableCell>{row.time}</TableCell>
                     <TableCell>{row.link}</TableCell>
                     <TableCell>
                       <Switch checked={row.is_active === 1} onChange={() => handleToggleStatus(row.id)} />
@@ -169,7 +158,6 @@ const WorkShop = () => {
                         <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)} >Edit</Dropdown.Item>
                         <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>Delete</Dropdown.Item>
                       </DropdownButton>
-
                     </TableCell>
                   </TableRow>
                 ))}
@@ -186,7 +174,7 @@ const WorkShop = () => {
         <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
           <Typography variant="body1" gutterBottom>
-            Are you sure you want to delete <b>{selectedRow?.workshop_name}</b>?
+            Are you sure you want to delete offer?
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
@@ -197,27 +185,15 @@ const WorkShop = () => {
 
       {/* Add/Edit Workshop Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}
-        aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description"
+      >
         <Box className="custom_modal" sx={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper',
           boxShadow: 12, borderRadius: 2
         }}>
-          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? "Update ": "Add "} Workshop</Typography>
+          <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? "Update " : "Add "}Offer</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <TextField size="small" label="Workshop Name" name="workshop_name" value={formData.workshop_name} onChange={(e) => setFormData({ ...formData, workshop_name: e.target.value })} fullWidth required />
-            {/* <TextField size="small" label="Date" type="date" name="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} fullWidth required /> */}
-            <DatePicker
-              selected={formData.date}
-              onChange={(date) => setFormData({ ...formData, date: date ? date.toISOString().split("T")[0] : "" })}
-              dateFormat="dd MMM, yyyy"
-              showYearDropdown
-              showMonthDropdown
-              dropdownMode="select"
-              className="form-control"
-              placeholderText="Date"
-            />
-            <TextField size="small" label="Time" name="time" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} fullWidth required />
             <TextField size="small" label="Link" name="link" value={formData.link} onChange={(e) => setFormData({ ...formData, link: e.target.value })} fullWidth required />
             <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
             {previewImage && <img src={previewImage} alt="Preview" width="60" height="60" className="mt-2" />}
@@ -236,4 +212,4 @@ const WorkShop = () => {
   );
 }
 
-export default WorkShop;
+export default MembershipOffers;

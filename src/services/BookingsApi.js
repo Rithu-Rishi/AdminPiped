@@ -22,3 +22,16 @@ export const getProgramTransactions = async () => {
         throw error;
     }
 };
+
+// Fetch booking details by ID
+export const getBookingDetails = async (bookingId) => {
+    try {
+        const response = await API.get(`/api/booking-history/${bookingId}`);
+        console.log(response.data)
+        return response.data;
+        
+    } catch (error) {
+        console.error("Error fetching booking details", error);
+        throw error;
+    }
+};

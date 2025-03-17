@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
+import { formatDate } from '../utils/dateUtils';
 
 const Transitions = () => {
     const [transactions, setTransitions] = useState([]);
@@ -60,7 +61,7 @@ const Transitions = () => {
                                         <TableCell>{transaction.parent?.name || "N/A"}</TableCell>
                                         <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{transaction.amount_paid || "N/A"}</TableCell>
                                         <TableCell><span className="text-success">{transaction.payment_status || "N/A"}</span></TableCell>
-                                        <TableCell>{transaction.created_at || "N/A"}</TableCell>
+                                        <TableCell>{formatDate(transaction.created_at) || "N/A"}</TableCell>
                                         <TableCell><span className="px-3 py-1 rounded-1 bg-opacity-10 bg-success text-success">{transaction.transaction_id || "N/A"}</span></TableCell>
                                     </TableRow>
                                 ))}

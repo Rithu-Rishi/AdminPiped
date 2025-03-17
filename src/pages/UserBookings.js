@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { getUserBookings } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography
+    TablePagination, Typography, Model
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, CurrencyRupee as CurrencyRupeeIcon, MoreVert as Menu } from "@mui/icons-material";
+import { formatDate } from '../utils/dateUtils';
 
 const UserBookings = () => {
     const [bookings, setBookings] = useState([]);

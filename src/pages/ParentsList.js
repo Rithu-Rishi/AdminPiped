@@ -10,6 +10,7 @@ import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import { formatDate } from '../utils/dateUtils';
 
 const ParentsList = () => {
   const [parents, setParents] = useState([]);
@@ -144,7 +145,7 @@ const ParentsList = () => {
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.email}</TableCell>
                     <TableCell>{row.mobile_number}</TableCell>
-                    <TableCell>{row.date_of_birth}</TableCell>
+                    <TableCell>{formatDate(row.date_of_birth)}</TableCell>
                     <TableCell>
                       {row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" width="50" height="50" />}
                     </TableCell>

@@ -5,16 +5,16 @@ import {
     TablePagination, Typography, Modal, Box
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
-import { CurrencyRupee as CurrencyRupeeIcon} from "@mui/icons-material";
+import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import { Row, Col } from "react-bootstrap";
 
 const UserBookings = () => {
     const [bookings, setBookings] = useState([]);
+    const [bookingDetails, setBookingDetails] = useState(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [selectedBooking, setSelectedBooking] = useState(null);
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
 
     useEffect(() => {
         fetchBookings();
@@ -31,12 +31,14 @@ const UserBookings = () => {
         setLoading(false);
     };
 
-    const handleOpen = async (bookingId) => {
+    const handleBookingDetails = async (bookingId) => {
         setLoading(true);
         try {
             const response = await getBookingDetails(bookingId);
-            setSelectedBooking(response);
-            setOpen(true);
+            console.log("response ", response);
+            setBookingDetails(response);
+            console.log("details ", bookingDetails);
+            setDetailModalOpen(true);
         } catch (err) {
             console.error("Failed to fetch booking details.");
         }
@@ -44,8 +46,8 @@ const UserBookings = () => {
     };
 
     const handleClose = () => {
-        setOpen(false);
-        setSelectedBooking(null);
+        setDetailModalOpen(false);
+        setBookingDetails(null);
     };
 
     const handleChangePage = (_, newPage) => {
@@ -67,6 +69,7 @@ const UserBookings = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
+                                    <TableCell>Booking ID</TableCell>
                                     <TableCell>Parent</TableCell>
                                     <TableCell>Child Name</TableCell>
                                     <TableCell>Program Name</TableCell>
@@ -79,8 +82,9 @@ const UserBookings = () => {
                             <TableBody>
                                 {bookings.map((booking) => (
                                     <TableRow key={booking.id}>
+                                        <TableCell onClick={() => handleBookingDetails(booking.booking_id)}>{booking.booking_id || "N/A"}</TableCell>
                                         <TableCell>{booking.user?.name || "N/A"}</TableCell>
-                                        <TableCell onClick={() => handleOpen(booking.id)}>{booking.child?.child_name || "N/A"}</TableCell>
+                                        <TableCell>{booking.child?.child_name || "N/A"}</TableCell>
                                         <TableCell>{booking.program?.program_name || "N/A"}</TableCell>
                                         <TableCell>{booking.skill_level?.skill_name || "N/A"}</TableCell>
                                         <TableCell>{booking.payment_plan?.duration_months || "N/A"} Months</TableCell>
@@ -106,7 +110,7 @@ const UserBookings = () => {
                 )
             )}
 
-            <Modal open={open} onClose={handleClose}>
+            <Modal open={detailModalOpen} onClose={handleClose}>
                 <Box className="custom_modal" sx={{
                     position: 'absolute', top: '50%', left: '50%',
                     transform: 'translate(-50%, -50%)', width: 800, bgcolor: 'background.paper',
@@ -114,23 +118,23 @@ const UserBookings = () => {
                 }}>
                     <Typography variant="h6" className="custom_heading_modal">Booking Details</Typography>
                     <Box className="modal_body bg-white p-3" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-                        {selectedBooking ? (
+                        {bookingDetails ? (
                             <>
                                 <Row>
                                     <Col>
                                         <div className="section">
                                             <h6>Child Information</h6>
-                                            <p><span>Name</span>: {selectedBooking.child?.child_name || "N/A"}</p>
-                                            <p><span>Gender</span>: {selectedBooking.child?.gender || "N/A"}</p>
-                                            <p><span>Code</span>: {selectedBooking.child?.code || "N/A"}</p>
+                                            <p><span>Name</span>: {bookingDetails.child?.child_name || "N/A"}</p>
+                                            <p><span>Gender</span>: {bookingDetails.child?.gender || "N/A"}</p>
+                                            <p><span>Code</span>: {bookingDetails.child?.code || "N/A"}</p>
                                         </div>
                                     </Col>
                                     <Col>
                                         <div className="section">
                                             <h6>Parent Information</h6>
-                                            <p><span>Name</span>: {selectedBooking.user?.name || "N/A"}</p>
-                                            <p><span>Email</span>: {selectedBooking.user?.email || "N/A"}</p>
-                                            <p><span>Role</span>: {selectedBooking.user?.role || "N/A"}</p>
+                                            <p><span>Name</span>: {bookingDetails.parent?.name || "N/A"}</p>
+                                            <p><span>Email</span>: {bookingDetails.parent?.email || "N/A"}</p>
+                                            <p><span>Mobile</span>: {bookingDetails.parent?.mobile_number || "N/A"}</p>
                                         </div>
                                     </Col>
                                 </Row>
@@ -138,27 +142,32 @@ const UserBookings = () => {
                                     <Col>
                                         <div className="section">
                                             <h6>Program Details</h6>
-                                            <p><span>Program</span>: {selectedBooking.program?.program_name || "N/A"}</p>
-                                            <p><span>Skill Level</span>: {selectedBooking.skill_level?.skill_name || "N/A"} ({selectedBooking.payment_plan?.duration_months || "N/A"} months)</p>
-                                            <p><span>Sub Program</span>: {selectedBooking.sub_program?.sub_program_name || "N/A"}</p>
-                                            <p><span>Focus Area</span>: {selectedBooking.focus_area?.focus_area_name || "N/A"}</p>
+                                            <p><span>Program</span>: {bookingDetails.program?.program_name || "N/A"}</p>
+                                            <p><span>Skill Level</span>: {bookingDetails.skill_level?.skill_name || "N/A"} ({bookingDetails.payment_plan?.duration_months || "N/A"} months)</p>
+                                            <p><span>Sub Program</span>: {bookingDetails.sub_program_focus?.title || "N/A"}</p>
                                         </div>
                                     </Col>
                                     <Col>
                                         <div className="section">
                                             <h6>Payment Details</h6>
-                                            <p><span>Final Amount</span>: <CurrencyRupeeIcon className="fs-14 text-black" />{selectedBooking.transaction?.final_amount || "N/A"}</p>
-                                            <p><span>Payment Plan</span>: {selectedBooking.payment_plan?.duration_months || "N/A"} Months</p>
-                                            <p><span>Transaction ID</span>: {selectedBooking.transaction?.transaction_id || "N/A"}</p>
-                                            <p><span>Amount Paid</span>: <CurrencyRupeeIcon className="fs-14 text-black" />{selectedBooking.transaction?.amount_paid || "N/A"}</p>
+                                            <p><span>Payment Plan</span>: {bookingDetails.payment_plan?.duration_months || "N/A"} Months</p>
+                                            <p><span>Transaction ID</span>: {bookingDetails.transaction?.transaction_id || "N/A"}</p>
+                                            <p><span>Amount Paid</span>: <CurrencyRupeeIcon className="fs-14 text-black" />{bookingDetails.transaction?.amount_paid || "N/A"}</p>
                                         </div>
                                     </Col>
                                 </Row>
                                 <div className="section">
                                     <h6>Time Slots</h6>
-                                    {selectedBooking.time_slots?.map((slot, index) => (
-                                        <p key={index}><span>{slot.day}</span>: {slot.start_time} - {slot.end_time}</p>
-                                    )) || "N/A"}
+                                    {bookingDetails.time_slots?.length > 0 ? (
+                                        bookingDetails.time_slots.map((slot, index) => (
+                                            <p key={index}>
+                                                <span>{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][slot.day]}</span> :
+                                                {slot.start_time} - {slot.end_time}
+                                            </p>
+                                        ))
+                                    ) : (
+                                        <p>N/A</p>
+                                    )}
                                 </div>
                             </>
                         ) : (

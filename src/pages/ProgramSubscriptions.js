@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getFacilityUserSubscriptions } from "../services/facilityApi";
+import { getProgramSubscriptions } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     TablePagination, Typography
@@ -7,21 +7,22 @@ import {
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
 
-const FacilitySubscriptions = () => {
+const ProgramSubscriptions = () => {
     const [subscriptions, setSubscriptions] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        fetchSubscriptions();
+        fetchProgramSubscriptions();
     }, [page]);
 
-    const fetchSubscriptions = async () => {
+    const fetchProgramSubscriptions = async () => {
         setLoading(true);
         try {
-            const response = await getFacilityUserSubscriptions();
-            setSubscriptions(response || []);
+            const response = await getProgramSubscriptions();
+            console.log(response.subscriptions.data);
+            setSubscriptions(response.subscriptions.data || []);
         } catch (err) {
             console.error("Failed to fetch facility subscriptions.");
         }
@@ -39,7 +40,7 @@ const FacilitySubscriptions = () => {
 
     return (
         <>
-            <h5>Facility Subscriptions</h5>
+            <h5>Program Subscriptions</h5>
 
             {loading ? <Spinner loading={loading} /> : (
                 subscriptions.length > 0 ? (
@@ -50,6 +51,7 @@ const FacilitySubscriptions = () => {
                                     <TableCell>Parent</TableCell>
                                     <TableCell>Mobile Number</TableCell>
                                     <TableCell>Child Name</TableCell>
+                                    <TableCell>Program</TableCell>
                                     <TableCell>Start Date</TableCell>
                                     <TableCell>End Date</TableCell>
                                     <TableCell>Status</TableCell>
@@ -61,6 +63,7 @@ const FacilitySubscriptions = () => {
                                         <TableCell>{subscription.parent?.name || "N/A"}</TableCell>
                                         <TableCell>{subscription.parent?.mobile_number || "N/A"}</TableCell>
                                         <TableCell>{subscription.child?.child_name || "N/A"}</TableCell>
+                                        <TableCell>{subscription.program?.program_name}</TableCell>
                                         <TableCell>{formatDate(subscription.start_date) || "N/A"}</TableCell>
                                         <TableCell>{formatDate(subscription.end_date) || "N/A"}</TableCell>
                                         <TableCell>
@@ -91,4 +94,4 @@ const FacilitySubscriptions = () => {
     );
 };
 
-export default FacilitySubscriptions;
+export default ProgramSubscriptions;

@@ -13,6 +13,7 @@ import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import { formatDate } from '../utils/dateUtils';
 
 const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
@@ -155,7 +156,7 @@ const Teacher = () => {
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.email}</TableCell>
                     <TableCell>{row.mobile_number}</TableCell>
-                    <TableCell>{row.date_of_birth}</TableCell>
+                    <TableCell>{formatDate(row.date_of_birth)}</TableCell>
                     <TableCell align="center">
                       <DropdownButton
                         align="end"

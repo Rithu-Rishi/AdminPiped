@@ -23,6 +23,7 @@ import Sliders from "./pages/Sliders";
 import WorkShop from "./pages/Workshop";
 import MembershipOffers from "./pages/MembershipOffers";
 import NoticeBoard from "./pages/NoticeBoard";
+import ProgramSubscriptions from "./pages/ProgramSubscriptions";
 
 const AppRouter = () => {
     return (
@@ -51,6 +52,7 @@ const AppRouter = () => {
                     <Route path="/workshop" element={<WorkShop />} />
                     <Route path="/offers" element={<MembershipOffers />} />
                     <Route path="/noticeboard" element={<NoticeBoard />} />
+                    <Route path="/programSubscriptions" element={<ProgramSubscriptions />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

@@ -21,6 +21,7 @@ import BeenhereOutlinedIcon from '@mui/icons-material/BeenhereOutlined';
 import logo from '../assets/images/logo1.png'
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import AllOutOutlinedIcon from '@mui/icons-material/AllOutOutlined';
 
 const Sidebar = () => {
   const [open, setOpen] = React.useState(false);
@@ -83,8 +84,6 @@ const Sidebar = () => {
             <ListItemText className='text_items' primary="Childrens" />
           </ListItemButton>
         </Link>
-
-
 
         <ListItemButton className='single_item' onClick={handleClick}>
           <ListItemIcon className='icon_items'>
@@ -218,6 +217,14 @@ const Sidebar = () => {
               <BeenhereOutlinedIcon />
             </ListItemIcon>
             <ListItemText className='text_items' primary="Class Bookings" />
+          </ListItemButton>
+        </Link>
+        <Link to='/programSubscriptions'>
+          <ListItemButton className='single_item'>
+            <ListItemIcon className='icon_items'>
+              <AllOutOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText className='text_items' primary="Subscriptions" />
           </ListItemButton>
         </Link>
 

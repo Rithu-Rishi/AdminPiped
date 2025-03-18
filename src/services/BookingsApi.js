@@ -23,13 +23,22 @@ export const getProgramTransactions = async () => {
     }
 };
 
-// Fetch booking details by ID
+// Fetch booking details by Booking ID
 export const getBookingDetails = async (bookingId) => {
     try {
-        const response = await API.get(`/api/booking-history/${bookingId}`);
-        console.log(response.data)
+        const response = await API.get(`/api/child/booking-details/${bookingId}`);
         return response.data;
-        
+    } catch (error) {
+        console.error("Error fetching booking details", error);
+        throw error;
+    }
+};
+
+// Fetch booking details by Booking ID
+export const getProgramSubscriptions = async (page = 1) => {
+    try {
+        const response = await API.get(`/api/program/subscription?page=${page}`);
+        return response.data;
     } catch (error) {
         console.error("Error fetching booking details", error);
         throw error;

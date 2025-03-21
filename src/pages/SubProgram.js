@@ -10,6 +10,7 @@ import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import { IMAGE_BASE_URL } from "../config/constants";
 
 const SubPrograms = () => {
   const [subPrograms, setSubPrograms] = useState([]);
@@ -262,7 +263,7 @@ const SubPrograms = () => {
             <input type="file" className="mt-3 rounded-2 border w-100 p-2 mb-2" multiple accept="image/*" onChange={handleNewImageUpload} />
             {formData.images.map((img, index) => (
               <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <img src={typeof img.path === 'string' ? `http://localhost:8000/${img.path}` : URL.createObjectURL(img)} alt="Preview" width="50" height="50" />
+                <img src={typeof img.path === 'string' ? `${IMAGE_BASE_URL}${img.path}` : URL.createObjectURL(img)} alt="Preview" width="50" height="50" />
                 <TextField label="Image Title" size="small" value={formData.image_titles[index] || ""} onChange={(e) => {
                   const updatedTitles = [...formData.image_titles];
                   updatedTitles[index] = e.target.value;

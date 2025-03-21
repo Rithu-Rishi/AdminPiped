@@ -144,25 +144,21 @@ const ChildList = () => {
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
-                <TableRow>
-                  <TableCell>Parent</TableCell>
+                <TableRow>                  
                   <TableCell>Child Name</TableCell>
+                  <TableCell>Parent</TableCell>
                   <TableCell>Gender</TableCell>
                   <TableCell>Date of Birth</TableCell>
-                  <TableCell>Profile Image</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {children.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id}>                   
+                    <TableCell>{row.profile_pic_url && <img src={`${IMAGE_BASE_URL}${row.profile_pic_url}`} alt={row.child_name} className="border border-2 rounded-1 p-1 me-1" width="40" height="40"  />}{row.child_name}</TableCell>
                     <TableCell>{row.user.name}</TableCell>
-                    <TableCell>{row.child_name}</TableCell>
                     <TableCell><span className={`px-3 py-1 rounded-1 bg-opacity-10 ${row.gender === 'Male' ? 'bg-success text-success' : 'bg-danger text-danger'}`}>{row.gender}</span></TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
-                    <TableCell>
-                      {row.profile_pic_url && <img src={`${IMAGE_BASE_URL}${row.profile_pic_url}`} alt="Profile" width="50" height="50" />}
-                    </TableCell>
                     <TableCell align="center">
                       <DropdownButton
                         align="end"

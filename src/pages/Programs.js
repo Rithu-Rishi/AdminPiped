@@ -141,7 +141,6 @@ const Programs = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Program Name</TableCell>
-                  <TableCell>Image</TableCell>
                   <TableCell>Description</TableCell>
                   <TableCell width={100}>Age</TableCell>
                   <TableCell>Fees</TableCell>
@@ -153,8 +152,7 @@ const Programs = () => {
               <TableBody>
                 {programs.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.program_name}</TableCell>
-                    <TableCell>{row.program_image && <img src={`${IMAGE_BASE_URL}${row.program_image}`} alt={row.program_name} width="40" height="40" />}</TableCell>
+                    <TableCell className="d-flex align-items-center">{row.program_image && <img src={`${IMAGE_BASE_URL}${row.program_image}`} alt={row.program_name} className="border border-2 rounded-1 p-1 me-1" width="40" height="40"  />}{row.program_name}</TableCell>
                     <TableCell>{row.program_desc}</TableCell>
                     <TableCell>{row.age_group} Yrs</TableCell>
                     <TableCell width={85}><CurrencyRupeeIcon className="fs-14 text-black" />{row.monthly_fee}</TableCell>

@@ -132,23 +132,21 @@ const ParentsList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>
+                  <TableCell># Child</TableCell>
                   <TableCell>Email</TableCell>
                   <TableCell>Mobile</TableCell>
                   <TableCell>DOB</TableCell>
-                  <TableCell>Profile Image</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {parents.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />}{row.name}</TableCell>
+                    <TableCell><span className="px-2 py-1 rounded-1 bg-opacity-10 bg-danger text-danger">{row.child_count}</span></TableCell>
                     <TableCell>{row.email}</TableCell>
                     <TableCell>{row.mobile_number}</TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
-                    <TableCell>
-                      {row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" width="50" height="50" />}
-                    </TableCell>
                     <TableCell align="center">
                       <DropdownButton
                         align="end"

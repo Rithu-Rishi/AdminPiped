@@ -67,7 +67,7 @@ const Sidebar = () => {
             <ListItemText className='text_items' primary="Dashboard" />
           </ListItemButton>
         </Link>
-        <Link to='/perantslist'>
+        <Link to='/parentlist'>
           <ListItemButton className='single_item'>
             <ListItemIcon className='icon_items'>
               <Man2OutlinedIcon />

@@ -136,6 +136,8 @@ const ParentsList = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Mobile</TableCell>
                   <TableCell>DOB</TableCell>
+                  <TableCell>Profile Image</TableCell>
+                  <TableCell># Child</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -147,6 +149,10 @@ const ParentsList = () => {
                     <TableCell>{row.email}</TableCell>
                     <TableCell>{row.mobile_number}</TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
+                    <TableCell>
+                      {row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" width="50" height="50" />}
+                    </TableCell>
+                    <TableCell>{row.child_count}</TableCell>
                     <TableCell align="center">
                       <DropdownButton
                         align="end"

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getAllSubPrograms, addSubProgram, updateSubProgram, deleteSubProgram } from "../services/subprogramsApi";
-import { getAllPrograms } from "../services/programsApi";
+import { getDropDownPrograms } from "../services/programsApi";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu } from "@mui/icons-material";
@@ -11,6 +11,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { IMAGE_BASE_URL } from "../config/constants";
+import useDebounce from "../hooks/useDebounce";
 
 const SubPrograms = () => {
   const [subPrograms, setSubPrograms] = useState([]);
@@ -22,24 +23,26 @@ const SubPrograms = () => {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
-    fetchSubPrograms(page);
+    fetchSubPrograms();
     fetchPrograms();
-  }, [page]);
+  }, [page, rowsPerPage, debouncedSearch]);
 
-  const fetchSubPrograms = async (page) => {
+  const fetchSubPrograms = async () => {
     setLoading(true);
     try {
-      const response = await getAllSubPrograms(page);
-      console.log(response);
-      setSubPrograms(response || []);
-      setTotalPages(response.last_page || 1);
+      const response = await getAllSubPrograms({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+      console.log("sub program ", response.data);
+      setSubPrograms(response.data || []);
+      setTotalCount(response.total || 0);
     } catch (err) {
       console.error("Failed to fetch sub-programs.");
     }
@@ -48,8 +51,9 @@ const SubPrograms = () => {
 
   const fetchPrograms = async () => {
     try {
-      const response = await getAllPrograms();
-      setPrograms(response || []);
+      const response = await getDropDownPrograms();
+      console.log("programs drop down ", response.data);
+      setPrograms(response.data || []);
     } catch (err) {
       console.error("Failed to fetch programs.");
     }
@@ -58,7 +62,7 @@ const SubPrograms = () => {
   // Handle Delete
   const handleDelete = async () => {
     setLoading(true);
-    await deleteSubProgram(selectedRow.id);
+    const response = await deleteSubProgram(selectedRow.id);
     setDeleteModalOpen(false);
     fetchSubPrograms(page);
     setLoading(false);
@@ -82,6 +86,11 @@ const SubPrograms = () => {
 
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
+    if (!formData.program_id || !formData.sub_title || !formData.keywords) {
+      setAlertMessage({ open: true, type: "error", message: "Please fill all required fields." });
+      return;
+    }
+
     setLoading(true);
     try {
       if (editId) {
@@ -102,12 +111,7 @@ const SubPrograms = () => {
         });
 
         if (formData.deleted_images.length > 0) {
-          formData.deleted_images.forEach((imageId) => {
-            formData.append("deleted_images", imageId);
-          });
-        } else {
-          // If no new images but deletions exist, send an empty array
-          formData.append("deleted_images", "");
+          formData.deleted_images.forEach((imageId) => payload.append("deleted_images[]", imageId));
         }
 
         await updateSubProgram(editId, payload);
@@ -119,7 +123,7 @@ const SubPrograms = () => {
       setFormModalOpen(false);
       fetchSubPrograms(page);
     } catch (err) {
-      console.error("Failed to save sub-program.");
+      console.error("Failed to save sub-program.", err);
       setAlertMessage({ open: true, type: "error", message: "Failed to save sub-program." });
     }
     setLoading(false);
@@ -134,8 +138,8 @@ const SubPrograms = () => {
         sub_title: subProgram.sub_title,
         keywords: subProgram.keywords,
         images: subProgram.images || [],
-        image_titles: subProgram.images ? subProgram.images.map(img => img.title || "") : [],
-        image_colors: subProgram.images ? subProgram.images.map(img => img.color_code || "") : [],
+        image_titles: subProgram.images?.map(img => img.title || ""),
+        image_colors: subProgram.images?.map(img => img.color_code || ""),
         deleted_images: []
       });
       console.log(formData.images);
@@ -174,6 +178,12 @@ const SubPrograms = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Sub Programs</h5>
+        <TextField
+          label="Search..." size="small" value={searchTerm} onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+        />
         <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Sub Program
@@ -197,7 +207,7 @@ const SubPrograms = () => {
               <TableBody>
                 {subPrograms.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.program.program_name}</TableCell>
+                    <TableCell>{row.program?.program_name}</TableCell>
                     <TableCell>{row.sub_title}</TableCell>
                     <TableCell>{row.keywords}</TableCell>
                     <TableCell align="center">
@@ -208,7 +218,7 @@ const SubPrograms = () => {
                         className="custom_dropdown"
                       >
                         <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
-                        <Dropdown.Item className="text-danger fs-14" size="small"  onClick={() => { setSelectedRow(row); setDeleteModalOpen(true)}}>Delete</Dropdown.Item>
+                        <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true) }}>Delete</Dropdown.Item>
                       </DropdownButton>
                     </TableCell>
                   </TableRow>
@@ -218,11 +228,14 @@ const SubPrograms = () => {
             <TablePagination
               className="custom_pagination"
               component="div"
-              count={totalPages * rowsPerPage}
-              page={page - 1}
-              onPageChange={(event, newPage) => setPage(newPage + 1)}
+              count={totalCount}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
               rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setPage(0);
+              }}
             />
           </TableContainer>
         ) : (
@@ -233,15 +246,13 @@ const SubPrograms = () => {
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
         <Box sx={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
-          boxShadow: 24, p: 3, borderRadius: 2
+          p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center"
         }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to delete <b>{selectedRow?.sub_title}</b>?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
@@ -253,11 +264,14 @@ const SubPrograms = () => {
         <Box className="custom_modal" sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, bgcolor: 'background.paper', boxShadow: 12, borderRadius: 2 }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Sub Program' : 'Create Sub Program'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={handleChange}>
-              {programs.map((program) => (
-                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-              ))}
-            </Select>
+            <FormControl size="small" fullWidth>
+              <InputLabel id="label-helper">Select Program</InputLabel>
+              <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={handleChange}>
+                {programs.map((program) => (
+                  <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField size="small" className="mt-3" label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth required />
             <TextField size="small" className="mt-3" label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
             <input type="file" className="mt-3 rounded-2 border w-100 p-2 mb-2" multiple accept="image/*" onChange={handleNewImageUpload} />

@@ -1,10 +1,10 @@
 import API from "../config/api.js";
 
 // Fetch all sub-programs
-export const getAllSubPrograms = async (page = 1) => {
+export const getAllSubPrograms = async ({ page = 1, per_page = 10, search = "" }) => {
   try {
-    const response = await API.get(`/api/sub-programs?page=${page}`);
-    return response.data;
+    const response = await API.get(`/api/sub-programs?page=${page}&per_page=${per_page}&search=${search}`);
+    return response.data.data;
   } catch (error) {
     console.error("Error fetching sub-programs:", error);
     throw error;

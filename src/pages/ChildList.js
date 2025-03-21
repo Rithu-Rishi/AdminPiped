@@ -14,6 +14,8 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
+import Child from '../assets/images/child.png';
+import useDebounce from "../hooks/useDebounce";
 
 const ChildList = () => {
   const [children, setChildren] = useState([]);
@@ -34,17 +36,24 @@ const ChildList = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
+  const [totalCount, setTotalCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     fetchChildren();
+  }, [page, rowsPerPage, debouncedSearch]);
+
+  useEffect(() => {
     fetchParents();
-  }, [page]);
+  }, []);
 
   const fetchChildren = async () => {
     setLoading(true);
     try {
-      const response = await getAllChildren();
+      const response = await getAllChildren({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
       setChildren(response.data || []);
+      setTotalCount(response.total || 0);
     } catch (err) {
       console.error("Failed to fetch children.");
     }
@@ -132,11 +141,20 @@ const ChildList = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Child List</h5>
-        <div>
+        <TextField
+          size="small"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+        />
+        {/* <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Child
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {loading ? <Spinner loading={loading} /> : (
@@ -144,7 +162,7 @@ const ChildList = () => {
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
-                <TableRow>                  
+                <TableRow>
                   <TableCell>Child Name</TableCell>
                   <TableCell>Parent</TableCell>
                   <TableCell>Gender</TableCell>
@@ -154,8 +172,8 @@ const ChildList = () => {
               </TableHead>
               <TableBody>
                 {children.map((row) => (
-                  <TableRow key={row.id}>                   
-                    <TableCell>{row.profile_pic_url && <img src={`${IMAGE_BASE_URL}${row.profile_pic_url}`} alt={row.child_name} className="border border-2 rounded-1 p-1 me-1" width="40" height="40"  />}{row.child_name}</TableCell>
+                  <TableRow key={row.id}>
+                    <TableCell><img src={row.profile_pic_url ? `${IMAGE_BASE_URL}${row.profile_pic_url}` : Child} alt={row.child_name} className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />{row.child_name}</TableCell>
                     <TableCell>{row.user.name}</TableCell>
                     <TableCell><span className={`px-3 py-1 rounded-1 bg-opacity-10 ${row.gender === 'Male' ? 'bg-success text-success' : 'bg-danger text-danger'}`}>{row.gender}</span></TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
@@ -166,7 +184,7 @@ const ChildList = () => {
                         size='sm'
                         className="custom_dropdown"
                       >
-                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                        {/* <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item> */}
                         <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(row)}>Delete</Dropdown.Item>
                       </DropdownButton>
                     </TableCell>
@@ -178,7 +196,7 @@ const ChildList = () => {
               className="custom_pagination"
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={children.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={(_, newPage) => setPage(newPage)}
@@ -195,10 +213,10 @@ const ChildList = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <Box sx={{ p: 3, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 400, mx: "auto", mt: 10 }}>
-          <Typography variant="h6">Confirm Deletion</Typography>
-          <Typography>Are you sure you want to delete {selectedChild?.child_name}?</Typography>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <Box sx={{ p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 400, mx: "auto", mt: 15, textAlign: "center" }}>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>Are you sure you want to delete {selectedChild?.child_name}?</Typography>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
@@ -232,8 +250,13 @@ const ChildList = () => {
               </Select>
               {/* <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth /> */}
               <DatePicker
-                selected={formData.date_of_birth}
-                onChange={(date) => setFormData({ ...formData, date_of_birth: date ? date.toISOString().split("T")[0] : "" })}
+                selected={formData.date_of_birth ? new Date(formData.date_of_birth) : null}
+                onChange={(date) =>
+                  setFormData({
+                    ...formData,
+                    date_of_birth: date ? date.toISOString().split("T")[0] : "",
+                  })
+                }
                 dateFormat="dd MMM, yyyy"
                 showYearDropdown
                 showMonthDropdown

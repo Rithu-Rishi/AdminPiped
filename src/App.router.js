@@ -33,7 +33,7 @@ const AppRouter = () => {
                 <Route element={<ProtectedRoute />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/perantslist" element={<ParentsList />} />
+                    <Route path="/parentlist" element={<ParentsList />} />
                     <Route path="/childlist" element={<ChildList />} />
                     <Route path="/teachers" element={<Teacher />} />
                     <Route path="/programs" element={<Programs />} />

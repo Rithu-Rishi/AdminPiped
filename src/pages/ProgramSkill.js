@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { getAllSkillLevels, addSkillLevels, updateSkillLevels, deleteSkillLevel } from "../services/skillLevelApi";
-import { getAllPrograms } from "../services/programsApi";
+import { getDropDownPrograms } from "../services/programsApi";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon  } from "@mui/icons-material";
+import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import { Link } from "react-router";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import useDebounce from "../hooks/useDebounce";
 
 const ProgramSkill = () => {
   const [skillLevels, setSkillLevels] = useState([]);
@@ -20,24 +21,26 @@ const ProgramSkill = () => {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
+  const [totalCount, setTotalCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
-    fetchSkillLevels(page);
+    fetchSkillLevels();
     fetchPrograms();
-  }, [page]);
+  }, [page, rowsPerPage, debouncedSearch]);
 
-  const fetchSkillLevels = async (page) => {
+  const fetchSkillLevels = async () => {
     setLoading(true);
     try {
-      const response = await getAllSkillLevels(page);
-      console.log("skill level", response);
-      setSkillLevels(response || []);
-      setTotalPages(response.last_page || 1);
+      const response = await getAllSkillLevels({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+      console.log("skill level", response.data);
+      setSkillLevels(response.data || []);
+      setTotalCount(response.total || 0);
     } catch (err) {
       console.error("Failed to fetch skill levels.");
     }
@@ -46,8 +49,8 @@ const ProgramSkill = () => {
 
   const fetchPrograms = async () => {
     try {
-      const response = await getAllPrograms();
-      setPrograms(response || []);
+      const response = await getDropDownPrograms();
+      setPrograms(response.data || []);
     } catch (err) {
       console.error("Failed to fetch programs.");
     }
@@ -68,7 +71,7 @@ const ProgramSkill = () => {
       });
       setEditId(row.id);
     } else {
-      setFormData({ program_id: "", skills: [{ skill_name: "", skill_description: "", skill_period: "", skill_amount: "", skill_discount: "" }] });
+      setFormData({ program_id: "", skills: [{ skill_name: "", skill_description: "", skill_period: "", skill_amount: "", skill_discount: 0 }] });
       setEditId(null);
     }
     setFormModalOpen(true);
@@ -129,6 +132,12 @@ const ProgramSkill = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Skill Level</h5>
+        <TextField
+          label="Search..." size="small" value={searchTerm} onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+        />
         <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Skill Level
@@ -154,7 +163,7 @@ const ProgramSkill = () => {
               <TableBody>
                 {skillLevels.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.program.program_name}</TableCell>
+                    <TableCell>{row.program?.program_name}</TableCell>
                     <TableCell>{row.skill_name}</TableCell>
                     <TableCell>{row.skill_description}</TableCell>
                     <TableCell>{row.skill_period} Months</TableCell>
@@ -170,7 +179,6 @@ const ProgramSkill = () => {
                         <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
                         <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true) }}>Delete</Dropdown.Item>
                       </DropdownButton>
-
                     </TableCell>
                   </TableRow>
                 ))}
@@ -179,11 +187,14 @@ const ProgramSkill = () => {
             <TablePagination
               className="custom_pagination"
               component="div"
-              count={totalPages * rowsPerPage}
-              page={page - 1}
-              onPageChange={(event, newPage) => setPage(newPage + 1)}
+              count={totalCount}
+              page={page}
               rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setPage(0);
+              }}
             />
           </TableContainer>
         ) : (
@@ -194,15 +205,13 @@ const ProgramSkill = () => {
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
         <Box sx={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
-          boxShadow: 24, p: 3, borderRadius: 2
+          p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center"
         }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" gutterBottom sx={{ mb: 3 }}>
             Are you sure you want to delete <b>{selectedRow?.skill_name}</b>?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
@@ -218,11 +227,14 @@ const ProgramSkill = () => {
         }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Skill' : 'Create Skill'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
-              {programs.map((program) => (
-                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-              ))}
-            </Select>
+            <FormControl size="small" fullWidth>
+              <InputLabel id="label-helper">Select Program</InputLabel>
+              <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                {programs.map((program) => (
+                  <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             {formData.skills.map((skill, index) => (
               <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
                 <TextField size="small" label="Skill Name" value={skill.skill_name} onChange={(e) => handleChange(index, "skill_name", e.target.value)} fullWidth required />

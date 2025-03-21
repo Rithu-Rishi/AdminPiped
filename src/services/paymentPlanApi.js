@@ -1,10 +1,10 @@
 import API from "../config/api";
 
 // Fetch payment plans with pagination
-export const getAllPaymentPlans = async (page = 1) => {
+export const getAllPaymentPlans = async ({ page = 1, per_page = 10, search = "" }) => {
   try {
-    const response = await API.get(`/api/payment-plans?page=${page}`);
-    return response.data;
+    const response = await API.get(`/api/payment-plans?page=${page}&per_page=${per_page}&search=${search}`);
+    return response.data.data;
   } catch (error) {
     console.error("Error fetching payment plans", error);
     throw error;

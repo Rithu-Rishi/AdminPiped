@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getAllSkillProgressions, addSkillProgressions, updateSkillProgression, deleteSkillProgression } from "../services/skillProgressionApi";
-import { getAllPrograms } from "../services/programsApi";
+import { getDropDownPrograms } from "../services/programsApi";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
@@ -11,33 +11,39 @@ import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import useDebounce from "../hooks/useDebounce";
 
 const SkillProgression = () => {
   const [progressions, setProgressions] = useState([]);
   const [programs, setPrograms] = useState([]);
-  const [formData, setFormData] = useState({ program_id: "", titles: [""], descriptions: [""], images: [], imagePreviews: [] });
+  const [formData, setFormData] = useState({
+    program_id: "", titles: [""], descriptions: [""], images: [], imagePreviews: [],
+    title: "", description: "", image: null, imagePreview: "",
+  });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
-    fetchSkillProgressions(page);
+    fetchSkillProgressions();
     fetchPrograms();
-  }, [page]);
+  }, [page, rowsPerPage, debouncedSearch]);
 
-  const fetchSkillProgressions = async (page) => {
+  const fetchSkillProgressions = async () => {
     setLoading(true);
     try {
-      const response = await getAllSkillProgressions(page);
+      const response = await getAllSkillProgressions({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
       console.log("skill progression ", response);
-      setProgressions(response || []);
-      setTotalPages(response.last_page || 1);
+      setProgressions(response.data || []);
+      setTotalCount(response.total || 0);
     } catch (err) {
       console.error("Failed to fetch skill progressions.");
     }
@@ -46,8 +52,8 @@ const SkillProgression = () => {
 
   const fetchPrograms = async () => {
     try {
-      const response = await getAllPrograms();
-      setPrograms(response || []);
+      const response = await getDropDownPrograms();
+      setPrograms(response.data || []);
     } catch (err) {
       console.error("Failed to fetch programs.");
     }
@@ -60,12 +66,16 @@ const SkillProgression = () => {
         program_id: row.program_id || "",
         title: row.title || "",
         description: row.description || "",
-        image: row.image || "",
-        imagePreview: row.image_url || `http://localhost:8000/${row.image}`
+        image: null,
+        imagePreview: `${IMAGE_BASE_URL}${row.image}`
       });
       setEditId(row.id);
     } else {
-      setFormData({ program_id: "", titles: [""], descriptions: [""], images: [], imagePreviews: [] });
+      setFormData({
+        program_id: "",
+        titles: [""], descriptions: [""], images: [], imagePreviews: [],
+        title: "", description: "", image: null, imagePreview: "",
+      });
       setEditId(null);
     }
     setFormModalOpen(true);
@@ -97,24 +107,19 @@ const SkillProgression = () => {
 
   const handleFileChange = (index, files) => {
     if (!files || files.length === 0) return;
-
     const file = files[0];
-
-    setFormData((prevData) => {
-      if (editId) {
-        // Edit - Single Image
-        return { ...prevData, image: file };
-      } else {
-        // Create - Multiple Images
+    if (editId) {
+      const preview = URL.createObjectURL(file);
+      setFormData((prevData) => ({ ...prevData, image: file, imagePreview: preview }));
+    } else {
+      setFormData((prevData) => {
         const updatedImages = [...prevData.images];
         const updatedPreviews = [...prevData.imagePreviews];
-
         updatedImages[index] = file;
         updatedPreviews[index] = URL.createObjectURL(file);
-
         return { ...prevData, images: updatedImages, imagePreviews: updatedPreviews };
-      }
-    });
+      });
+    }
   };
 
   // Handle Create/Edit Submit
@@ -160,6 +165,12 @@ const SkillProgression = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Skill Progression</h5>
+        <TextField
+          label="Search..." size="small" value={searchTerm} onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+        />
         <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Skill Progression
@@ -184,7 +195,7 @@ const SkillProgression = () => {
               <TableBody>
                 {progressions.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.program.program_name}</TableCell>
+                    <TableCell>{row.program?.program_name}</TableCell>
                     <TableCell>{row.image && <img src={`${IMAGE_BASE_URL}${row.image}`} alt={row.program_name} className="border border-2 rounded-1 p-1" width="40" height="40" />}</TableCell>
                     <TableCell>{row.title}</TableCell>
                     <TableCell>{row.description}</TableCell>
@@ -206,11 +217,14 @@ const SkillProgression = () => {
             <TablePagination
               className="custom_pagination"
               component="div"
-              count={totalPages * rowsPerPage}
-              page={page - 1}
-              onPageChange={(event, newPage) => setPage(newPage + 1)}
+              count={totalCount}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
               rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setPage(0);
+              }}
             />
           </TableContainer>
         ) : (
@@ -221,15 +235,13 @@ const SkillProgression = () => {
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
         <Box sx={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
-          boxShadow: 24, p: 3, borderRadius: 2
+          p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center"
         }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to delete <b>{selectedRow?.title}</b>?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
@@ -246,11 +258,14 @@ const SkillProgression = () => {
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Skill Progression' : 'Create Skill Progression'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {!editId && (
-              <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
-                {programs.map((program) => (
-                  <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-                ))}
-              </Select>
+              <FormControl size="small" fullWidth>
+                <InputLabel id="label-helper">Select Program</InputLabel>
+                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                  {programs.map((program) => (
+                    <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             )}
             {editId ? (
               // Edit: Single Entry Form
@@ -289,6 +304,8 @@ const SkillProgression = () => {
         </Box>
       </Modal>
 
+      {/* Spinner */}
+      <Spinner loading={loading} />
       {/* Snackbar Alert */}
       <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
     </>

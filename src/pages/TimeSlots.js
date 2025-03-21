@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { getAllTimeSlots, addTimeSlot, updateTimeSlot, deleteTimeSlot } from "../services/timeslotApi";
-import { getAllPrograms } from "../services/programsApi";
+import { getDropDownPrograms } from "../services/programsApi";
 import { getProgramSkillLevels } from "../services/skillLevelApi";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, ToggleButton, ToggleButtonGroup
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu } from "@mui/icons-material";
@@ -11,6 +11,7 @@ import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import useDebounce from "../hooks/useDebounce";
 
 const weekDaysList = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -19,37 +20,37 @@ const TimeSlots = () => {
   const [programs, setPrograms] = useState([]);
   const [skillLevels, setSkillLevels] = useState([]);
   const [formData, setFormData] = useState({
-    program_id: "",
-    skill_level_id: "",
-    week_days: [],
+    program_id: "", skill_level_id: "", week_days: [],
     time_ranges: [{ start_time: "", end_time: "", available_slots: "" }]
   });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     fetchTimeSlots();
     fetchPrograms();
-  }, [page]);
+  }, [page, rowsPerPage, debouncedSearch]);
 
   const fetchTimeSlots = async () => {
     setLoading(true);
     try {
-      const response = await getAllTimeSlots();
+      const response = await getAllTimeSlots({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
       console.log("time slots ", response);
-      setTimeSlots(response || []);
-      setTotalPages(response.last_page || 1);
+      setTimeSlots(response.data || []);
+      setTotalCount(response.total || 0);
       // Reset page if out of range
-      if (page >= Math.ceil(response.length / rowsPerPage)) {
-        setPage(0);
-      }
+      // if (page >= Math.ceil(response.length / rowsPerPage)) {
+      //   setPage(0);
+      // }
     } catch (err) {
       console.error("Failed to fetch timeslots.");
     }
@@ -58,8 +59,8 @@ const TimeSlots = () => {
 
   const fetchPrograms = async () => {
     try {
-      const response = await getAllPrograms();
-      setPrograms(response || []);
+      const response = await getDropDownPrograms();
+      setPrograms(response.data || []);
     } catch (err) {
       console.error("Failed to fetch programs.");
     }
@@ -76,9 +77,9 @@ const TimeSlots = () => {
   };
 
   const handleProgramChange = (e) => {
-    const selectedProgramId = e.target.value;
-    setFormData({ ...formData, program_id: selectedProgramId, skill_level_id: "" });
-    fetchSkillLevels(selectedProgramId);
+    const program_id = e.target.value;
+    setFormData({ ...formData, program_id, skill_level_id: "" });
+    fetchSkillLevels(program_id);
   };
 
   const handleAddTimeRange = () => {
@@ -95,9 +96,9 @@ const TimeSlots = () => {
   };
 
   const handleChangeTimeRange = (index, field, value) => {
-    const updatedTimeRanges = [...formData.time_ranges];
-    updatedTimeRanges[index][field] = value;
-    setFormData({ ...formData, time_ranges: updatedTimeRanges });
+    const updated = [...formData.time_ranges];
+    updated[index][field] = value;
+    setFormData({ ...formData, time_ranges: updated });
   };
 
   const openFormModal = async (row = null) => {
@@ -107,22 +108,18 @@ const TimeSlots = () => {
         program_id: row.program_id || "",
         skill_level_id: row.skill_level_id || "",
         week_days: row.week_days || [],
-        time_ranges: row.time_ranges || [{ start_time: "", end_time: "", available_slots: "" }]
+        time_ranges: row.time_ranges ? row.time_ranges.map(range => ({ ...range })) : [{ start_time: "", end_time: "", available_slots: "" }]
       });
       setEditId(row.id);
     } else {
       setFormData({
-        program_id: "",
-        skill_level_id: "",
-        week_days: [],
+        program_id: "", skill_level_id: "", week_days: [],
         time_ranges: [{ start_time: "", end_time: "", available_slots: "" }]
       });
       setEditId(null);
     }
     setFormModalOpen(true);
   };
-
-
 
   // Handle Delete
   const handleDelete = async () => {
@@ -171,6 +168,12 @@ const TimeSlots = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Time Slots</h5>
+        <TextField
+          label="Search..." size="small" value={searchTerm} onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+        />
         <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Time Slot
@@ -194,13 +197,14 @@ const TimeSlots = () => {
               <TableBody>
                 {timeSlots.map((slot) => (
                   <TableRow key={slot.id}>
-                    <TableCell>{slot.program.program_name}</TableCell>
+                    <TableCell>{slot.program?.program_name}</TableCell>
                     <TableCell>{slot.skill_level.skill_name}</TableCell>
                     <TableCell>{slot.week_days.map((day) => weekDaysList[day]).join(", ")}</TableCell>
                     <TableCell>
                       {slot.time_ranges.map((range, index) => (
                         <div key={index}>{range.start_time} - {range.end_time} ({range.available_slots} slots)</div>
                       ))}
+                      {/* <TableCell>{slot.time_ranges.map(t => `${t.start_time} - ${t.end_time} (${t.available_slots} slots)`).join(", ")}</TableCell> */}
                     </TableCell>
                     <TableCell align="center">
                       <DropdownButton
@@ -221,11 +225,11 @@ const TimeSlots = () => {
               className="custom_pagination"
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={timeSlots.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
             />
           </TableContainer>
         ) : (
@@ -236,15 +240,13 @@ const TimeSlots = () => {
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
         <Box sx={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
-          boxShadow: 24, p: 3, borderRadius: 2
+          p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center"
         }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to delete <b>{selectedRow?.ProgramName}</b>?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClose={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
@@ -261,16 +263,22 @@ const TimeSlots = () => {
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Time Slot' : 'Create Time Slot'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box className="d-flex" sx={{ gap: 2 }}>
-              <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={handleProgramChange}>
-                {programs.map((program) => (
-                  <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-                ))}
-              </Select>
-              <Select size="small" fullWidth name="skill_level_id" value={formData.skill_level_id} onChange={(e) => setFormData({ ...formData, skill_level_id: e.target.value })}>
-                {skillLevels.map((level) => (
-                  <MenuItem key={level.id} value={level.id}>{level.skill_name}</MenuItem>
-                ))}
-              </Select>
+              <FormControl size="small" fullWidth>
+                <InputLabel id="label-helper">Select Program</InputLabel>
+                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={handleProgramChange}>
+                  {programs.map((program) => (
+                    <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl size="small" fullWidth>
+                <InputLabel id="label-helper-one">Select Skill Level</InputLabel>
+                <Select size="small" fullWidth name="skill_level_id" labelId="label-helper-One" label="Select Skill Level" value={formData.skill_level_id} onChange={(e) => setFormData({ ...formData, skill_level_id: e.target.value })}>
+                  {skillLevels.map((level) => (
+                    <MenuItem key={level.id} value={level.id}>{level.skill_name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Box>
             <h6 className="mb-0">Select Week Days:</h6>
             <ToggleButtonGroup size="small" value={formData.week_days} onChange={handleWeekDayChange} aria-label="week days" fullWidth>

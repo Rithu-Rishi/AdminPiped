@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getAllPaymentPlans, addPaymentPlans, updatePaymentPlan, deletePaymentPlan } from "../services/paymentPlanApi";
-import { getAllPrograms } from "../services/programsApi";
+import { getDropDownPrograms } from "../services/programsApi";
 import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
     Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, CurrencyRupee as CurrencyRupeeIcon, MoreVert as Menu } from "@mui/icons-material";
@@ -10,6 +10,7 @@ import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import useDebounce from "../hooks/useDebounce";
 
 const PaymentPlan = () => {
     const [plans, setPlans] = useState([]);
@@ -19,24 +20,27 @@ const PaymentPlan = () => {
     const [formModalOpen, setFormModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [page, setPage] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
+    const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
     useEffect(() => {
-        fetchPaymentPlans(page);
+        fetchPaymentPlans();
         fetchPrograms();
-    }, [page]);
+    }, [page, rowsPerPage, debouncedSearch]);
 
-    const fetchPaymentPlans = async (page) => {
+
+    const fetchPaymentPlans = async () => {
         setLoading(true);
         try {
-            const response = await getAllPaymentPlans(page);
+            const response = await getAllPaymentPlans({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
             console.log("payment plan ", response);
-            setPlans(response || []);
-            setTotalPages(response.last_page || 1);
+            setPlans(response.data || []);
+            setTotalCount(response.total || 0);
         } catch (err) {
             console.error("Failed to fetch payment plans.");
         }
@@ -45,8 +49,8 @@ const PaymentPlan = () => {
 
     const fetchPrograms = async () => {
         try {
-            const response = await getAllPrograms();
-            setPrograms(response || []);
+            const response = await getDropDownPrograms();
+            setPrograms(response.data || []);
         } catch (err) {
             console.error("Failed to fetch programs.");
         }
@@ -91,7 +95,7 @@ const PaymentPlan = () => {
             setFormData({ plans: [{ ...row, program_id: row.program_id }] });
             setEditId(row.id);
         } else {
-            setFormData({ program_id: "", plans: [{ program_id: "", duration_months: "", amount: "", discount_percent: "", final_amount: "" }] });
+            setFormData({ program_id: "", plans: [{ program_id: "", duration_months: "", amount: "", discount_percent: 0, final_amount: "" }] });
             setEditId(null);
         }
         setFormModalOpen(true);
@@ -112,7 +116,7 @@ const PaymentPlan = () => {
     const addRow = () => {
         setFormData((prevData) => ({
             ...prevData,
-            plans: [...prevData.plans, { duration_months: "", amount: "", discount_percent: "", final_amount: "" }]
+            plans: [...prevData.plans, { duration_months: "", amount: "", discount_percent: 0, final_amount: "" }]
         }));
     };
 
@@ -128,6 +132,12 @@ const PaymentPlan = () => {
             {/* Table */}
             <div className='d-flex justify-content-between align-items-center mb-2'>
                 <h5 className="mb-0">Payment Plans</h5>
+                <TextField
+                    label="Search..." size="small" value={searchTerm} onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setPage(0);
+                    }}
+                />
                 <div>
                     <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
                         Create Payment Plan
@@ -152,7 +162,7 @@ const PaymentPlan = () => {
                             <TableBody>
                                 {plans.map((row, index) => (
                                     < TableRow key={row.id} >
-                                        <TableCell>{row.program.program_name}</TableCell>
+                                        <TableCell>{row.program?.program_name}</TableCell>
                                         <TableCell>{row.duration_months} Months</TableCell>
                                         <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{row.amount}</TableCell>
                                         <TableCell>{row.discount_percent}</TableCell>
@@ -175,11 +185,14 @@ const PaymentPlan = () => {
                         <TablePagination
                             className="custom_pagination"
                             component="div"
-                            count={totalPages * rowsPerPage}
-                            page={page - 1}
-                            onPageChange={(event, newPage) => setPage(newPage + 1)}
+                            count={totalCount}
+                            page={page}
+                            onPageChange={(_, newPage) => setPage(newPage)}
                             rowsPerPage={rowsPerPage}
-                            onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+                            onRowsPerPageChange={(event) => {
+                                setRowsPerPage(parseInt(event.target.value, 10));
+                                setPage(0);
+                            }}
                         />
                     </TableContainer>
                 ) : (
@@ -190,15 +203,13 @@ const PaymentPlan = () => {
             {/* Delete Confirmation Modal */}
             < Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
                 <Box sx={{
-                    position: 'absolute', top: '50%', left: '50%',
-                    transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper',
-                    boxShadow: 24, p: 3, borderRadius: 2
+                    p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center"
                 }}>
-                    <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-                    <Typography variant="body1" gutterBottom>
+                    <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+                    <Typography variant="body1" sx={{ mb: 3 }}>
                         Are you sure you want to delete this payment plan?
                     </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
                         <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
                     </Box>
@@ -215,11 +226,14 @@ const PaymentPlan = () => {
                     <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Payment Plan' : 'Create Payment Plans'}</Typography>
                     <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {!editId && (
-                            <Select size="small" fullWidth name="program_id" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
-                                {programs.map((program) => (
-                                    <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-                                ))}
-                            </Select>
+                            <FormControl size="small" fullWidth>
+                                <InputLabel id="label-helper">Select Program</InputLabel>
+                                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                                    {programs.map((program) => (
+                                        <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         )}
                         {formData.plans.map((plan, index) => (
                             <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>

@@ -12,10 +12,10 @@ export const getTimeSlots = async (programId, skillLevelId) => {
 };
 
 // Fetch timeslots
-export const getAllTimeSlots = async () => {
+export const getAllTimeSlots = async ({ page = 1, per_page = 10, search = "" }) => {
     try {
-        const response = await API.get(`/api/time-slots`);
-        return response.data;
+        const response = await API.get(`/api/time-slots?page=${page}&per_page=${per_page}&search=${search}`);
+        return response.data.data;
     } catch (error) {
         console.error("Error fetching timeslots", error);
         throw error;

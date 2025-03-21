@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { getAllPrograms } from "../services/programsApi";
+import { getDropDownPrograms } from "../services/programsApi";
 import {
   getAllTeachers, getTeachersToProgram, assignTeachersToProgram, getProgramsWithTeachers,
   removeTeacherFromProgram
 } from "../services/teachersApi";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, IconButton, Modal, Box, Typography, Select, MenuItem, TablePagination
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
+  Button, IconButton, Modal, Box, Typography, Select, MenuItem, TablePagination, TextField
 } from "@mui/material";
 import { Add as AddIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-
+import useDebounce from "../hooks/useDebounce";
 
 const AssignTeachers = () => {
   const [programs, setPrograms] = useState([]);
@@ -26,9 +26,12 @@ const AssignTeachers = () => {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [selectedProgramForDelete, setSelectedProgramForDelete] = useState(null);
   const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     fetchPrograms();
@@ -41,8 +44,8 @@ const AssignTeachers = () => {
 
   const fetchPrograms = async () => {
     try {
-      const response = await getAllPrograms();
-      setPrograms(response || []);
+      const response = await getDropDownPrograms();
+      setPrograms(response.data || []);
     } catch (err) {
       console.error("Failed to fetch programs.");
     }
@@ -62,8 +65,10 @@ const AssignTeachers = () => {
   const fetchAssignments = async () => {
     setLoading(true);
     try {
-      const response = await getProgramsWithTeachers();
-      setAssignments(response || []);
+      const response = await getProgramsWithTeachers({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+      console.log("teachers", response);
+      setAssignments(response.data || []);
+      setTotalCount(response.total || 0);
     } catch (err) {
       console.error("Failed to fetch assigned teachers.");
     }
@@ -108,13 +113,15 @@ const AssignTeachers = () => {
       return;
     }
     try {
-      const existingTeachers = assignments.find(p => p.program_id === selectedProgram)?.teachers.map(t => t.id) || [];
-      const updatedTeachers = [...new Set([...existingTeachers, ...selectedTeachers])];
+      // const existingTeachers = assignments.find(p => p.program_id === selectedProgram)?.teachers.map(t => t.id) || [];
+      // const updatedTeachers = [...new Set([...existingTeachers, ...selectedTeachers])];
 
-      await assignTeachersToProgram(selectedProgram, { teacher_ids: updatedTeachers });
+      await assignTeachersToProgram(selectedProgram, { teacher_ids: selectedTeachers });
       setFormModalOpen(false);
       fetchAssignments();
-      alert("Teachers assigned successfully!");
+      setSelectedProgram("");
+      setSelectedTeachers([]);
+      setAlertMessage({ open: true, type: "success", message: "Teachers assigned successfully!" });
     } catch (err) {
       console.error("Failed to assign teachers.");
     }
@@ -134,7 +141,7 @@ const AssignTeachers = () => {
       await removeTeacherFromProgram(selectedProgramForDelete, selectedTeacher);
       setDeleteModalOpen(false);
       fetchAssignments();
-      alert("Teacher removed successfully!");
+      setAlertMessage({ open: true, type: "success", message: "Teacher removed successfully!" });
     } catch (err) {
       console.error("Failed to remove teacher.");
     }
@@ -146,6 +153,10 @@ const AssignTeachers = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Assign Teachers</h5>
+        <TextField size="small" label="Search" value={searchTerm} onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setPage(0);
+        }} />
         <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => setFormModalOpen(true)}>
             Assign Teacher
@@ -187,7 +198,7 @@ const AssignTeachers = () => {
               className="custom_pagination"
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={assignments.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={(_, newPage) => setPage(newPage)}
@@ -205,11 +216,11 @@ const AssignTeachers = () => {
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
         <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to remove this teacher from the program?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleRemoveTeacher}>Remove</Button>
           </Box>
@@ -225,19 +236,23 @@ const AssignTeachers = () => {
         }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>Assign Teacher</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-            <Select size="small" fullWidth name="program_id" value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
-              {programs.map((program) => (
-                <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-              ))}
-            </Select>
+            <FormControl size="small" fullWidth>
+              <InputLabel id="label-helper-one">Select Skill Level</InputLabel>
+              <Select size="small" fullWidth name="program_id" labelId="label-helper-One" label="Select Program" value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
+                {programs.map((program) => (
+                  <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Select size="small"
               fullWidth
               multiple
               value={selectedTeachers}
               onChange={(e) => setSelectedTeachers(e.target.value)}
-              renderValue={(selected) => selected.map(id => teachers.find(t => t.id === id)?.name).join(", ")}
-
+              displayEmpty
+              renderValue={(selected) => selected.length === 0 ? "Select Teachers" : selected.map(id => teachers.find(t => t.id === id)?.name).join(", ")}
             >
+              <MenuItem disabled value="">Select Teachers</MenuItem>
               {teachers.map((teacher) => (
                 <MenuItem key={teacher.id} value={teacher.id}>{teacher.name}</MenuItem>
               ))}
@@ -246,8 +261,7 @@ const AssignTeachers = () => {
           <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
             <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Create
-            </Button>
+              Assign</Button>
           </Box>
         </Box>
       </Modal>

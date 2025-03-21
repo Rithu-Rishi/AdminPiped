@@ -93,9 +93,9 @@ export const getTeachersToProgram = async (programId) => {
     }
 };
 
-export const getProgramsWithTeachers = async () => {
+export const getProgramsWithTeachers = async ({ page = 1, per_page = 10, search = "" }) => {
     try {
-        const response = await API.get(`/api/programs-with-teachers`);
+        const response = await API.get(`/api/programs-with-teachers?page=${page}&per_page=${per_page}&search=${search}`);
         return response.data;
     } catch (error) {
         console.error("Error assigning teachers to program", error);

@@ -11,6 +11,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
+import Parent from '../assets/images/parents-64.png'
 
 const ParentsList = () => {
   const [parents, setParents] = useState([]);
@@ -26,21 +27,34 @@ const ParentsList = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedParent, setSelectedParent] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
 
   useEffect(() => {
     fetchParents();
-  }, [page]);
+  }, [page, rowsPerPage, debouncedSearch]);
 
   const fetchParents = async () => {
     setLoading(true);
     try {
-      const response = await getAllParents();
+      const response = await getAllParents({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
       setParents(response.data || []);
+      setTotalCount(response.total || 0);
     } catch (err) {
       console.error("Failed to fetch parents.");
     }
@@ -113,16 +127,30 @@ const ParentsList = () => {
     setLoading(false);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setPage(0); // reset to first page on new search
+  };
+
   return (
     <>
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Parents List</h5>
-        <div>
+        <TextField
+          size="small"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+        />
+        {/* <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Parent
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {loading ? <Spinner loading={loading} /> : (
@@ -136,23 +164,17 @@ const ParentsList = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Mobile</TableCell>
                   <TableCell>DOB</TableCell>
-                  <TableCell>Profile Image</TableCell>
-                  <TableCell># Child</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {parents.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />}{row.name}</TableCell>
+                    <TableCell><img src={row.profile_pic_url ? `${IMAGE_BASE_URL}${row.profile_pic_url}` : Parent} alt="Profile" className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />{row.name}</TableCell>
                     <TableCell><span className="px-2 py-1 rounded-1 bg-opacity-10 bg-danger text-danger">{row.child_count}</span></TableCell>
                     <TableCell>{row.email}</TableCell>
-                    <TableCell>{row.mobile_number}</TableCell>
+                    <TableCell>{row.mobile_number || 'N/A'}</TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
-                    <TableCell>
-                      {row.profile_image && <img src={`${IMAGE_BASE_URL}${row.profile_image}`} alt="Profile" width="50" height="50" />}
-                    </TableCell>
-                    <TableCell>{row.child_count}</TableCell>
                     <TableCell align="center">
                       <DropdownButton
                         align="end"
@@ -160,7 +182,7 @@ const ParentsList = () => {
                         size='sm'
                         className="custom_dropdown"
                       >
-                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
+                        {/* <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item> */}
                         <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(row)}>Delete</Dropdown.Item>
                       </DropdownButton>
                     </TableCell>
@@ -172,7 +194,7 @@ const ParentsList = () => {
               className="custom_pagination"
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={parents.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={(_, newPage) => setPage(newPage)}
@@ -189,11 +211,15 @@ const ParentsList = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <Box sx={{ p: 3, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 400, mx: "auto", mt: 10 }}>
-          <Typography variant="h6">Confirm Deletion</Typography>
-          <Typography>Are you sure you want to delete {selectedParent?.name}?</Typography>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-            <Button onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
+        <Box sx={{ p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 400, mx: "auto", mt: 15, textAlign: "center" }}>
+          <Typography variant="h6" gutterBottom color="error">
+            Confirm Deletion
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Are you sure you want to delete <b>{selectedParent?.name}</b>?
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+            <Button variant="outlined" color="primary" onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>
         </Box>

@@ -1,14 +1,18 @@
 import React from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
+import Backdrop from "@mui/material/Backdrop";
 
 const Spinner = ({ loading }) => {
-  if (!loading) return null;
-
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="50px">
-      <CircularProgress />
-    </Box>
+    <Backdrop
+      sx={{
+        color: '#fff',
+        zIndex: (theme) => theme.zIndex.modal + 10, // appear above modals
+      }}
+      open={loading}
+    >
+      <CircularProgress color="inherit" />
+    </Backdrop>
   );
 };
 

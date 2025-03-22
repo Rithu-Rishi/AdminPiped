@@ -215,7 +215,9 @@ const AssignTeachers = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
+        <Box sx={{
+          p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center"
+        }}>
           <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
           <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to remove this teacher from the program?

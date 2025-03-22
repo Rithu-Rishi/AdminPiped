@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { getFacilityUserSubscriptions } from "../services/facilityApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, TextField
+    TablePagination, Typography, TextField, InputAdornment
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
+import { Search as SearchIcon } from "@mui/icons-material";
 
 const FacilitySubscriptions = () => {
     const [subscriptions, setSubscriptions] = useState([]);
@@ -35,13 +36,22 @@ const FacilitySubscriptions = () => {
 
     return (
         <>
-            <h5>Facility Subscriptions</h5>
-            <TextField
-                label="Search..." size="small" value={searchTerm} onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setPage(0);
-                }}
-            />
+            <div className="d-flex justify-content-between mb-2">
+                <h5 className="mb-0">Facility Subscriptions</h5>
+                <TextField className="search_icon"
+                    placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setPage(0);
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon className="fs-14 text-primary" />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+            </div>
             {loading ? <Spinner loading={loading} /> : (
                 subscriptions.length > 0 ? (
                     <TableContainer component={Paper}>

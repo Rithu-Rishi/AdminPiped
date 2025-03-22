@@ -134,7 +134,7 @@ const ProgramSkill = () => {
         <h5 className="mb-0">Skill Level</h5>
 
         <div className="d-flex justify-content-between gap-2">
-          <TextField
+          <TextField className="search_icon"
             placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
               setSearchTerm(e.target.value);
               setPage(0);
@@ -142,7 +142,7 @@ const ProgramSkill = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon />
+                  <SearchIcon className="fs-14 text-primary" />
                 </InputAdornment>
               ),
             }}

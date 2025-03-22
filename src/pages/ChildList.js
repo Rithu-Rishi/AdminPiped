@@ -3,12 +3,12 @@ import { getAllChildren, addChild, updateChild, deleteChild } from "../services/
 import { getAllParents } from "../services/parentApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
+  Button, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, InputAdornment
 } from "@mui/material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Search as SearchIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -141,13 +141,20 @@ const ChildList = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Child List</h5>
-        <TextField
+        <TextField className="search_icon"
           size="small"
           placeholder="Search..."
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(0);
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon className="fs-14 text-primary" />
+              </InputAdornment>
+            ),
           }}
         />
         {/* <div>

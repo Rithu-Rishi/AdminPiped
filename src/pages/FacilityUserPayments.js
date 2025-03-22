@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { getFacilityUserPayments } from "../services/facilityApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, TextField
+    TablePagination, Typography, TextField, InputAdornment
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
+import { Search as SearchIcon, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import useDebounce from "../hooks/useDebounce";
 
 const FacilityUserPayments = () => {
@@ -44,13 +44,22 @@ const FacilityUserPayments = () => {
 
     return (
         <>
-            <h5>Facility User Payments</h5>
-            <TextField
-                label="Search..." size="small" value={searchTerm} onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setPage(0);
-                }}
-            />
+            <div className="d-flex justify-content-between mb-2">
+                <h5>Facility User Payments</h5>
+                <TextField className="search_icon"
+                    placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setPage(0);
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon className="fs-14 text-primary" />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+            </div>
             {loading ? <Spinner loading={loading} /> : (
                 payments.length > 0 ? (
                     <TableContainer component={Paper}>

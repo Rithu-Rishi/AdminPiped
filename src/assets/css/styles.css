@@ -1,10 +1,23 @@
-.MuiTableCell-head{
+.MuiTableCell-head {
     background-color: #e4e4e4;
     text-transform: uppercase;
     font-size: 12px !important;
     font-weight: 600 !important;
 }
 
-.react-datepicker-popper{
+.react-datepicker-popper {
     z-index: 9 !important;
+}
+
+.fs-16 {
+    font-size: 16px;
+}
+
+.search_icon .MuiInputBase-root {
+    flex-direction: row-reverse;
+    border-radius: 30px !important;
+}
+
+.search_icon .MuiInputBase-root input {
+    font-size: 14px;
 }

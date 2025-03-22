@@ -180,7 +180,7 @@ const SubPrograms = () => {
         <h5 className="mb-0">Sub Programs</h5>
 
         <div className='d-flex align-items-center gap-2'>
-          <TextField
+          <TextField className="search_icon"
             placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
               setSearchTerm(e.target.value);
               setPage(0);
@@ -188,7 +188,7 @@ const SubPrograms = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon />
+                  <SearchIcon className="fs-14 text-primary" />
                 </InputAdornment>
               ),
             }}

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { getAllParents, addParent, updateParent, deleteParent } from "../services/parentApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, IconButton, Modal, Box, Typography, TextField, TablePagination
+  Button, Modal, Box, Typography, TextField, TablePagination, InputAdornment
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Search as SearchIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -137,13 +137,20 @@ const ParentsList = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Parents List</h5>
-        <TextField
+        <TextField className="search_icon"
           size="small"
           placeholder="Search..."
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(0);
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon className="fs-14 text-primary" />
+              </InputAdornment>
+            ),
           }}
         />
         {/* <div>

@@ -155,14 +155,14 @@ const AssignTeachers = () => {
         <h5 className="mb-0">Assign Teachers</h5>
 
         <div className="d-flex justify-content-between gap-2">
-          <TextField size="small" placeholder="Search..." value={searchTerm} onChange={(e) => {
+          <TextField className="search_icon" size="small" placeholder="Search..." value={searchTerm} onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(0);
           }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon />
+                  <SearchIcon className="fs-14 text-primary" />
                 </InputAdornment>
               ),
             }}

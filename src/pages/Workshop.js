@@ -13,6 +13,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { IMAGE_BASE_URL } from "../config/constants";
 import AlertMessage from "../includes/AlertMessage";
 import Spinner from "../includes/Spinner";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const WorkShop = () => {
   const [workshops, setWorkshops] = useState([]);
@@ -25,8 +26,6 @@ const WorkShop = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
@@ -57,7 +56,7 @@ const WorkShop = () => {
       setFormModalOpen(false);
       fetchWorkshops();
     } catch (err) {
-      setAlertMessage({ open: true, type: "error", message: "Failed to save workshop." });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -72,9 +71,7 @@ const WorkShop = () => {
       });
       fetchWorkshops();
     } catch (err) {
-      setAlertMessage({
-        open: true, type: "error", message: "Failed to delete workshop.",
-      });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -82,6 +79,7 @@ const WorkShop = () => {
   const handleToggleStatus = async (id) => {
     try {
       await toggleWorkshopStatus(id);
+      setAlertMessage({ open: true, type: "success", message: "Status updated successfully!" });
       fetchWorkshops();
     } catch (err) {
       console.error("Failed to update status.");
@@ -152,7 +150,7 @@ const WorkShop = () => {
               <TableBody>
                 {workshops.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell><img src={`${IMAGE_BASE_URL}${row.image}`} className="border border-1 rounded-2 p-1" width={60} /></TableCell>
+                    <TableCell><img src={`${IMAGE_BASE_URL}${row.image}`} alt={row.image} className="border border-1 rounded-2 p-1" width={60} /></TableCell>
                     <TableCell>{row.workshop_name}</TableCell>
                     <TableCell>{row.date}</TableCell>
                     <TableCell>{row.time}</TableCell>

@@ -12,6 +12,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const ProgramSkill = () => {
   const [skillLevels, setSkillLevels] = useState([]);
@@ -42,7 +43,7 @@ const ProgramSkill = () => {
       setSkillLevels(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
-      console.error("Failed to fetch skill levels.");
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -52,7 +53,7 @@ const ProgramSkill = () => {
       const response = await getDropDownPrograms();
       setPrograms(response.data || []);
     } catch (err) {
-      console.error("Failed to fetch programs.");
+      handleApiError(err, setAlertMessage);
     }
   };
 
@@ -80,10 +81,16 @@ const ProgramSkill = () => {
   // Handle Delete
   const handleDelete = async () => {
     setLoading(true);
-    await deleteSkillLevel(selectedRow.id);
+    try {
+      await deleteSkillLevel(selectedRow.id);
+      setAlertMessage({ open: true, type: "success", message: "Skill deleted successfully!" });
+      fetchSkillLevels();
+    } catch (err) {
+      handleApiError(err, setAlertMessage);
+    }
     setDeleteModalOpen(false);
     setLoading(false);
-    fetchSkillLevels(page);
+    
   };
 
   // Handle Input Change in Form
@@ -100,17 +107,19 @@ const ProgramSkill = () => {
     try {
       if (editId) {
         await updateSkillLevels(editId, formData.skills[0]);
+        setAlertMessage({ open: true, type: "success", message: "Skill updated successfully!" });
       } else {
         console.log(formData);
         const updatedSkills = formData.skills.map(skill => ({ ...skill, program_id: formData.program_id }));
         console.log({ skills: updatedSkills });
         console.log(updatedSkills);
         await addSkillLevels({ skills: updatedSkills });
+        setAlertMessage({ open: true, type: "success", message: "Program Created successfully!" });
       }
       setFormModalOpen(false);
       fetchSkillLevels(page);
     } catch (err) {
-      console.error("Failed to save skill levels.");
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getDropDownPrograms } from "../services/programsApi";
 import {
-  getAllTeachers, getTeachersToProgram, assignTeachersToProgram, getProgramsWithTeachers,
+  getAllTeachers, assignTeachersToProgram, getProgramsWithTeachers,
   removeTeacherFromProgram
 } from "../services/teachersApi";
 import {
@@ -14,6 +14,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const AssignTeachers = () => {
   const [programs, setPrograms] = useState([]);
@@ -123,7 +124,7 @@ const AssignTeachers = () => {
       setSelectedTeachers([]);
       setAlertMessage({ open: true, type: "success", message: "Teachers assigned successfully!" });
     } catch (err) {
-      console.error("Failed to assign teachers.");
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -143,7 +144,7 @@ const AssignTeachers = () => {
       fetchAssignments();
       setAlertMessage({ open: true, type: "success", message: "Teacher removed successfully!" });
     } catch (err) {
-      console.error("Failed to remove teacher.");
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };

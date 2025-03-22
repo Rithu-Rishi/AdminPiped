@@ -11,6 +11,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const PaymentPlan = () => {
     const [plans, setPlans] = useState([]);
@@ -42,7 +43,7 @@ const PaymentPlan = () => {
             setPlans(response.data || []);
             setTotalCount(response.total || 0);
         } catch (err) {
-            console.error("Failed to fetch payment plans.");
+            handleApiError(err, setAlertMessage);
         }
         setLoading(false);
     };
@@ -52,7 +53,7 @@ const PaymentPlan = () => {
             const response = await getDropDownPrograms();
             setPrograms(response.data || []);
         } catch (err) {
-            console.error("Failed to fetch programs.");
+            handleApiError(err, setAlertMessage);
         }
     };
 
@@ -78,14 +79,16 @@ const PaymentPlan = () => {
         try {
             if (editId) {
                 await updatePaymentPlan(editId, formData.plans[0]);
+                setAlertMessage({ open: true, type: "success", message: "Payment Plan Created successfully!" });
             } else {
                 const updatedPlans = formData.plans.map(plan => ({ ...plan, program_id: formData.program_id }));
                 await addPaymentPlans({ plans: updatedPlans });
+                setAlertMessage({ open: true, type: "success", message: "Payment Plan(s) Created successfully!" });
             }
             setFormModalOpen(false);
             fetchPaymentPlans(page);
         } catch (err) {
-            console.error("Failed to save payment plan.");
+            handleApiError(err, setAlertMessage);
         }
         setLoading(false);
     };
@@ -105,10 +108,11 @@ const PaymentPlan = () => {
         setLoading(true);
         try {
             await deletePaymentPlan(selectedRow.id);
-            fetchPaymentPlans(page);
+            setAlertMessage({ open: true, type: "success", message: "Payment Plan deleted successfully!" });
+            fetchPaymentPlans();
             setDeleteModalOpen(false);
         } catch (err) {
-            console.error("Failed to delete payment plan.");
+            handleApiError(err, setAlertMessage);
         }
         setLoading(false);
     };
@@ -134,7 +138,7 @@ const PaymentPlan = () => {
                 <h5 className="mb-0">Payment Plans</h5>
 
                 <div className="d-flex justify-content-between gap-2">
-                    <TextField  className="search_icon"
+                    <TextField className="search_icon"
                         placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
                             setSearchTerm(e.target.value);
                             setPage(0);

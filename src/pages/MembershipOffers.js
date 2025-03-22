@@ -10,6 +10,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { IMAGE_BASE_URL } from "../config/constants";
 import AlertMessage from "../includes/AlertMessage";
 import Spinner from "../includes/Spinner";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const MembershipOffers = () => {
   const [offers, setOffers] = useState([]);
@@ -22,8 +23,6 @@ const MembershipOffers = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
@@ -54,7 +53,7 @@ const MembershipOffers = () => {
       setFormModalOpen(false);
       fetchOffers();
     } catch (err) {
-      setAlertMessage({ open: true, type: "error", message: "Failed to save offer." });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -64,14 +63,10 @@ const MembershipOffers = () => {
     try {
       await deleteOffer(selectedRow.id);
       setDeleteModalOpen(false);
-      setAlertMessage({
-        open: true, type: "success", message: "Offer deleted successfully!",
-      });
+      setAlertMessage({ open: true, type: "success", message: "Offer deleted successfully!", });
       fetchOffers();
     } catch (err) {
-      setAlertMessage({
-        open: true, type: "error", message: "Failed to delete Offer.",
-      });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -79,9 +74,10 @@ const MembershipOffers = () => {
   const handleToggleStatus = async (id) => {
     try {
       await toggleOfferStatus(id);
+      setAlertMessage({ open: true, type: "success", message: "Status updated successfully!", });
       fetchOffers();
     } catch (err) {
-      console.error("Failed to update status.");
+      handleApiError(err, setAlertMessage);
     }
   };
 

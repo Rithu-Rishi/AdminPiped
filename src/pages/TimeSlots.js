@@ -12,6 +12,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const weekDaysList = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -124,44 +125,42 @@ const TimeSlots = () => {
   // Handle Delete
   const handleDelete = async () => {
     setLoading(true);
-    await deleteTimeSlot(selectedRow.id);
-    setDeleteModalOpen(false);
+    try {
+      await deleteTimeSlot(selectedRow.id);
+      setAlertMessage({ open: true, type: "success", message: "Time Slot deleted successfully!" });
+      setDeleteModalOpen(false);
+      fetchTimeSlots();
+    } catch (err) {
+      handleApiError(err, setAlertMessage);
+    }
     setLoading(false);
-    fetchTimeSlots();
   };
 
   const handleWeekDayChange = (_, newDays) => {
     setFormData({ ...formData, week_days: newDays });
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // const handleChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
       if (editId) {
         await updateTimeSlot(editId, formData);
+        setAlertMessage({ open: true, type: "success", message: "Time Slot updated successfully!" });
       } else {
         await addTimeSlot(formData);
+        setAlertMessage({ open: true, type: "success", message: "Time Slot(s) created successfully!" });
       }
       setFormModalOpen(false);
       fetchTimeSlots();
     } catch (err) {
-      console.error("Failed to save timeslot.");
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
-
-  const handleChangePage = (_, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  }
 
   return (
     <>

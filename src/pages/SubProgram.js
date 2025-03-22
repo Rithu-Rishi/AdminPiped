@@ -12,6 +12,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { IMAGE_BASE_URL } from "../config/constants";
 import useDebounce from "../hooks/useDebounce";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const SubPrograms = () => {
   const [subPrograms, setSubPrograms] = useState([]);
@@ -62,9 +63,14 @@ const SubPrograms = () => {
   // Handle Delete
   const handleDelete = async () => {
     setLoading(true);
-    const response = await deleteSubProgram(selectedRow.id);
-    setDeleteModalOpen(false);
-    fetchSubPrograms(page);
+    try {
+      await deleteSubProgram(selectedRow.id);
+      setAlertMessage({ open: true, type: "success", message: "Sub Program deleted successfully!" });
+      setDeleteModalOpen(false);
+      fetchSubPrograms();
+    } catch (err) {
+      handleApiError(err, setAlertMessage);
+    }
     setLoading(false);
   };
 
@@ -123,8 +129,7 @@ const SubPrograms = () => {
       setFormModalOpen(false);
       fetchSubPrograms(page);
     } catch (err) {
-      console.error("Failed to save sub-program.", err);
-      setAlertMessage({ open: true, type: "error", message: "Failed to save sub-program." });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };

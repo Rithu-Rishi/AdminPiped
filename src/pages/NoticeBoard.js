@@ -13,6 +13,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import AlertMessage from "../includes/AlertMessage";
 import Spinner from "../includes/Spinner";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const NoticeBoard = () => {
   const [notices, setNotices] = useState([]);
@@ -54,7 +55,7 @@ const NoticeBoard = () => {
       setFormModalOpen(false);
       fetchNotices();
     } catch (err) {
-      setAlertMessage({ open: true, type: "error", message: "Failed to save notice." });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -62,9 +63,10 @@ const NoticeBoard = () => {
   const handleToggleStatus = async (id) => {
     try {
       await toggleNoticeStatus(id);
+      setAlertMessage({ open: true, type: "success", message: "Status updated successfully!", });
       fetchNotices();
     } catch (err) {
-      console.error("Failed to update status.");
+      handleApiError(err, setAlertMessage);
     }
   };
 
@@ -89,7 +91,7 @@ const NoticeBoard = () => {
       fetchNotices();
       setDeleteModalOpen(false);
     } catch (err) {
-      setAlertMessage({ open: true, type: "error", message: "Failed to delete notice." });
+      handleApiError(err, setAlertMessage);
     }
   };
 

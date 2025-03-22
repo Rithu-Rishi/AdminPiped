@@ -15,6 +15,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
@@ -24,7 +25,6 @@ const Teacher = () => {
   });
   const [editId, setEditId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const [error, setError] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -119,13 +119,15 @@ const Teacher = () => {
     try {
       if (editId) {
         await updateTeacher(editId, formData);
+        setAlertMessage({ open: true, type: "success", message: "Teacher updated successfully!" });
       } else {
         await addTeacher(formData);
+        setAlertMessage({ open: true, type: "success", message: "Teacher added successfully!" });
       }
       setFormModalOpen(false);
       fetchTeachers();
     } catch (err) {
-      setAlertMessage({ open: true, type: "error", message: "Failed to save teacher." });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };

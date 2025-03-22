@@ -10,6 +10,7 @@ import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const FacilityPaymentPlans = () => {
     const [plans, setPlans] = useState([]);
@@ -83,13 +84,15 @@ const FacilityPaymentPlans = () => {
         try {
             if (editId) {
                 await updateFacilityPlan(editId, formData);
+                setAlertMessage({ open: true, type: "success", message: "Facility updated successfully!" });
             } else {
                 await addFacilityPlan(formData);
+                setAlertMessage({ open: true, type: "success", message: "Facility updated successfully!" });
             }
             setFormModalOpen(false);
             fetchFacilityPlans();
         } catch (err) {
-            console.error("Failed to save facility payment plan.");
+            handleApiError(err, setAlertMessage);
         }
         setLoading(false);
     };
@@ -104,10 +107,11 @@ const FacilityPaymentPlans = () => {
         if (!selectedPlan) return;
         try {
             await deleteFacilityPlan(selectedPlan.id);
+            setAlertMessage({ open: true, type: "success", message: "Facility deleted successfully!" });
             setDeleteModalOpen(false);
             fetchFacilityPlans();
         } catch (err) {
-            console.error("Failed to delete facility payment plan.");
+            handleApiError(err, setAlertMessage);
         }
         setLoading(false);
     };

@@ -10,6 +10,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { IMAGE_BASE_URL } from "../config/constants";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const Sliders = () => {
   const [sliders, setSliders] = useState([]);
@@ -21,8 +22,6 @@ const Sliders = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     fetchSliders();
@@ -56,9 +55,7 @@ const Sliders = () => {
       setFormModalOpen(false);
       fetchSliders();
     } catch (err) {
-      setAlertMessage({
-        open: true, type: "error", message: "Failed to save slider.",
-      });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -68,14 +65,10 @@ const Sliders = () => {
     try {
       await deleteSlider(selectedRow.id);
       setDeleteModalOpen(false);
-      setAlertMessage({
-        open: true, type: "success", message: "Slider deleted successfully!",
-      });
+      setAlertMessage({ open: true, type: "success", message: "Slider deleted successfully!" });
       fetchSliders();
     } catch (err) {
-      setAlertMessage({
-        open: true, type: "error", message: "Failed to delete slider.",
-      });
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };

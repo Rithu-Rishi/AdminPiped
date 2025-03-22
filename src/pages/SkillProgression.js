@@ -12,6 +12,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const SkillProgression = () => {
   const [progressions, setProgressions] = useState([]);
@@ -45,7 +46,7 @@ const SkillProgression = () => {
       setProgressions(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
-      console.error("Failed to fetch skill progressions.");
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -55,7 +56,7 @@ const SkillProgression = () => {
       const response = await getDropDownPrograms();
       setPrograms(response.data || []);
     } catch (err) {
-      console.error("Failed to fetch programs.");
+      handleApiError(err, setAlertMessage);
     }
   };
 
@@ -84,10 +85,15 @@ const SkillProgression = () => {
   // Handle Delete
   const handleDelete = async () => {
     setLoading(true);
-    await deleteSkillProgression(selectedRow.id);
+    try {
+      await deleteSkillProgression(selectedRow.id);
+      setAlertMessage({ open: true, type: "success", message: "Skill Progression deleted successfully!" });
+      fetchSkillProgressions();
+    } catch (err) {
+      handleApiError(err, setAlertMessage);
+    }
     setDeleteModalOpen(false);
     setLoading(false);
-    fetchSkillProgressions(page);
   };
 
   // Handle Input Change in Form
@@ -129,13 +135,15 @@ const SkillProgression = () => {
     try {
       if (editId) {
         await updateSkillProgression(editId, formData);
+        setAlertMessage({ open: true, type: "success", message: "Skill Progression updated successfully!" });
       } else {
         await addSkillProgressions(formData);
+        setAlertMessage({ open: true, type: "success", message: "Skill Progression created successfully!" });
       }
       setFormModalOpen(false);
       fetchSkillProgressions(page);
     } catch (err) {
-      console.error("Failed to save skill progression.");
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };

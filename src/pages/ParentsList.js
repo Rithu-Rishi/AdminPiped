@@ -61,25 +61,24 @@ const ParentsList = () => {
     setLoading(false);
   };
 
-  const openFormModal = (parent = null) => {
-    if (parent) {
-      setFormData({
-        name: parent.name || "",
-        email: parent.email || "",
-        mobile_number: parent.mobile_number || "",
-        date_of_birth: parent.date_of_birth || "",
-        profile_image: null
-      });
-      setPreviewImage(parent.profile_image);
-      setEditId(parent.user_id);
-    } else {
-      setFormData({ name: "", email: "", mobile_number: "", date_of_birth: "", profile_image: null });
-      setPreviewImage(null);
-      setEditId(null);
-    }
-    setFormModalOpen(true);
-  };
-
+  // const openFormModal = (parent = null) => {
+  //   if (parent) {
+  //     setFormData({
+  //       name: parent.name || "",
+  //       email: parent.email || "",
+  //       mobile_number: parent.mobile_number || "",
+  //       date_of_birth: parent.date_of_birth || "",
+  //       profile_image: null
+  //     });
+  //     setPreviewImage(parent.profile_image);
+  //     setEditId(parent.user_id);
+  //   } else {
+  //     setFormData({ name: "", email: "", mobile_number: "", date_of_birth: "", profile_image: null });
+  //     setPreviewImage(null);
+  //     setEditId(null);
+  //   }
+  //   setFormModalOpen(true);
+  // };
 
   // Handle Input Change in Form
   const handleChange = (e) => {
@@ -125,11 +124,6 @@ const ParentsList = () => {
       console.error("Failed to delete parent.");
     }
     setLoading(false);
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setPage(0); // reset to first page on new search
   };
 
   return (

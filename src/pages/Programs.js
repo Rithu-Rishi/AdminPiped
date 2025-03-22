@@ -11,6 +11,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const Programs = () => {
   const [programs, setPrograms] = useState([]);
@@ -84,13 +85,15 @@ const Programs = () => {
     try {
       if (editId) {
         await updateProgram(editId, updatedForm);
+        setAlertMessage({ open: true, type: "success", message: "Program updated successfully!" });
       } else {
         await addProgram(formData);
+        setAlertMessage({ open: true, type: "success", message: "Program created successfully!" });
       }
       setFormModalOpen(false);
       fetchPrograms(page);
     } catch (err) {
-      console.error("Failed to save program.");
+      handleApiError(err, setAlertMessage);
     }
     setLoading(false);
   };
@@ -117,7 +120,12 @@ const Programs = () => {
 
   const handleDelete = async () => {
     setLoading(true);
-    const response = await deleteProgram(selectedRow.id);
+    try {
+      await deleteProgram(selectedRow.id);
+      setAlertMessage({ open: true, type: "success", message: "Program deleted successfully!" });
+    } catch (err) {
+      handleApiError(err, setAlertMessage);
+    }
     setDeleteModalOpen(false);
     setLoading(false);
     fetchPrograms(page);
@@ -262,12 +270,12 @@ const Programs = () => {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <div>
                 <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "image")} />
-                <div className="form-text text-warning fs-10">&#128712; Programs Small Image * (Allow only below 2MB size)</div>
+                <div className="form-text text-warning fs-10">&#128712; Programs Small Image * (Only below 2MB size)</div>
                 {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
               </div>
               <div>
                 <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "banner")} />
-                <div className="form-text text-warning fs-10">&#128712; Program Banner Image * (Allow only below 2MB size)</div>
+                <div className="form-text text-warning fs-10">&#128712; Program Banner Image * (Only below 2MB size)</div>
                 {previewBanner && <img src={previewBanner} alt="Preview" width="100" height="100" />}
               </div>
             </Box>

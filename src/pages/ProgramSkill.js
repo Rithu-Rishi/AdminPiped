@@ -90,7 +90,7 @@ const ProgramSkill = () => {
     }
     setDeleteModalOpen(false);
     setLoading(false);
-    
+
   };
 
   // Handle Input Change in Form

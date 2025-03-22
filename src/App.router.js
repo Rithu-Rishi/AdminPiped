@@ -24,6 +24,7 @@ import WorkShop from "./pages/Workshop";
 import MembershipOffers from "./pages/MembershipOffers";
 import NoticeBoard from "./pages/NoticeBoard";
 import ProgramSubscriptions from "./pages/ProgramSubscriptions";
+import Coupons from "./pages/Coupon";
 
 const AppRouter = () => {
     return (
@@ -53,6 +54,7 @@ const AppRouter = () => {
                     <Route path="/offers" element={<MembershipOffers />} />
                     <Route path="/noticeboard" element={<NoticeBoard />} />
                     <Route path="/programSubscriptions" element={<ProgramSubscriptions />} />
+                    <Route path="/coupons" element={<Coupons />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

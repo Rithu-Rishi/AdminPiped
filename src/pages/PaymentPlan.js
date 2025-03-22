@@ -3,9 +3,9 @@ import { getAllPaymentPlans, addPaymentPlans, updatePaymentPlan, deletePaymentPl
 import { getDropDownPrograms } from "../services/programsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
-    Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
+    Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, InputAdornment
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, CurrencyRupee as CurrencyRupeeIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Add as AddIcon, Search as SearchIcon, Close as CloseIcon, CurrencyRupee as CurrencyRupeeIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -132,13 +132,21 @@ const PaymentPlan = () => {
             {/* Table */}
             <div className='d-flex justify-content-between align-items-center mb-2'>
                 <h5 className="mb-0">Payment Plans</h5>
-                <TextField
-                    label="Search..." size="small" value={searchTerm} onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setPage(0);
-                    }}
-                />
-                <div>
+
+                <div className="d-flex justify-content-between gap-2">
+                    <TextField
+                        placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setPage(0);
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
                     <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
                         Create Payment Plan
                     </Button>

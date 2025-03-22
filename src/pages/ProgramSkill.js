@@ -3,9 +3,9 @@ import { getAllSkillLevels, addSkillLevels, updateSkillLevels, deleteSkillLevel 
 import { getDropDownPrograms } from "../services/programsApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
-  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
+  Button, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, InputAdornment
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
+import { Add as AddIcon, Search as SearchIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import { Link } from "react-router";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
@@ -132,13 +132,21 @@ const ProgramSkill = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Skill Level</h5>
-        <TextField
-          label="Search..." size="small" value={searchTerm} onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(0);
-          }}
-        />
-        <div>
+
+        <div className="d-flex justify-content-between gap-2">
+          <TextField
+            placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Skill Level
           </Button>

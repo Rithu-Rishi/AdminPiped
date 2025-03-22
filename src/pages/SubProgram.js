@@ -3,9 +3,9 @@ import { getAllSubPrograms, addSubProgram, updateSubProgram, deleteSubProgram } 
 import { getDropDownPrograms } from "../services/programsApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
-  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination
+  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, InputAdornment
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Add as AddIcon, Close as CloseIcon, MoreVert as Menu, Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -178,14 +178,22 @@ const SubPrograms = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Sub Programs</h5>
-        <TextField
-          label="Search..." size="small" value={searchTerm} onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(0);
-          }}
-        />
-        <div>
-          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+
+        <div className='d-flex align-items-center gap-2'>
+          <TextField
+            placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button  variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Sub Program
           </Button>
         </div>
@@ -274,10 +282,11 @@ const SubPrograms = () => {
             </FormControl>
             <TextField size="small" className="mt-3" label="Sub Program Title" name="sub_title" value={formData.sub_title} onChange={handleChange} fullWidth required />
             <TextField size="small" className="mt-3" label="Keywords" name="keywords" value={formData.keywords} onChange={handleChange} fullWidth required />
-            <input type="file" className="mt-3 rounded-2 border w-100 p-2 mb-2" multiple accept="image/*" onChange={handleNewImageUpload} />
+            <input type="file" className="mt-3 rounded-2 border w-100 p-2 " multiple accept="image/*" onChange={handleNewImageUpload} />
+            <div className="form-text text-warning fs-10">&#128712; * (Allow only below 2MB size)</div>
             {formData.images.map((img, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <img src={typeof img.path === 'string' ? `${IMAGE_BASE_URL}${img.path}` : URL.createObjectURL(img)} alt="Preview" width="50" height="50" />
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mt:2 }}>
+                <img src={typeof img.path === 'string' ? `${IMAGE_BASE_URL}${img.path}` : URL.createObjectURL(img)} alt="Preview" className="rounded-3" width="40" height="40" />
                 <TextField label="Image Title" size="small" value={formData.image_titles[index] || ""} onChange={(e) => {
                   const updatedTitles = [...formData.image_titles];
                   updatedTitles[index] = e.target.value;

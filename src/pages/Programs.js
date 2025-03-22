@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { getAllPrograms, addProgram, updateProgram, deleteProgram } from "../services/programsApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, IconButton, Modal, Box, Typography, TextField, TablePagination
+  Button, Modal, Box, Typography, TextField, InputAdornment, TablePagination
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon, SearchSharp } from "@mui/icons-material";
+import { Add as AddIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon, Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -146,14 +146,22 @@ const Programs = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Programs</h5>
-        <TextField
-          label="Search..." size="small" value={searchTerm} onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(0);
-          }}
-        />
-        <div>
-          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+
+        <div className='d-flex align-items-center gap-2'>
+          <TextField
+            size="small" placeholder="Search..." value={searchTerm} onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Program
           </Button>
         </div>
@@ -161,8 +169,8 @@ const Programs = () => {
 
       {loading ? <Spinner loading={loading} /> : (
         programs.length > 0 ? (
-          <TableContainer component={Paper} className="scoll_dev">
-            <Table stickyHeader aria-label="customized sticky table simple table">
+          <TableContainer component={Paper}>
+            <Table aria-label="table simple table">
               <TableHead>
                 <TableRow>
                   <TableCell>Program Name</TableCell>
@@ -254,12 +262,12 @@ const Programs = () => {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <div>
                 <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "image")} />
-                <div className="form-text fs-10">&#128712; Programs Small Image *</div>
+                <div className="form-text text-warning fs-10">&#128712; Programs Small Image * (Allow only below 2MB size)</div>
                 {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
               </div>
               <div>
                 <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "banner")} />
-                <div className="form-text fs-10">&#128712; Program Banner Image *</div>
+                <div className="form-text text-warning fs-10">&#128712; Program Banner Image * (Allow only below 2MB size)</div>
                 {previewBanner && <img src={previewBanner} alt="Preview" width="100" height="100" />}
               </div>
             </Box>

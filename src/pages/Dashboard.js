@@ -42,7 +42,7 @@ const Dashboard = () => {
       <Row>
         {/* Total Parents */}
         <Col>
-          <Card className="Cards border_success">
+          <Card className="Cards border_success mb-3">
             <Card.Body>
               <div className="d-flex align-items-center mb-3">
                 <div className="rounded-2 bg-opacity-25 bg-success p-2 me-3">
@@ -65,7 +65,7 @@ const Dashboard = () => {
 
         {/* Total Children */}
         <Col>
-          <Card className="Cards border_primary">
+          <Card className="Cards border_primary mb-3">
             <Card.Body>
               <div className="d-flex align-items-center mb-3">
                 <div className="rounded-2 bg-opacity-25 bg-primary p-2 me-3">
@@ -88,7 +88,7 @@ const Dashboard = () => {
 
         {/* Total Slots */}
         <Col>
-          <Card className="Cards border_danger">
+          <Card className="Cards border_danger mb-3">
             <Card.Body>
               <div className="d-flex align-items-center mb-3">
                 <div className="rounded-2 bg-opacity-25 bg-danger p-2 me-3">
@@ -111,7 +111,7 @@ const Dashboard = () => {
 
         {/* Booked Slots */}
         <Col>
-          <Card className="Cards border_info">
+          <Card className="Cards border_info mb-3">
             <Card.Body>
               <div className="d-flex align-items-center mb-3">
                 <div className="rounded-2 bg-opacity-25 bg-info p-2 me-3">

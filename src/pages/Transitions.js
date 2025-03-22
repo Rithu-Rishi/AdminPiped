@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { getProgramTransactions } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, TextField
+    TablePagination, Typography, TextField, InputAdornment
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
+import { CurrencyRupee as CurrencyRupeeIcon, Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
@@ -37,12 +37,20 @@ const Transitions = () => {
 
     return (
         <>
-            <h5>Program Transactions</h5>
-            <div>
+            <div className='d-flex justify-content-between align-items-center mb-2'>
+                <h5 className="mb-0">Program Transactions</h5>
+
                 <TextField
-                    label="Search..." size="small" value={searchTerm} onChange={(e) => {
+                    placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
                         setSearchTerm(e.target.value);
                         setPage(0);
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon />
+                            </InputAdornment>
+                        ),
                     }}
                 />
             </div>

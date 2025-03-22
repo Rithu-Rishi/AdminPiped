@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, IconButton, Modal, Box, Typography, TextField,
+  Button, Modal, Box, Typography, TextField, InputAdornment,
   TablePagination
 } from "@mui/material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Add as AddIcon, MoreVert as Menu, Search as SearchIcon } from "@mui/icons-material";
 import { getAllTeachers, addTeacher, updateTeacher, deleteTeacher } from "../services/teachersApi";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
@@ -135,12 +135,20 @@ const Teacher = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Teacher List</h5>
-        <TextField
-          size="small" placeholder="Search..." value={searchTerm}
-          onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
-        />
-        <div>
-          <Button size='small' variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+
+        <div className='d-flex align-items-center gap-2'>
+          <TextField
+            size="small" placeholder="Search..." value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setPage(0)}}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Teacher
           </Button>
         </div>

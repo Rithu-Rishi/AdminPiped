@@ -6,9 +6,9 @@ import {
 } from "../services/teachersApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
-  Button, IconButton, Modal, Box, Typography, Select, MenuItem, TablePagination, TextField
+  Button, Modal, Box, Typography, Select, MenuItem, TablePagination, TextField, InputAdornment
 } from "@mui/material";
-import { Add as AddIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Add as AddIcon, Search as SearchIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -153,12 +153,21 @@ const AssignTeachers = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Assign Teachers</h5>
-        <TextField size="small" label="Search" value={searchTerm} onChange={(e) => {
-          setSearchTerm(e.target.value);
-          setPage(0);
-        }} />
-        <div>
-          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => setFormModalOpen(true)}>
+
+        <div className="d-flex justify-content-between gap-2">
+          <TextField size="small" placeholder="Search..." value={searchTerm} onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => setFormModalOpen(true)}>
             Assign Teacher
           </Button>
         </div>

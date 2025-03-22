@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { getUserBookings, getBookingDetails } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, Modal, Box, TextField
+    TablePagination, Typography, Modal, Box, TextField, InputAdornment
 } from "@mui/material";
+import { Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import { Row, Col } from "react-bootstrap";
@@ -57,14 +58,23 @@ const UserBookings = () => {
 
     return (
         <>
-            <h5>User Bookings</h5>
-            <div>
+            <div className='d-flex justify-content-between align-items-center mb-2'>
+                <h5 className="mb-0">User Bookings</h5>
+
                 <TextField
-                    label="Search..." size="small" value={searchTerm} onChange={(e) => {
+                    placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
                         setSearchTerm(e.target.value);
                         setPage(0);
                     }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon />
+                            </InputAdornment>
+                        ),
+                    }}
                 />
+
             </div>
 
             {loading ? <Spinner loading={loading} /> : (

@@ -4,9 +4,9 @@ import { getDropDownPrograms } from "../services/programsApi";
 import { getProgramSkillLevels } from "../services/skillLevelApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
-  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, ToggleButton, ToggleButtonGroup
+  Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, ToggleButton, ToggleButtonGroup, InputAdornment
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Add as AddIcon, Search as SearchIcon, Close as CloseIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -168,14 +168,22 @@ const TimeSlots = () => {
       {/* Table */}
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <h5 className="mb-0">Time Slots</h5>
-        <TextField
-          label="Search..." size="small" value={searchTerm} onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(0);
-          }}
-        />
-        <div>
-          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+
+        <div className='d-flex justify-content-between gap-2'>
+          <TextField
+            placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Time Slot
           </Button>
         </div>

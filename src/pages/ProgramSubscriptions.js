@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { getProgramSubscriptions } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, TextField
+    TablePagination, Typography, TextField, InputAdornment
 } from "@mui/material";
+import { Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
@@ -36,13 +37,22 @@ const ProgramSubscriptions = () => {
 
     return (
         <>
-            <h5>Program Subscriptions</h5>
-            <TextField
-                label="Search..." size="small" value={searchTerm} onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setPage(0);
-                }}
-            />
+            <div className='d-flex justify-content-between align-items-center mb-2'>
+                <h5 className="mb-0">Program Subscriptions</h5>
+                <TextField
+                    placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setPage(0);
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+            </div>
             {loading ? <Spinner loading={loading} /> : (
                 subscriptions.length > 0 ? (
                     <TableContainer component={Paper}>
@@ -68,7 +78,7 @@ const ProgramSubscriptions = () => {
                                         <TableCell>{formatDate(subscription.start_date) || "N/A"}</TableCell>
                                         <TableCell>{formatDate(subscription.end_date) || "N/A"}</TableCell>
                                         <TableCell>
-                                            <span className={`px-3 py-1 rounded-1 bg-opacity-10 ${subscription.status === 'active' ? 'bg-success text-success' : 'bg-danger text-dangr'}`}>
+                                            <span className={`px-3 py-1 rounded-1 bg-opacity-10 text-capitalize ${subscription.status === 'active' ? 'bg-success text-success' : 'bg-danger text-dangr'}`}>
                                                 {subscription.status || "N/A"}
                                             </span>
                                         </TableCell>

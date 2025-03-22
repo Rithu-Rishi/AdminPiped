@@ -2,46 +2,47 @@ import React, { useEffect, useState } from "react";
 import { getProgramSubscriptions } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography
+    TablePagination, Typography, TextField
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
+import useDebounce from "../hooks/useDebounce";
 
 const ProgramSubscriptions = () => {
     const [subscriptions, setSubscriptions] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [totalCount, setTotalCount] = useState(0);
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
     useEffect(() => {
         fetchProgramSubscriptions();
-    }, [page]);
+    }, [page, rowsPerPage, debouncedSearch]);
 
     const fetchProgramSubscriptions = async () => {
         setLoading(true);
         try {
-            const response = await getProgramSubscriptions();
-            console.log(response.subscriptions.data);
-            setSubscriptions(response.subscriptions.data || []);
+            const response = await getProgramSubscriptions({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+            console.log(response.data);
+            setSubscriptions(response.data || []);
+            setTotalCount(response.total || 0);
         } catch (err) {
             console.error("Failed to fetch facility subscriptions.");
         }
         setLoading(false);
     };
 
-    const handleChangePage = (_, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
     return (
         <>
             <h5>Program Subscriptions</h5>
-
+            <TextField
+                label="Search..." size="small" value={searchTerm} onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(0);
+                }}
+            />
             {loading ? <Spinner loading={loading} /> : (
                 subscriptions.length > 0 ? (
                     <TableContainer component={Paper}>
@@ -79,11 +80,14 @@ const ProgramSubscriptions = () => {
                             className="custom_pagination"
                             rowsPerPageOptions={[5, 10, 25]}
                             component="div"
-                            count={subscriptions.length}
+                            count={totalCount}
                             rowsPerPage={rowsPerPage}
                             page={page}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            onPageChange={(_, newPage) => setPage(newPage)}
+                            onRowsPerPageChange={(event) => {
+                                setRowsPerPage(parseInt(event.target.value, 10));
+                                setPage(0);
+                            }}
                         />
                     </TableContainer>
                 ) : (

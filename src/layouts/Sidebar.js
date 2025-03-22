@@ -208,7 +208,7 @@ const Sidebar = () => {
             <ListItemIcon className='icon_items'>
               <AccountBalanceWalletOutlinedIcon />
             </ListItemIcon>
-            <ListItemText className='text_items' primary="Transitions" />
+            <ListItemText className='text_items' primary="Program Transitions" />
           </ListItemButton>
         </Link>
         <Link to='/userBookings'>
@@ -224,7 +224,7 @@ const Sidebar = () => {
             <ListItemIcon className='icon_items'>
               <AllOutOutlinedIcon />
             </ListItemIcon>
-            <ListItemText className='text_items' primary="Subscriptions" />
+            <ListItemText className='text_items' primary="Program Subscriptions" />
           </ListItemButton>
         </Link>
 

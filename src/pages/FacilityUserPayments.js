@@ -2,45 +2,55 @@ import React, { useEffect, useState } from "react";
 import { getFacilityUserPayments } from "../services/facilityApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography
+    TablePagination, Typography, TextField
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
+import useDebounce from "../hooks/useDebounce";
 
 const FacilityUserPayments = () => {
     const [payments, setPayments] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [totalCount, setTotalCount] = useState(0);
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
     useEffect(() => {
         fetchPayments();
-    }, [page]);
+    }, [page, rowsPerPage, debouncedSearch]);
 
     const fetchPayments = async () => {
         setLoading(true);
         try {
-            const response = await getFacilityUserPayments();
-            setPayments(response || []);
+            const response = await getFacilityUserPayments({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+            setPayments(response.data || []);
+            setTotalCount(response.total || 0);
         } catch (err) {
             console.error("Failed to fetch facility user payments.");
         }
         setLoading(false);
     };
 
-    const handleChangePage = (_, newPage) => {
-        setPage(newPage);
-    };
+    // const handleChangePage = (_, newPage) => {
+    //     setPage(newPage);
+    // };
 
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    // const handleChangeRowsPerPage = (event) => {
+    //     setRowsPerPage(parseInt(event.target.value, 10));
+    //     setPage(0);
+    // };
 
     return (
         <>
             <h5>Facility User Payments</h5>
-
+            <TextField
+                label="Search..." size="small" value={searchTerm} onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(0);
+                }}
+            />
             {loading ? <Spinner loading={loading} /> : (
                 payments.length > 0 ? (
                     <TableContainer component={Paper}>
@@ -74,11 +84,14 @@ const FacilityUserPayments = () => {
                             className="custom_pagination"
                             rowsPerPageOptions={[5, 10, 25]}
                             component="div"
-                            count={payments.length}
+                            count={totalCount}
                             rowsPerPage={rowsPerPage}
                             page={page}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            onPageChange={(_, newPage) => setPage(newPage)}
+                            onRowsPerPageChange={(event) => {
+                                setRowsPerPage(parseInt(event.target.value, 10));
+                                setPage(0);
+                            }}
                         />
                     </TableContainer>
                 ) : (

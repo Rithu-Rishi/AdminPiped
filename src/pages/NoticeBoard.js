@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, IconButton, Modal, Box, Typography, CircularProgress, Switch, Snackbar, Alert
+  Button, Modal, Box, Typography, Switch
 } from "@mui/material";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -12,6 +12,7 @@ import { Add as AddIcon, MoreVert as Menu } from "@mui/icons-material";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import AlertMessage from "../includes/AlertMessage";
+import Spinner from "../includes/Spinner";
 
 const NoticeBoard = () => {
   const [notices, setNotices] = useState([]);
@@ -104,7 +105,7 @@ const NoticeBoard = () => {
         </div>
       </div>
 
-      {loading ? <CircularProgress /> : (
+      {loading ? <Spinner loading={loading} /> : (
         notices.length > 0 ? (
           <TableContainer component={Paper}>
             <Table aria-label=" simple table">
@@ -118,7 +119,11 @@ const NoticeBoard = () => {
               <TableBody>
                 {notices.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell dangerouslySetInnerHTML={{ __html: row.notice_text }}></TableCell>
+                    <TableCell dangerouslySetInnerHTML={{
+                      __html: row.notice_text?.length > 200
+                        ? row.notice_text.slice(0, 200) + "..."
+                        : row.notice_text,
+                    }}></TableCell>
                     <TableCell>
                       <Switch checked={row.is_active} onChange={() => handleToggleStatus(row.id)} />
                     </TableCell>
@@ -146,12 +151,12 @@ const NoticeBoard = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+        <Box sx={{ p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center" }}>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to delete notice?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>

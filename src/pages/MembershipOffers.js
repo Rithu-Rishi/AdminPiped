@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, IconButton, Modal, Box, Typography, TextField,
-  TablePagination, CircularProgress, Snackbar, Alert, Switch
+  Paper, Button, Modal, Box, Typography, TextField, Switch
 } from "@mui/material";
 import { getAllOffers, addOffer, updateOffer, deleteOffer, toggleOfferStatus } from "../services/offersApi";
 import { Add as AddIcon, MoreVert as Menu } from "@mui/icons-material";
@@ -10,6 +9,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { IMAGE_BASE_URL } from "../config/constants";
 import AlertMessage from "../includes/AlertMessage";
+import Spinner from "../includes/Spinner";
 
 const MembershipOffers = () => {
   const [offers, setOffers] = useState([]);
@@ -128,7 +128,7 @@ const MembershipOffers = () => {
         </div>
       </div>
 
-      {loading ? <CircularProgress /> : (
+      {loading ? <Spinner loading={loading} /> : (
         offers.length > 0 ? (
           <TableContainer component={Paper}>
             <Table aria-label=" simple table">
@@ -171,12 +171,12 @@ const MembershipOffers = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+        <Box sx={{ p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center" }}>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to delete offer?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>

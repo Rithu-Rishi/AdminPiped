@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { getUserBookings, getBookingDetails } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, Modal, Box
+    TablePagination, Typography, Modal, Box, TextField
 } from "@mui/material";
 import Spinner from "../includes/Spinner";
 import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import { Row, Col } from "react-bootstrap";
+import useDebounce from "../hooks/useDebounce";
 
 const UserBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -15,16 +16,20 @@ const UserBookings = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
     const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [totalCount, setTotalCount] = useState(0);
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
     useEffect(() => {
         fetchBookings();
-    }, [page]);
+    }, [page, rowsPerPage, debouncedSearch]);
 
     const fetchBookings = async () => {
         setLoading(true);
         try {
-            const response = await getUserBookings();
-            setBookings(response.bookings?.data || []);
+            const response = await getUserBookings({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+            setBookings(response.data || []);
+            setTotalCount(response.total || 0);
         } catch (err) {
             console.error("Failed to fetch user bookings.");
         }
@@ -50,18 +55,17 @@ const UserBookings = () => {
         setBookingDetails(null);
     };
 
-    const handleChangePage = (_, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
     return (
         <>
             <h5>User Bookings</h5>
+            <div>
+                <TextField
+                    label="Search..." size="small" value={searchTerm} onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setPage(0);
+                    }}
+                />
+            </div>
 
             {loading ? <Spinner loading={loading} /> : (
                 bookings.length > 0 ? (
@@ -98,11 +102,14 @@ const UserBookings = () => {
                             className="custom_pagination"
                             rowsPerPageOptions={[5, 10, 25]}
                             component="div"
-                            count={bookings.length}
+                            count={totalCount}
                             rowsPerPage={rowsPerPage}
                             page={page}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            onPageChange={(_, newPage) => setPage(newPage)}
+                            onRowsPerPageChange={(event) => {
+                                setRowsPerPage(parseInt(event.target.value, 10));
+                                setPage(0);
+                            }}
                         />
                     </TableContainer>
                 ) : (

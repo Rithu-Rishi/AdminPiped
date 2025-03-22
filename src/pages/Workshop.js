@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, IconButton, Modal, Box, Typography, TextField,
-  TablePagination, CircularProgress, Snackbar, Alert, Switch
+  Paper, Button, Modal, Box, Typography, TextField,
+   Switch
 } from "@mui/material";
 import { getAllWorkshops, addWorkshop, updateWorkshop, deleteWorkshop, toggleWorkshopStatus } from "../services/workShopApi";
 import { Add as AddIcon, MoreVert as Menu } from "@mui/icons-material";
@@ -12,6 +12,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IMAGE_BASE_URL } from "../config/constants";
 import AlertMessage from "../includes/AlertMessage";
+import Spinner from "../includes/Spinner";
 
 const WorkShop = () => {
   const [workshops, setWorkshops] = useState([]);
@@ -133,7 +134,7 @@ const WorkShop = () => {
         </div>
       </div>
 
-      {loading ? <CircularProgress /> : (
+      {loading ? <Spinner loading={loading} /> : (
         workshops.length > 0 ? (
           <TableContainer component={Paper}>
             <Table aria-label=" simple table">
@@ -183,12 +184,12 @@ const WorkShop = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+        <Box sx={{ p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center" }}>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to delete <b>{selectedRow?.workshop_name}</b>?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, IconButton, Modal, Box, Typography, TextField,
-  TablePagination, CircularProgress, Snackbar, Alert, Switch
+  Paper, Button, Modal, Box, Typography, TextField, Switch
 } from "@mui/material";
 import { getAllSliders, addSlider, updateSlider, deleteSlider, toggleSliderStatus, } from "../services/slidersApi";
 import { Add as AddIcon, MoreVert as Menu } from "@mui/icons-material";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { IMAGE_BASE_URL } from "../config/constants";
+import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 
 const Sliders = () => {
@@ -138,7 +138,7 @@ const Sliders = () => {
       </div>
 
       {loading ? (
-        <CircularProgress />
+        <Spinner loading={loading} />
       ) : sliders.length > 0 ? (
         <TableContainer component={Paper}>
           <Table aria-label=" simple table">
@@ -176,16 +176,6 @@ const Sliders = () => {
               ))}
             </TableBody>
           </Table>
-          <TablePagination
-            component="div"
-            count={sliders.length}
-            page={page}
-            onPageChange={(event, newPage) => setPage(newPage)}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(event) =>
-              setRowsPerPage(parseInt(event.target.value, 10))
-            }
-          />
         </TableContainer>
       ) : (
         <Typography variant="body1" align="center">
@@ -195,12 +185,12 @@ const Sliders = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2 }}>
-          <Typography variant="h6" gutterBottom>Confirm Deletion</Typography>
-          <Typography variant="body1" gutterBottom>
+        <Box sx={{ p: 4, bgcolor: "background.paper", boxShadow: 24, borderRadius: 2, maxWidth: 500, mx: "auto", mt: 15, textAlign: "center" }}>
+          <Typography variant="h6" gutterBottom color="error">Confirm Deletion</Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             Are you sure you want to delete <b>{selectedRow?.slider_title}</b>?
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button onClick={() => setDeleteModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
           </Box>

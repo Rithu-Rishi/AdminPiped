@@ -2,46 +2,51 @@ import React, { useEffect, useState } from "react";
 import { getProgramTransactions } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography
+    TablePagination, Typography, TextField
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, DeleteOutline as DeleteOutlineIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
+import useDebounce from "../hooks/useDebounce";
 
 const Transitions = () => {
     const [transactions, setTransitions] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [totalCount, setTotalCount] = useState(0);
+    const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
     useEffect(() => {
         fetchTransitions();
-    }, [page]);
+    }, [page, rowsPerPage, debouncedSearch]);
 
     const fetchTransitions = async () => {
         setLoading(true);
         try {
-            const response = await getProgramTransactions();
+            const response = await getProgramTransactions({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
             console.log("data ", response);
-            setTransitions(response.transactions || []);
+            setTransitions(response.data || []);
+            setTotalCount(response.total || 0);
         } catch (err) {
             console.error("Failed to fetch transactions");
         }
         setLoading(false);
     };
 
-    const handleChangePage = (_, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
     return (
         <>
             <h5>Program Transactions</h5>
+            <div>
+                <TextField
+                    label="Search..." size="small" value={searchTerm} onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setPage(0);
+                    }}
+                />
+            </div>
+
             {loading ? <Spinner loading={loading} /> : (
                 transactions.length > 0 ? (
                     <TableContainer component={Paper}>
@@ -71,11 +76,14 @@ const Transitions = () => {
                             className="custom_pagination"
                             rowsPerPageOptions={[5, 10, 25]}
                             component="div"
-                            count={transactions.length}
+                            count={totalCount}
                             rowsPerPage={rowsPerPage}
                             page={page}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            onPageChange={(_, newPage) => setPage(newPage)}
+                            onRowsPerPageChange={(event) => {
+                                setRowsPerPage(parseInt(event.target.value, 10));
+                                setPage(0);
+                            }}
                         />
                     </TableContainer>
                 ) : (

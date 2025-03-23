@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getDropDownPrograms } from "../services/programsApi";
 import {
-  getAllTeachers, assignTeachersToProgram, getProgramsWithTeachers,
+  getDropDownAllTeachers, assignTeachersToProgram, getProgramsWithTeachers,
   removeTeacherFromProgram
 } from "../services/teachersApi";
 import {
@@ -37,7 +37,7 @@ const AssignTeachers = () => {
   useEffect(() => {
     fetchPrograms();
     fetchTeachers();
-  }, [page]);
+  }, []);
 
   useEffect(() => {
     fetchAssignments();
@@ -55,7 +55,8 @@ const AssignTeachers = () => {
   const fetchTeachers = async () => {
     setLoading(true);
     try {
-      const response = await getAllTeachers();
+      const response = await getDropDownAllTeachers();
+      console.log("teachers in assign", response);
       setTeachers(response.data || []);
     } catch (err) {
       console.error("Failed to fetch teachers.");
@@ -67,7 +68,7 @@ const AssignTeachers = () => {
     setLoading(true);
     try {
       const response = await getProgramsWithTeachers({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-      console.log("teachers", response);
+      console.log("teachers data ", response);
       setAssignments(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
@@ -249,7 +250,7 @@ const AssignTeachers = () => {
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>Assign Teacher</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
             <FormControl size="small" fullWidth>
-              <InputLabel id="label-helper-one">Select Skill Level</InputLabel>
+              <InputLabel id="label-helper-one">Select Program</InputLabel>
               <Select size="small" fullWidth name="program_id" labelId="label-helper-One" label="Select Program" value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
                 {programs.map((program) => (
                   <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>

@@ -11,6 +11,17 @@ export const getAllTeachers = async ({ page = 1, per_page = 10, search = "" }) =
     }
 };
 
+// Fetch all teachers for Dropdown
+export const getDropDownAllTeachers = async () => {
+    try {
+        const response = await API.get(`/api/teachers`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching teachers:", error);
+        throw error;
+    }
+};
+
 // Get a teacher
 export const getTeacher = async (id) => {
     try {

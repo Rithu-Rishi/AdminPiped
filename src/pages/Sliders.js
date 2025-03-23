@@ -148,8 +148,8 @@ const Sliders = () => {
               {sliders.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell><img src={`${IMAGE_BASE_URL}${row.slide_image}`} alt={row.slide_image} width={60} /></TableCell>
-                  <TableCell>{row.slider_title}</TableCell>
-                  <TableCell>{row.slider_caption}</TableCell>
+                  <TableCell>{row?.slider_title}</TableCell>
+                  <TableCell>{row?.slider_caption}</TableCell>
                   <TableCell>
                     <Switch checked={row.is_active === 1} onChange={() => handleToggleStatus(row.id)} />
                   </TableCell>
@@ -201,8 +201,8 @@ const Sliders = () => {
         }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>Add Slider</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <TextField size="small" label="Slider Title" name="slider_title" value={formData.slider_title} onChange={(e) => setFormData({ ...formData, slider_title: e.target.value })} fullWidth required />
-            <TextField size="small" label="Slider Caption" name="slider_caption" value={formData.slider_caption} onChange={(e) => setFormData({ ...formData, slider_caption: e.target.value })} fullWidth required />
+            <TextField size="small" label="Slider Title" name="slider_title" value={formData.slider_title} onChange={(e) => setFormData({ ...formData, slider_title: e.target.value })} fullWidth />
+            <TextField size="small" label="Slider Caption" name="slider_caption" value={formData.slider_caption} onChange={(e) => setFormData({ ...formData, slider_caption: e.target.value })} fullWidth />
             <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={handleImageChange} />
             {previewImage && <img src={previewImage} alt="Preview" width="60" height="60" className="mt-2" />}
           </Box>

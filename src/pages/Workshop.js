@@ -14,6 +14,7 @@ import { IMAGE_BASE_URL } from "../config/constants";
 import AlertMessage from "../includes/AlertMessage";
 import Spinner from "../includes/Spinner";
 import { handleApiError } from "../utils/apiErrorHandler";
+import { formatDate } from '../utils/dateUtils';
 
 const WorkShop = () => {
   const [workshops, setWorkshops] = useState([]);
@@ -44,13 +45,18 @@ const WorkShop = () => {
   };
 
   const handleSubmit = async () => {
+    const formattedData = {
+      ...formData,
+      date: formData.date ? new Date(formData.date).toISOString().split("T")[0] : ""
+    };
+
     setLoading(true);
     try {
       if (editId) {
-        await updateWorkshop(editId, formData);
+        await updateWorkshop(editId, formattedData);
         setAlertMessage({ open: true, type: "success", message: "Workshop updated successfully!" });
       } else {
-        await addWorkshop(formData);
+        await addWorkshop(formattedData);
         setAlertMessage({ open: true, type: "success", message: "Workshop created successfully!" });
       }
       setFormModalOpen(false);
@@ -90,7 +96,7 @@ const WorkShop = () => {
     if (row) {
       setFormData({
         workshop_name: row.workshop_name,
-        date: row.date ? new Date(row.date) : null,
+        date: row.date ? new Date(row.date) : row.date,
         time: row.time,
         link: row.link,
         image: row.image,
@@ -152,7 +158,7 @@ const WorkShop = () => {
                   <TableRow key={row.id}>
                     <TableCell><img src={`${IMAGE_BASE_URL}${row.image}`} alt={row.image} className="border border-1 rounded-2 p-1" width={60} /></TableCell>
                     <TableCell>{row.workshop_name}</TableCell>
-                    <TableCell>{row.date}</TableCell>
+                    <TableCell>{formatDate(row.date)}</TableCell>
                     <TableCell>{row.time}</TableCell>
                     <TableCell>{row.link}</TableCell>
                     <TableCell>
@@ -207,7 +213,7 @@ const WorkShop = () => {
             <TextField size="small" label="Workshop Name" name="workshop_name" value={formData.workshop_name} onChange={(e) => setFormData({ ...formData, workshop_name: e.target.value })} fullWidth required />
             {/* <TextField size="small" label="Date" type="date" name="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} fullWidth required /> */}
             <DatePicker
-              selected={formData.date}
+              selected={formData.date ? new Date(formData.date) : null}
               onChange={(date) => setFormData({ ...formData, date: date ? date.toISOString().split("T")[0] : "" })}
               dateFormat="dd MMM, yyyy"
               showYearDropdown

@@ -1,8 +1,6 @@
 import React from 'react';
 import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import { useNavigate } from "react-router-dom";
 import API, { setAuthToken } from "../config/api";
 import logo from '../assets/images/logo.png';
@@ -38,9 +36,11 @@ function Header() {
             align="end"
             title="Admin"
             id="dropdown-menu-align-end"
-            variant="secondary"
+            variant="danger"
             size='sm'
           >
+            {/* <Dropdown.Item>Super Admin</Dropdown.Item>
+            <Dropdown.Item className='border-bottom'></Dropdown.Item> */}
             <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
           </DropdownButton>
         </Container>

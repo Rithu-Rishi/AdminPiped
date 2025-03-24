@@ -207,6 +207,7 @@ const Sliders = () => {
             {previewImage && <img src={previewImage} alt="Preview" width="60" height="60" className="mt-2" />}
           </Box>
           <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
+            <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}
             </Button>

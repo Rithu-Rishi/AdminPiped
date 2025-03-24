@@ -309,6 +309,7 @@ const SubPrograms = () => {
             ))}
           </Box>
           <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
+            <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button variant="contained" color="primary" onClick={handleSubmit}>{editId ? 'Update' : 'Create'}</Button>
           </Box>
         </Box>

@@ -193,7 +193,10 @@ const Programs = () => {
               <TableBody>
                 {programs.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell className="d-flex align-items-center">{row.program_image && <img src={`${IMAGE_BASE_URL}${row.program_image}`} alt={row.program_name} className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />}{row.program_name}</TableCell>
+                    <TableCell><div className="d-flex align-items-center"></div>
+                      {row.program_image && <img src={`${IMAGE_BASE_URL}${row.program_image}`} alt={row.program_name} className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />}
+                      <span>{row.program_name}</span>
+                    </TableCell>
                     <TableCell>{row.program_desc}</TableCell>
                     <TableCell>{row.age_group} Yrs</TableCell>
                     <TableCell width={85}><CurrencyRupeeIcon className="fs-14 text-black" />{row.monthly_fee}</TableCell>

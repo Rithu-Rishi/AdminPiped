@@ -175,10 +175,11 @@ const NoticeBoard = () => {
           boxShadow: 12, borderRadius: 2
         }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Notice' : 'Create Notice'}</Typography>
-          <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <ReactQuill theme="snow" value={formData.notice_text} style={{ height: '150px' }} onChange={(value) => setFormData({ ...formData, notice_text: value })} />
+          <Box className="modal_body bg-white p-3" sx={{height:300}} component="form">
+            <ReactQuill theme="snow" value={formData.notice_text} style={{ height: '230px' }} onChange={(value) => setFormData({ ...formData, notice_text: value })} />
           </Box>
           <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
+            <Button onClick={() => setFormModalOpen(false)} sx={{ mr: 1 }}>Cancel</Button>
             <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
               {editId ? 'Update' : 'Create'}
             </Button>

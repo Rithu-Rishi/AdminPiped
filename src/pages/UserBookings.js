@@ -96,7 +96,7 @@ const UserBookings = () => {
                             <TableBody>
                                 {bookings.map((booking) => (
                                     <TableRow key={booking.id}>
-                                        <TableCell onClick={() => handleBookingDetails(booking.booking_id)}>{booking.booking_id || "N/A"}</TableCell>
+                                        <TableCell onClick={() => handleBookingDetails(booking.booking_id)}><span className="px-2 py-1 rounded-1 bg-opacity-25 pe-auto bg-primary text-primary">{booking.booking_id || "N/A"}</span></TableCell>
                                         <TableCell>{booking.user?.name || "N/A"}</TableCell>
                                         <TableCell>{booking.child?.child_name || "N/A"}</TableCell>
                                         <TableCell>{booking.program?.program_name || "N/A"}</TableCell>

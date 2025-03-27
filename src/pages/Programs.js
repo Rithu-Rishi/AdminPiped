@@ -181,7 +181,7 @@ const Programs = () => {
             <Table aria-label="table simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell>Program Name</TableCell>
+                  <TableCell width={170}>Program Name</TableCell>
                   <TableCell>Description</TableCell>
                   <TableCell width={100}>Age</TableCell>
                   <TableCell>Fees</TableCell>

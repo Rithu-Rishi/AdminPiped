@@ -208,7 +208,7 @@ const Sidebar = () => {
             <ListItemIcon className='icon_items'>
               <AccountBalanceWalletOutlinedIcon />
             </ListItemIcon>
-            <ListItemText className='text_items' primary="Program Transitions" />
+            <ListItemText className='text_items' primary="Program Transactions" />
           </ListItemButton>
         </Link>
         <Link to='/userBookings'>
@@ -236,6 +236,15 @@ const Sidebar = () => {
           {openTwo ? <ExpandLess className='icon_down' /> : <ExpandMore className='icon_down' />}
         </ListItemButton>
         <Collapse in={openTwo} timeout="auto" unmountOnExit>
+          <Link to="/coupons">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Coupons" />
+            </ListItemButton>
+          </Link>
+
           <Link to="/sliders">
             <ListItemButton className='single_item'>
               <ListItemIcon className='icon_items'>
@@ -271,6 +280,7 @@ const Sidebar = () => {
               <ListItemText className='text_items' primary="Notice Board" />
             </ListItemButton>
           </Link>
+
         </Collapse>
 
       </List>

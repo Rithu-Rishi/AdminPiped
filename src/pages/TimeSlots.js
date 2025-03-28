@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllTimeSlots, addTimeSlot, updateTimeSlot, deleteTimeSlot } from "../services/timeslotApi";
 import { getDropDownPrograms } from "../services/programsApi";
 import { getProgramSkillLevels } from "../services/skillLevelApi";
+import { getDropDownAllTeachers } from "../services/teachersApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, ToggleButton, ToggleButtonGroup, InputAdornment
@@ -20,9 +21,10 @@ const TimeSlots = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [skillLevels, setSkillLevels] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [formData, setFormData] = useState({
     program_id: "", skill_level_id: "", week_days: [],
-    time_ranges: [{ start_time: "", end_time: "", available_slots: "" }]
+    time_ranges: [{ start_time: "", end_time: "", available_slots: "", teacher_id: "" }]
   });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
@@ -39,6 +41,7 @@ const TimeSlots = () => {
   useEffect(() => {
     fetchTimeSlots();
     fetchPrograms();
+    fetchTeachers();
   }, [page, rowsPerPage, debouncedSearch]);
 
   const fetchTimeSlots = async () => {
@@ -67,6 +70,15 @@ const TimeSlots = () => {
     }
   };
 
+  const fetchTeachers = async () => {
+    try {
+      const response = await getDropDownAllTeachers();
+      setTeachers(response.data || []);
+    } catch (err) {
+      console.error("Failed to fetch teachers.");
+    }
+  };
+
   const fetchSkillLevels = async (programId) => {
     try {
       const response = await getProgramSkillLevels(programId);
@@ -86,7 +98,7 @@ const TimeSlots = () => {
   const handleAddTimeRange = () => {
     setFormData({
       ...formData,
-      time_ranges: [...formData.time_ranges, { start_time: "", end_time: "", available_slots: "" }]
+      time_ranges: [...formData.time_ranges, { start_time: "", end_time: "", available_slots: "", teacher_id: "" }]
     });
   };
 
@@ -109,13 +121,13 @@ const TimeSlots = () => {
         program_id: row.program_id || "",
         skill_level_id: row.skill_level_id || "",
         week_days: row.week_days || [],
-        time_ranges: row.time_ranges ? row.time_ranges.map(range => ({ ...range })) : [{ start_time: "", end_time: "", available_slots: "" }]
+        time_ranges: row.time_ranges ? row.time_ranges.map(range => ({ ...range })) : [{ start_time: "", end_time: "", available_slots: "", teacher_id: "" }]
       });
       setEditId(row.id);
     } else {
       setFormData({
         program_id: "", skill_level_id: "", week_days: [],
-        time_ranges: [{ start_time: "", end_time: "", available_slots: "" }]
+        time_ranges: [{ start_time: "", end_time: "", available_slots: "", teacher_id: "" }]
       });
       setEditId(null);
     }
@@ -198,21 +210,22 @@ const TimeSlots = () => {
                   <TableCell>Skill Level</TableCell>
                   <TableCell>Week Days</TableCell>
                   <TableCell>Time Ranges</TableCell>
+                  <TableCell>Teachers</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {timeSlots.map((slot) => (
                   <TableRow key={slot.id}>
-                    <TableCell>{slot.program?.program_name}</TableCell>
-                    <TableCell>{slot.skill_level.skill_name}</TableCell>
+                    <TableCell>{slot.program_name}</TableCell>
+                    <TableCell>{slot.skill_name}</TableCell>
                     <TableCell>{slot.week_days.map((day) => weekDaysList[day]).join(", ")}</TableCell>
                     <TableCell>
                       {slot.time_ranges.map((range, index) => (
                         <div key={index}>{range.start_time} - {range.end_time} ({range.available_slots} slots)</div>
                       ))}
-                      {/* <TableCell>{slot.time_ranges.map(t => `${t.start_time} - ${t.end_time} (${t.available_slots} slots)`).join(", ")}</TableCell> */}
                     </TableCell>
+                    <TableCell>{slot.teachers.map((teacher) => teacher).join(",")}</TableCell>
                     <TableCell align="center">
                       <DropdownButton
                         align="end"
@@ -299,6 +312,16 @@ const TimeSlots = () => {
                 <TextField size="small" label="Start Time" value={range.start_time} onChange={(e) => handleChangeTimeRange(index, "start_time", e.target.value)} />
                 <TextField size="small" label="End Time" value={range.end_time} onChange={(e) => handleChangeTimeRange(index, "end_time", e.target.value)} />
                 <TextField size="small" label="Available Slots" value={range.available_slots} onChange={(e) => handleChangeTimeRange(index, "available_slots", e.target.value)} />
+                <Select
+                  size="small"
+                  value={range.teacher_id}
+                  onChange={(e) => handleChangeTimeRange(index, "teacher_id", e.target.value)}
+                >
+                  <MenuItem value="" disabled>Select Teacher</MenuItem>
+                  {teachers.map((teacher) => (
+                    <MenuItem key={teacher.id} value={teacher.id}>{teacher.name}</MenuItem>
+                  ))}
+                </Select>
                 <IconButton className="text-danger" onClick={() => handleRemoveTimeRange(index)}><CloseIcon /></IconButton>
               </Box>
             ))}

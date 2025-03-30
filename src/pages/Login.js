@@ -21,7 +21,7 @@ function Login() {
       await API.get("/sanctum/csrf-cookie");
 
       // Step 2: Make login request
-      const response = await API.post("/api/login", { email, password });
+      const response = await API.post("/api/admin-login", { email, password });
       console.log(response);
       if (response.data.token) {
         // Step 3: Store Token and Set Authorization Header

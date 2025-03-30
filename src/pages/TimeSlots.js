@@ -273,11 +273,11 @@ const TimeSlots = () => {
         </Box>
       </Modal>
 
-      {/* Add/Edit Child Modal */}
+      {/* Add/Edit TImeslot Modal */}
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <Box className="custom_modal" sx={{
           position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
+          transform: 'translate(-50%, -50%)', width: 800, bgcolor: 'background.paper',
           boxShadow: 12, borderRadius: 2
         }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Time Slot' : 'Create Time Slot'}</Typography>
@@ -308,20 +308,23 @@ const TimeSlots = () => {
             </ToggleButtonGroup>
 
             {formData.time_ranges.map((range, index) => (
-              <Box key={index} className="d-flex align-items-center" sx={{ gap: 2 }}>
+              <Box key={index} className="d-flex align-items-center" sx={{ gap: 1 }}>
                 <TextField size="small" label="Start Time" value={range.start_time} onChange={(e) => handleChangeTimeRange(index, "start_time", e.target.value)} />
                 <TextField size="small" label="End Time" value={range.end_time} onChange={(e) => handleChangeTimeRange(index, "end_time", e.target.value)} />
                 <TextField size="small" label="Available Slots" value={range.available_slots} onChange={(e) => handleChangeTimeRange(index, "available_slots", e.target.value)} />
-                <Select
-                  size="small"
-                  value={range.teacher_id}
-                  onChange={(e) => handleChangeTimeRange(index, "teacher_id", e.target.value)}
-                >
-                  <MenuItem value="" disabled>Select Teacher</MenuItem>
-                  {teachers.map((teacher) => (
-                    <MenuItem key={teacher.id} value={teacher.id}>{teacher.name}</MenuItem>
-                  ))}
-                </Select>
+                <FormControl size="small">
+                  <InputLabel id="label-helper-teacher">Select Teacher</InputLabel>
+                  <Select 
+                    size="small" className="w-50"
+                    value={range.teacher_id} labelId="label-helper-teacher" label="Select Teacher"
+                    onChange={(e) => handleChangeTimeRange(index, "teacher_id", e.target.value)}
+                  >
+                    <MenuItem value="" disabled>Select Teacher</MenuItem>
+                    {teachers.map((teacher) => (
+                      <MenuItem key={teacher.id} value={teacher.id}>{teacher.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <IconButton className="text-danger" onClick={() => handleRemoveTimeRange(index)}><CloseIcon /></IconButton>
               </Box>
             ))}

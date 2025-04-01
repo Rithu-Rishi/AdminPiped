@@ -21,3 +21,6 @@
 .search_icon .MuiInputBase-root input {
     font-size: 14px;
 }
+
+.custom_width{min-width:120px}
+.w-16{width: 16px !important;}

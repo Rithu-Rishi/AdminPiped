@@ -222,7 +222,7 @@ const TimeSlots = () => {
                     <TableCell>{slot.week_days.map((day) => weekDaysList[day]).join(", ")}</TableCell>
                     <TableCell>
                       {slot.time_ranges.map((range, index) => (
-                        <div key={index}>{range.start_time} - {range.end_time} ({range.available_slots} slots)</div>
+                        <div key={index}>{range.start_time} - {range.end_time} (<span className="text-success fw-600">{range.available_slots} slots</span>)</div>
                       ))}
                     </TableCell>
                     <TableCell>{slot.teachers.map((teacher) => teacher).join(",")}</TableCell>
@@ -315,7 +315,7 @@ const TimeSlots = () => {
                 <FormControl size="small">
                   <InputLabel id="label-helper-teacher">Select Teacher</InputLabel>
                   <Select 
-                    size="small" className="w-50"
+                    size="small" className="custom_width"
                     value={range.teacher_id} labelId="label-helper-teacher" label="Select Teacher"
                     onChange={(e) => handleChangeTimeRange(index, "teacher_id", e.target.value)}
                   >

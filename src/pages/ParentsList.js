@@ -5,13 +5,15 @@ import {
   Button, Modal, Box, Typography, TextField, TablePagination, InputAdornment
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Search as SearchIcon, MoreVert as Menu } from "@mui/icons-material";
+import { Search as SearchIcon, MoreVert as Menu, CheckCircleOutline as CheckCircleOutlineIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
-import Parent from '../assets/images/parents-64.png'
+import Parent from '../assets/images/parents-64.png';
+import CancelIcon from '@mui/icons-material/Cancel';
+
 
 const ParentsList = () => {
   const [parents, setParents] = useState([]);
@@ -173,7 +175,9 @@ const ParentsList = () => {
                   <TableRow key={row.id}>
                     <TableCell><img src={row.profile_pic_url ? `${IMAGE_BASE_URL}${row.profile_pic_url}` : Parent} alt="Profile" className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />{row.name}</TableCell>
                     <TableCell><span className="px-2 py-1 rounded-1 bg-opacity-10 bg-danger text-danger">{row.child_count}</span></TableCell>
-                    <TableCell>{row.email}</TableCell>
+                    <TableCell><span className="text-success"><CheckCircleOutlineIcon className="w-16 me-1" /></span>
+                      {/* <span className="text-danger"><CancelIcon className="w-16 m-1"/></span>  */}
+                      {row.email}</TableCell>
                     <TableCell>{row.mobile_number || 'N/A'}</TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
                     <TableCell align="center">

@@ -22,6 +22,7 @@ import logo from '../assets/images/logo1.png'
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AllOutOutlinedIcon from '@mui/icons-material/AllOutOutlined';
+import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 
 const Sidebar = () => {
   const [open, setOpen] = React.useState(false);
@@ -65,6 +66,14 @@ const Sidebar = () => {
               <HomeOutlinedIcon />
             </ListItemIcon>
             <ListItemText className='text_items' primary="Dashboard" />
+          </ListItemButton>
+        </Link>
+        <Link to='/admins'>
+          <ListItemButton className='single_item'>
+            <ListItemIcon className='icon_items'>
+              <AdminPanelSettingsOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText className='text_items' primary="Admins" />
           </ListItemButton>
         </Link>
         <Link to='/parentlist'>

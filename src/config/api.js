@@ -2,8 +2,9 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const API = axios.create({
-    baseURL: "http://localhost:8000", // Change this to your API URL
-    //    baseURL: "https://pipe.mosol9.in/pied-app", // Change this to your API URL
+    // baseURL: "http://localhost:8000", // Change this to your API URL
+    baseURL: "https://pipe.mosol9.in/pied-app", // Change this to your API URL
+    // baseURL: "https://thepiedpiper.app/pied-app",  // Live URL
     headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",

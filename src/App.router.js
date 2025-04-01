@@ -26,6 +26,7 @@ import NoticeBoard from "./pages/NoticeBoard";
 import ProgramSubscriptions from "./pages/ProgramSubscriptions";
 import Coupon from "./pages/Coupon";
 import Cafeteria from "./pages/Cafeteria";
+import Admin from "./pages/Admin";
 
 const AppRouter = () => {
     return (
@@ -35,6 +36,7 @@ const AppRouter = () => {
                 <Route element={<ProtectedRoute />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/admins" element={<Admin />} />
                     <Route path="/parentlist" element={<ParentsList />} />
                     <Route path="/childlist" element={<ChildList />} />
                     <Route path="/teachers" element={<Teacher />} />

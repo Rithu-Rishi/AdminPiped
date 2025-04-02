@@ -263,7 +263,7 @@ const Programs = () => {
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
             <Box className='d-flex' sx={{ gap: 2 }}>
               <TextField size='small' label="Program Name *" name="program_name" value={formData.program_name} onChange={handleChange} fullWidth />
-              <TextField size='small' label="Programs Age *" name="age_group" value={formData.age_group} onChange={handleChange} fullWidth />
+              <TextField size='small' label="Program Age *" name="age_group" value={formData.age_group} onChange={handleChange} fullWidth />
             </Box>
             <Box className='d-flex' sx={{ gap: 2 }}>
               <TextField size='small' label="Program Fee *" name="monthly_fee" value={formData.monthly_fee} onChange={handleChange} fullWidth />
@@ -273,7 +273,7 @@ const Programs = () => {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <div>
                 <input type="file" className="border rounded-2 w-100 p-2" accept="image/*" onChange={(e) => handleImageChange(e, "image")} />
-                <div className="form-text text-warning fs-10">&#128712; Programs Small Image * (Only below 2MB size)</div>
+                <div className="form-text text-warning fs-10">&#128712; Program Icon Image * (Only below 2MB size)</div>
                 {previewImage && <img src={previewImage} alt="Preview" width="100" height="100" />}
               </div>
               <div>

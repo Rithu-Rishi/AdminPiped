@@ -116,7 +116,7 @@ const MenuItems = () => {
                     loading={loading}
                     sx={{ width: 300 }}
                     renderOption={(props, option) => (
-                        <li {...props} className="d-flex align-items-center p-2 border-bottom">
+                        <li {...props} className="d-flex align-items-center p-2 border-bottom text-capitalize">
                             <img
                                 src={option?.profile_pic_url ? `${IMAGE_BASE_URL}${option.profile_pic_url}` : Child} // Fallback to default image if profile_pic_url is missing
                                 alt={option?.child_name || "No Name"}
@@ -149,7 +149,7 @@ const MenuItems = () => {
                             <TableBody>
                                 {menuItems.map((item) => (
                                     <TableRow key={item.id}>
-                                        <TableCell>{item.name}</TableCell>
+                                        <TableCell className="text-capitalize">{item.name}</TableCell>
                                         <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{item.price}</TableCell>
                                         <TableCell>
                                             <div className="d-flex align-items-center">
@@ -200,7 +200,7 @@ const MenuItems = () => {
                             <img src={selectedChild?.profile_pic_url ? `${IMAGE_BASE_URL}${selectedChild.profile_pic_url}` : Child} alt={selectedChild?.child_name || "No Name"} width={150} height={150} className="canteenKid" />
                             <h5 className="mb-0 mt-2 text-danger text-capitalize"> {selectedChild?.child_name || "No Child"}</h5>
                             <FormControlLabel control={<Checkbox defaultChecked color="success" required />} label="Kid Verified" />
-                            <p className="fs-10">* Mandatory to check field</p>
+                            <p className="fs-10 mb-0">* Mandatory to check field</p>
                         </div>
                     ) : (
                         <div>

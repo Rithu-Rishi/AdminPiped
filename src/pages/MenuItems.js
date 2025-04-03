@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter, Paper, Checkbox, Modal, Box, Typography,
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter, Paper, Modal, Box, Typography,
     FormControlLabel,
+    Autocomplete,
     TextField,
-    InputAdornment
+    InputAdornment, Checkbox
 } from "@mui/material";
 import { Col, Row, Button } from "react-bootstrap";
-import ara from '../assets/images/aria.webp'
-import { Search as SearchIcon} from "@mui/icons-material";
+import { Search as SearchIcon } from "@mui/icons-material";
+import { getAllChildren } from "../services/childApi";
+import { IMAGE_BASE_URL } from "../config/constants";
+import Child from '../assets/images/child.png';
+import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 
 const MenuItems = () => {
     const menuItems = [
@@ -27,21 +31,55 @@ const MenuItems = () => {
 
     const [selectedItems, setSelectedItems] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
+    const [childData, setChildData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [selectedChild, setSelectedChild] = useState(null);
 
-    const handleCheckboxChange = (item) => {
-        setSelectedItems((prevSelected) => {
-            if (prevSelected.some((selected) => selected.id === item.id)) {
-                // Remove item if already selected
-                return prevSelected.filter((selected) => selected.id !== item.id);
-            } else {
-                // Add item if not already selected
-                return [...prevSelected, item];
+    // Fetch child data from the API
+    const fetchChildren = async (search) => {
+        setLoading(true);
+        try {
+            const response = await getAllChildren({ search });
+            console.log(response)
+            setChildData(response.data || []);
+        } catch (err) {
+            console.error("Failed to fetch child data.");
+        }
+        setLoading(false);
+    };
+
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchValue) {
+                fetchChildren(searchValue);
             }
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchValue]);
+
+    const handleQuantityChange = (item, increment) => {
+        setSelectedItems((prevSelected) => {
+            const existingItem = prevSelected.find((selected) => selected.id === item.id);
+            if (existingItem) {
+                const updatedQuantity = existingItem.quantity + increment;
+                if (updatedQuantity <= 0) {
+                    return prevSelected.filter((selected) => selected.id !== item.id);
+                }
+                return prevSelected.map((selected) =>
+                    selected.id === item.id ? { ...selected, quantity: updatedQuantity } : selected
+                );
+            } else if (increment > 0) {
+                return [...prevSelected, { ...item, quantity: 1 }];
+            }
+            return prevSelected;
         });
     };
 
     const calculateTotal = () => {
-        return selectedItems.reduce((total, item) => total + item.price, 0);
+        return selectedItems.reduce((total, item) => total + item.price * item.quantity, 0);
     };
 
     useEffect(() => {
@@ -52,44 +90,91 @@ const MenuItems = () => {
         }
     }, [selectedItems]);
 
+    const handleApproveItems = () => {
+        if (calculateTotal() < 500) {
+            // Submit the form logic here
+            alert("Form submitted successfully!");
+        } else {
+            setShowModal(true);
+        }
+    };
+
     return (
         <div>
             <div className='d-flex justify-content-between align-items-center mb-2'>
-               <TextField className="search_icon"
-                         size="small"
-                         placeholder="Search..."
-                         InputProps={{
-                           startAdornment: (
-                             <InputAdornment position="start">
-                               <SearchIcon className="fs-14 text-primary" />
-                             </InputAdornment>
-                           ),
-                         }}
-                       />
+                <Autocomplete
+                    options={childData}
+                    getOptionLabel={(option) => {
+                        if (typeof option === "string") {
+                            return option;
+                        }
+                        return option?.child_name || "No Child";
+                    }}
+                    value={searchValue}
+                    onInputChange={(event, newValue) => setSearchValue(newValue)}
+                    onChange={(event, newValue) => setSelectedChild(newValue)}
+                    loading={loading}
+                    sx={{ width: 300 }}
+                    renderOption={(props, option) => (
+                        <li {...props} className="d-flex align-items-center p-2 border-bottom">
+                            <img
+                                src={option?.profile_pic_url ? `${IMAGE_BASE_URL}${option.profile_pic_url}` : Child} // Fallback to default image if profile_pic_url is missing
+                                alt={option?.child_name || "No Name"}
+                                style={{ width: 30, height: 30, borderRadius: "50%", marginRight: 10 }}
+                            />
+                            {option?.child_name || "No Child"}
+                        </li>
+                    )}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            size="small"
+                            placeholder="Search Children"
+                            className="search_icon"
+                        />
+                    )}
+                />
             </div>
             <Row className="align-items-center">
-                <Col md='7'>
+                <Col md='9'>
                     <TableContainer component={Paper} sx={{ maxHeight: 400, overflowY: "auto", position: "relative" }}>
                         <Table stickyHeader aria-label="sticky table">
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Menu Items</TableCell>
                                     <TableCell>Price</TableCell>
-                                    <TableCell>Selection</TableCell>
+                                    <TableCell>Quantity</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {menuItems.map((item) => (
                                     <TableRow key={item.id}>
                                         <TableCell>{item.name}</TableCell>
-                                        <TableCell>{item.price}</TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{item.price}</TableCell>
                                         <TableCell>
-                                            <Checkbox
-                                                color="success"
-                                                className="p-0"
-                                                checked={selectedItems.some((selected) => selected.id === item.id)}
-                                                onChange={() => handleCheckboxChange(item)}
-                                            />
+                                            <div className="d-flex align-items-center">
+                                                <div className="bg-secondary bg-opacity-25 border-2 border rounded-1">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="danger"
+                                                        className="px-2 py-1 rounded-0"
+                                                        onClick={() => handleQuantityChange(item, -1)}
+                                                    >
+                                                        -
+                                                    </Button>
+                                                    <span className="mx-2 quantityBox">
+                                                        {selectedItems.find((selected) => selected.id === item.id)?.quantity || 0}
+                                                    </span>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="success"
+                                                        className="px-2 py-1 rounded-0"
+                                                        onClick={() => handleQuantityChange(item, 1)}
+                                                    >
+                                                        +
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -100,29 +185,29 @@ const MenuItems = () => {
                                 <TableFooter>
                                     <TableRow>
                                         <TableCell className="fw-600 text-dark" width={205}>Total Amount:</TableCell>
-                                        <TableCell className="fw-600 text-dark">{calculateTotal()}</TableCell>
+                                        <TableCell className="fw-600 text-dark"><CurrencyRupeeIcon className="fs-14 text-black" />{calculateTotal()}</TableCell>
                                     </TableRow>
                                 </TableFooter>
                             </Table>
                         </div>
                     </TableContainer>
-                    <Button size="sm" variant="danger" className="mt-2 rounded-0">Approve Items</Button>
+                    <Button size="sm" variant="danger" className="mt-2 rounded-0" disabled={calculateTotal() >= 500} onClick={handleApproveItems}>Approve Items</Button>
                 </Col>
-                <Col md="2" className="text-center">
-                    <Button size="sm" variant="danger" className="mt-2 rounded-0 px-4 mb-3">ADD</Button>
-                    <div>
-                        <div className="bg-danger d-inline-block">
-                            <Button size="sm" variant="danger" className="px-2 py-1">-</Button>
-                            <span className="mx-2">1</span>
-                            <Button size="sm" variant="danger" className="px-2 py-1">+</Button>
-                        </div>
-                    </div>
-                </Col>
+
                 <Col md="3" className="text-center">
-                    <img src={ara} alt="user" width={200} className="canteenKid" />
-                    <br />
-                    <FormControlLabel control={<Checkbox defaultChecked color="success" required/>} label="Kid Verified" />
-                    <p>* Manditory to check filed</p>
+                    {selectedChild ? (
+                        <div>
+                            <img src={selectedChild?.profile_pic_url ? `${IMAGE_BASE_URL}${selectedChild.profile_pic_url}` : Child} alt={selectedChild?.child_name || "No Name"} width={150} height={150} className="canteenKid" />
+                            <h5 className="mb-0 mt-2 text-danger text-capitalize"> {selectedChild?.child_name || "No Child"}</h5>
+                            <FormControlLabel control={<Checkbox defaultChecked color="success" required />} label="Kid Verified" />
+                            <p className="fs-10">* Mandatory to check field</p>
+                        </div>
+                    ) : (
+                        <div>
+                            <img src={Child} width={150} height={150} className="canteenKid" />
+                            <h6 className="text-danger mt-3"> No selected child details</h6>
+                        </div>
+                    )}
                 </Col>
             </Row>
 
@@ -144,13 +229,10 @@ const MenuItems = () => {
                     p: 2,
                     borderRadius: 2,
                     textAlign: 'center',
-                    
                 }}>
-                    
                     <Typography id="modal-description" className="text-white">
-                    Unable to approve items- Daily Budget (500)
-                    reached, come back tomorrow
-                    </Typography>                    
+                        Unable to approve items - Daily Budget (500) reached, come back tomorrow
+                    </Typography>
                 </Box>
             </Modal>
         </div>

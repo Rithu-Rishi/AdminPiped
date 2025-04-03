@@ -28,6 +28,7 @@ const Sidebar = () => {
   const [open, setOpen] = React.useState(false);
   const [openOne, setOpenOne] = React.useState(false);
   const [openTwo, setOpenTwo] = React.useState(false);
+  const [openConteen, setOpenCOnteen] = React.useState(false);
   const handleClick = () => {
     setOpen(!open);
   };
@@ -38,6 +39,10 @@ const Sidebar = () => {
 
   const handleClickTwo = () => {
     setOpenTwo(!openTwo);
+  };
+
+  const handleClickConteen = () => {
+    setOpenCOnteen(!openConteen);
   };
 
   const [isExpanded, setIsExpanded] = useState(true);
@@ -158,6 +163,33 @@ const Sidebar = () => {
               <ListItemText className='text_items' primary="Assign teachers" />
             </ListItemButton>
           </Link> */}
+        </Collapse>
+
+        <ListItemButton className='single_item' onClick={handleClickConteen}>
+          <ListItemIcon className='icon_items'>
+            <AccountTreeIcon />
+          </ListItemIcon>
+          <ListItemText className='text_items' primary="Canteen" />
+          {openConteen ? <ExpandLess className='icon_down' /> : <ExpandMore className='icon_down' />}
+        </ListItemButton>
+        <Collapse in={openConteen} timeout="auto" unmountOnExit>
+          <Link to="/menuItems">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Menu Items" />
+            </ListItemButton>
+          </Link>
+
+          <Link to="/viewTransactions">
+            <ListItemButton className='single_item'>
+              <ListItemIcon className='icon_items'>
+                <RemoveIcon />
+              </ListItemIcon>
+              <ListItemText className='text_items' primary="Transaction" />
+            </ListItemButton>
+          </Link>
         </Collapse>
 
         <ListItemButton className='single_item' onClick={handleClickOne}>
@@ -291,6 +323,8 @@ const Sidebar = () => {
           </Link>
 
         </Collapse>
+
+
 
       </List>
 

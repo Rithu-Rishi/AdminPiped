@@ -27,6 +27,8 @@ import ProgramSubscriptions from "./pages/ProgramSubscriptions";
 import Coupon from "./pages/Coupon";
 import Cafeteria from "./pages/Cafeteria";
 import Admin from "./pages/Admin";
+import MenuItems from "./pages/MenuItems";
+import ViewTransactions from "./pages/ViewTransactions";
 
 const AppRouter = () => {
     return (
@@ -59,6 +61,8 @@ const AppRouter = () => {
                     <Route path="/programSubscriptions" element={<ProgramSubscriptions />} />
                     <Route path="/coupons" element={<Coupon />} />
                     <Route path="/cafeteria" element={<Cafeteria />} />
+                    <Route path="/menuItems" element={<MenuItems />} />
+                    <Route path="/viewTransactions" element={<ViewTransactions />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

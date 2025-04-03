@@ -72,7 +72,7 @@ p {
 
 
 .icon_items {
-    min-width: 40px !important;
+    min-width: 36px !important;
     color: #b2b8c7;
 }
 
@@ -142,7 +142,7 @@ table tr th {
 }
 
 .collapsed {
-    width: 52px;
+    width: 62px;
 }
 
 .collapsed .logo {
@@ -150,7 +150,7 @@ table tr th {
 }
 
 .expanded {
-    width: 250px;
+    width: 260px;
 }
 
 .togglebtn {

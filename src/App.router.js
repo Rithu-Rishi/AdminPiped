@@ -29,6 +29,7 @@ import Cafeteria from "./pages/Cafeteria";
 import Admin from "./pages/Admin";
 import MenuItems from "./pages/MenuItems";
 import ViewTransactions from "./pages/ViewTransactions";
+import HelpSupport from "./pages/HelpSupport";
 
 const AppRouter = () => {
     return (
@@ -63,6 +64,7 @@ const AppRouter = () => {
                     <Route path="/cafeteria" element={<Cafeteria />} />
                     <Route path="/menuItems" element={<MenuItems />} />
                     <Route path="/viewTransactions" element={<ViewTransactions />} />
+                    <Route path="/helpSupport" element={<HelpSupport />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

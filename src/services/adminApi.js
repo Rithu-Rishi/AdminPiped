@@ -45,3 +45,14 @@ export const deleteAdmin = async (id) => {
     throw error;
   }
 };
+
+// Get all Supports with pagination and search
+export const getHelpSupportQueries = async ({ page = 1, per_page = 10, search = "" }) => {
+  try {
+    const response = await API.get(`/api/help-support/get?page=${page}&per_page=${per_page}&search=${search}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching admins", error);
+    throw error;
+  }
+};

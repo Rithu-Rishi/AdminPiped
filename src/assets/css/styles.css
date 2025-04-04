@@ -13,6 +13,10 @@
     font-size: 16px;
 }
 
+.fs-10 {
+    font-size: 10px;
+}
+
 .search_icon .MuiInputBase-root {
     flex-direction: row-reverse;
     border-radius: 30px !important;

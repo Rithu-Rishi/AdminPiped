@@ -1,34 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter, Paper, Modal, Box, Typography,
     FormControlLabel,
     Autocomplete,
     TextField,
-    InputAdornment, Checkbox
+    Checkbox
 } from "@mui/material";
 import { Col, Row, Button } from "react-bootstrap";
-import { Search as SearchIcon } from "@mui/icons-material";
 import { getAllChildren } from "../services/childApi";
+import { getAllCafeteriaItems } from "../services/cafeteriaApi"; // Import the API method
+import { purchaseItem } from "../services/walletApi"; // Import the API method
 import { IMAGE_BASE_URL } from "../config/constants";
 import Child from '../assets/images/child.png';
 import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 
 const MenuItems = () => {
-    const menuItems = [
-        { id: 1, name: "Samosa", price: 50 },
-        { id: 2, name: "Cheese cake", price: 50 },
-        { id: 3, name: "Coke", price: 50 },
-        { id: 4, name: "Fanta", price: 50 },
-        { id: 5, name: "Pizza", price: 50 },
-        { id: 6, name: "Chat", price: 50 },
-        { id: 7, name: "Sprite", price: 50 },
-        { id: 8, name: "Bun", price: 50 },
-        { id: 9, name: "Rice", price: 50 },
-        { id: 10, name: "Sprite", price: 50 },
-        { id: 11, name: "Bun", price: 50 },
-        { id: 12, name: "Rice", price: 50 },
-    ];
-
+    const [menuItems, setMenuItems] = useState([]); // State to store fetched cafeteria items
     const [selectedItems, setSelectedItems] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [searchValue, setSearchValue] = useState("");
@@ -36,12 +23,22 @@ const MenuItems = () => {
     const [loading, setLoading] = useState(false);
     const [selectedChild, setSelectedChild] = useState(null);
 
+    // Fetch cafeteria items from the API
+    const fetchCafeteriaItems = useCallback(async () => {
+        try {
+            const response = await getAllCafeteriaItems({ search: searchValue });
+            setMenuItems(response.data); // Update state with fetched items
+            console.log("Cafeteria items fetched successfully:", response);
+        } catch (error) {
+            console.error("Failed to fetch cafeteria items:", error);
+        }
+    },[searchValue]);
+
     // Fetch child data from the API
     const fetchChildren = async (search) => {
         setLoading(true);
         try {
             const response = await getAllChildren({ search });
-            console.log(response)
             setChildData(response.data || []);
         } catch (err) {
             console.error("Failed to fetch child data.");
@@ -49,16 +46,16 @@ const MenuItems = () => {
         setLoading(false);
     };
 
-
+    // Fetch cafeteria items on component mount and when searchValue changes
     useEffect(() => {
+        fetchCafeteriaItems();
         const delayDebounceFn = setTimeout(() => {
             if (searchValue) {
                 fetchChildren(searchValue);
             }
         }, 500);
-
         return () => clearTimeout(delayDebounceFn);
-    }, [searchValue]);
+    }, [searchValue, fetchCafeteriaItems]);
 
     const handleQuantityChange = (item, increment) => {
         setSelectedItems((prevSelected) => {
@@ -66,21 +63,47 @@ const MenuItems = () => {
             if (existingItem) {
                 const updatedQuantity = existingItem.quantity + increment;
                 if (updatedQuantity <= 0) {
+                    // Restore stock when item is removed
+                    setMenuItems((prevMenuItems) =>
+                        prevMenuItems.map((menuItem) =>
+                            menuItem.id === item.id
+                                ? { ...menuItem, stock: menuItem.stock + existingItem.quantity }
+                                : menuItem
+                        )
+                    );
                     return prevSelected.filter((selected) => selected.id !== item.id);
                 }
+                // Update stock and quantity
+                setMenuItems((prevMenuItems) =>
+                    prevMenuItems.map((menuItem) =>
+                        menuItem.id === item.id
+                            ? { ...menuItem, stock: menuItem.stock - increment }
+                            : menuItem
+                    )
+                );
                 return prevSelected.map((selected) =>
                     selected.id === item.id ? { ...selected, quantity: updatedQuantity } : selected
                 );
-            } else if (increment > 0) {
+            } else if (increment > 0 && item.stock > 0) {
+                // Add new item to selectedItems and decrease stock
+                setMenuItems((prevMenuItems) =>
+                    prevMenuItems.map((menuItem) =>
+                        menuItem.id === item.id
+                            ? { ...menuItem, stock: menuItem.stock - 1 }
+                            : menuItem
+                    )
+                );
                 return [...prevSelected, { ...item, quantity: 1 }];
             }
             return prevSelected;
         });
     };
 
-    const calculateTotal = () => {
-        return selectedItems.reduce((total, item) => total + item.price * item.quantity, 0);
-    };
+    const calculateTotal = useCallback(() => {
+        return selectedItems
+            .reduce((total, item) => total + item.price * item.quantity, 0)
+            .toFixed(2);
+    },[selectedItems]);
 
     useEffect(() => {
         if (calculateTotal() >= 500) {
@@ -88,16 +111,30 @@ const MenuItems = () => {
         } else {
             setShowModal(false);
         }
-    }, [selectedItems]);
+    }, [calculateTotal]);
 
-    const handleApproveItems = () => {
+    const handleApproveItems = async () => {
         if (calculateTotal() < 500) {
-            // Submit the form logic here
-            alert("Form submitted successfully!");
+            try {
+                const formData = {
+                    child_code: selectedChild?.code,
+                    amount: calculateTotal(),
+                };
+                console.log("Form data:", formData);
+
+                const response = await purchaseItem(formData);
+                console.log("Purchase successful:", response);
+                alert("Purchase successful!");
+            } catch (error) {
+                console.error("Failed to submit purchase:", error);
+                alert("Failed to submit purchase. Please try again.");
+            }
         } else {
             setShowModal(true);
         }
     };
+
+    console.log("Selected Child:", selectedChild);
 
     return (
         <div>
@@ -118,7 +155,7 @@ const MenuItems = () => {
                     renderOption={(props, option) => (
                         <li {...props} className="d-flex align-items-center p-2 border-bottom text-capitalize">
                             <img
-                                src={option?.profile_pic_url ? `${IMAGE_BASE_URL}${option.profile_pic_url}` : Child} // Fallback to default image if profile_pic_url is missing
+                                src={option?.profile_pic_url ? `${IMAGE_BASE_URL}${option.profile_pic_url}` : Child}
                                 alt={option?.child_name || "No Name"}
                                 style={{ width: 30, height: 30, borderRadius: "50%", marginRight: 10 }}
                             />
@@ -142,6 +179,7 @@ const MenuItems = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Menu Items</TableCell>
+                                    <TableCell align="center">Stock</TableCell>
                                     <TableCell>Price</TableCell>
                                     <TableCell>Quantity</TableCell>
                                 </TableRow>
@@ -149,7 +187,8 @@ const MenuItems = () => {
                             <TableBody>
                                 {menuItems.map((item) => (
                                     <TableRow key={item.id}>
-                                        <TableCell className="text-capitalize">{item.name}</TableCell>
+                                        <TableCell className="text-capitalize"><img src={`${IMAGE_BASE_URL}${item.image}`} width={35} className="rounded-1 border border-2 me-1" height={35} alt={item.name} /> {item.name}</TableCell>
+                                        <TableCell align="center">{item.stock > 0 ? <span className="text-success fw-600">{item.stock}</span> : <span className=" bg-danger bg-opacity-25 text-danger p-1 rounded-1 fs-10">No Stock</span>}</TableCell>
                                         <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{item.price}</TableCell>
                                         <TableCell>
                                             <div className="d-flex align-items-center">
@@ -159,6 +198,7 @@ const MenuItems = () => {
                                                         variant="danger"
                                                         className="px-2 py-1 rounded-0"
                                                         onClick={() => handleQuantityChange(item, -1)}
+                                                        disabled={!selectedItems.find((selected) => selected.id === item.id)}
                                                     >
                                                         -
                                                     </Button>
@@ -170,6 +210,7 @@ const MenuItems = () => {
                                                         variant="success"
                                                         className="px-2 py-1 rounded-0"
                                                         onClick={() => handleQuantityChange(item, 1)}
+                                                        disabled={item.stock <= 0}
                                                     >
                                                         +
                                                     </Button>
@@ -204,7 +245,7 @@ const MenuItems = () => {
                         </div>
                     ) : (
                         <div>
-                            <img src={Child} width={150} height={150} className="canteenKid" />
+                            <img src={Child} width={150} height={150} alt="child" className="canteenKid" />
                             <h6 className="text-danger mt-3"> No selected child details</h6>
                         </div>
                     )}

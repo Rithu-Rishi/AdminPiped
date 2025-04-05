@@ -5,7 +5,7 @@ const BASE_URL = "/api/cafeteria";
 // Fetch all cafeteria items with pagination and search
 export const getAllCafeteriaItems = async ({ page = 1, per_page = 10, search = "" }) => {
   try {
-    const response = await API.get(`${BASE_URL}?page=${page}&per_page=${per_page}&search=${search}`);
+    const response = await API.get(`${BASE_URL}?page=${page}&per_page=${per_page}&search=${search}&with_deleted=false`);
     return response.data.data;
   } catch (error) {
     console.error("Error fetching cafeteria items", error);
@@ -120,7 +120,7 @@ export const getItemStockHistory = async ({ page = 1 }) => {
 // Cafeteria purchase
 export const purchaseItem = async (formData) => {
   try {
-    const response = await API.post(`${BASE_URL}/purchase`, formData);
+    const response = await API.post(`${BASE_URL}/purchase/child`, formData);
     console.log(response.data);
     return response.data;
   } catch (error) {

@@ -8,13 +8,13 @@ import {
 } from "@mui/material";
 import { Col, Row, Button } from "react-bootstrap";
 import { getAllChildren } from "../services/childApi";
-import { getAllCafeteriaItems } from "../services/cafeteriaApi"; // Import the API method
-import { purchaseItem } from "../services/walletApi"; // Import the API method
+import { getAllCafeteriaItems, purchaseItem } from "../services/cafeteriaApi"; // Import the API method
 import { IMAGE_BASE_URL } from "../config/constants";
 import Child from '../assets/images/child.png';
 import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import AlertMessage from "../includes/AlertMessage";
 import { handleApiError } from "../utils/apiErrorHandler";
+import Spinner from "../includes/Spinner";
 
 const MenuItems = () => {
     const [menuItems, setMenuItems] = useState([]); // State to store fetched cafeteria items
@@ -28,6 +28,7 @@ const MenuItems = () => {
 
     // Fetch cafeteria items from the API
     const fetchCafeteriaItems = useCallback(async () => {
+        setLoading(true);
         try {
             const response = await getAllCafeteriaItems({ search: searchValue });
             setMenuItems(response.data); // Update state with fetched items
@@ -35,6 +36,7 @@ const MenuItems = () => {
         } catch (error) {
             console.error("Failed to fetch cafeteria items:", error);
         }
+        setLoading(false);
     }, [searchValue]);
 
     // Fetch child data from the API
@@ -51,9 +53,7 @@ const MenuItems = () => {
 
     // Fetch cafeteria items on component mount and when searchValue changes
     useEffect(() => {
-        setLoading(true);
         fetchCafeteriaItems();
-        setLoading(false);
         const delayDebounceFn = setTimeout(() => {
             if (searchValue) {
                 fetchChildren(searchValue);
@@ -120,12 +120,16 @@ const MenuItems = () => {
 
     const handleApproveItems = async () => {
         console.log("selected items ", selectedItems);
-        debugger
         if (calculateTotal() < 500) {
             try {
                 const formData = {
                     child_code: selectedChild?.code,
                     amount: calculateTotal(),
+                    items: selectedItems.map((item) => ({
+                        cafeteria_item_id: item.id,
+                        quantity: item.quantity,
+                        price: item.price,
+                    })),
                 };
                 console.log("Form data:", formData);
 
@@ -179,67 +183,78 @@ const MenuItems = () => {
                     )}
                 />
             </div>
+
             <Row className="align-items-center">
                 <Col md='9'>
-                    <TableContainer component={Paper} sx={{ maxHeight: 400, overflowY: "auto", position: "relative" }}>
-                        <Table stickyHeader aria-label="sticky table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Menu Items</TableCell>
-                                    <TableCell align="center">Stock</TableCell>
-                                    <TableCell>Price</TableCell>
-                                    <TableCell>Quantity</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {menuItems.map((item) => (
-                                    <TableRow key={item.id}>
-                                        <TableCell className="text-capitalize"><img src={`${IMAGE_BASE_URL}${item.image}`} width={35} className="rounded-1 border border-2 me-1" height={35} alt={item.name} /> {item.name}</TableCell>
-                                        <TableCell align="center">{item.stock > 0 ? <span className="text-success fw-600">{item.stock}</span> : <span className=" bg-danger bg-opacity-25 text-danger p-1 rounded-1 fs-10">Out Of Stock</span>}</TableCell>
-                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{item.price}</TableCell>
-                                        <TableCell>
-                                            <div className="d-flex align-items-center">
-                                                <div className="bg-secondary bg-opacity-25 border-2 border rounded-1">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="danger"
-                                                        className="px-2 py-1 rounded-0"
-                                                        onClick={() => handleQuantityChange(item, -1)}
-                                                        disabled={!selectedItems.find((selected) => selected.id === item.id)}
-                                                    >
-                                                        -
-                                                    </Button>
-                                                    <span className="mx-2 quantityBox">
-                                                        {selectedItems.find((selected) => selected.id === item.id)?.quantity || 0}
-                                                    </span>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="success"
-                                                        className="px-2 py-1 rounded-0"
-                                                        onClick={() => handleQuantityChange(item, 1)}
-                                                        disabled={item.stock <= 0}
-                                                    >
-                                                        +
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                        <div style={{ position: "sticky", bottom: 0, background: "#e4e4e4", zIndex: 1 }}>
-                            <Table>
-                                <TableFooter>
-                                    <TableRow>
-                                        <TableCell className="fw-600 text-dark" width={205}>Total Amount:</TableCell>
-                                        <TableCell className="fw-600 text-dark"><CurrencyRupeeIcon className="fs-14 text-black" />{calculateTotal()}</TableCell>
-                                    </TableRow>
-                                </TableFooter>
-                            </Table>
-                        </div>
-                    </TableContainer>
-                    <Button size="sm" variant="danger" className="mt-2 rounded-0" disabled={calculateTotal() >= 500} onClick={handleApproveItems}>Approve Items</Button>
+                    {loading ? <Spinner loading={loading} /> : (
+                        menuItems.length > 0 ? (
+                            <>
+                                <TableContainer component={Paper} sx={{ maxHeight: 400, overflowY: "auto", position: "relative" }}>
+                                    <Table stickyHeader aria-label="sticky table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Menu Items</TableCell>
+                                                <TableCell align="center">Stock</TableCell>
+                                                <TableCell>Price</TableCell>
+                                                <TableCell>Quantity</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {menuItems.map((item) => (
+                                                <TableRow key={item.id}>
+                                                    <TableCell className="text-capitalize"><img src={`${IMAGE_BASE_URL}${item.image}`} width={35} className="rounded-1 border border-2 me-1" height={35} alt={item.name} /> {item.name}</TableCell>
+                                                    <TableCell align="center">{item.stock > 0 ? <span className="text-success fw-600">{item.stock}</span> : <span className=" bg-danger bg-opacity-25 text-danger p-1 rounded-1 fs-10">Out Of Stock</span>}</TableCell>
+                                                    <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{item.price}</TableCell>
+                                                    <TableCell>
+                                                        <div className="d-flex align-items-center">
+                                                            <div className="bg-secondary bg-opacity-25 border-2 border rounded-1">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="danger"
+                                                                    className="px-2 py-1 rounded-0"
+                                                                    onClick={() => handleQuantityChange(item, -1)}
+                                                                    disabled={!selectedItems.find((selected) => selected.id === item.id)}
+                                                                >
+                                                                    -
+                                                                </Button>
+                                                                <span className="mx-2 quantityBox">
+                                                                    {selectedItems.find((selected) => selected.id === item.id)?.quantity || 0}
+                                                                </span>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="success"
+                                                                    className="px-2 py-1 rounded-0"
+                                                                    onClick={() => handleQuantityChange(item, 1)}
+                                                                    disabled={item.stock <= 0}
+                                                                >
+                                                                    +
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+
+                                    <div style={{ position: "sticky", bottom: 0, background: "#e4e4e4", zIndex: 1 }}>
+                                        <Table>
+                                            <TableFooter>
+                                                <TableRow>
+                                                    <TableCell className="fw-600 text-dark" width={205}>Total Amount:</TableCell>
+                                                    <TableCell className="fw-600 text-dark"><CurrencyRupeeIcon className="fs-14 text-black" />{calculateTotal()}</TableCell>
+                                                </TableRow>
+                                            </TableFooter>
+                                        </Table>
+                                    </div>
+                                </TableContainer>
+                                <Button size="sm" variant="danger" className="mt-2 rounded-0" disabled={calculateTotal() >= 500} onClick={handleApproveItems}>Approve Items</Button>
+                            </>
+                        ) : (
+                            <div className="text-center p-4">
+                                <h5 className="text-danger">No Items Found</h5>
+                            </div>
+                        ))}
                 </Col>
 
                 <Col md="3" className="text-center">

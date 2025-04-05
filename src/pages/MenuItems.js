@@ -13,6 +13,8 @@ import { purchaseItem } from "../services/walletApi"; // Import the API method
 import { IMAGE_BASE_URL } from "../config/constants";
 import Child from '../assets/images/child.png';
 import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
+import AlertMessage from "../includes/AlertMessage";
+import { handleApiError } from "../utils/apiErrorHandler";
 
 const MenuItems = () => {
     const [menuItems, setMenuItems] = useState([]); // State to store fetched cafeteria items
@@ -22,6 +24,7 @@ const MenuItems = () => {
     const [childData, setChildData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedChild, setSelectedChild] = useState(null);
+    const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
     // Fetch cafeteria items from the API
     const fetchCafeteriaItems = useCallback(async () => {
@@ -32,7 +35,7 @@ const MenuItems = () => {
         } catch (error) {
             console.error("Failed to fetch cafeteria items:", error);
         }
-    },[searchValue]);
+    }, [searchValue]);
 
     // Fetch child data from the API
     const fetchChildren = async (search) => {
@@ -48,7 +51,9 @@ const MenuItems = () => {
 
     // Fetch cafeteria items on component mount and when searchValue changes
     useEffect(() => {
+        setLoading(true);
         fetchCafeteriaItems();
+        setLoading(false);
         const delayDebounceFn = setTimeout(() => {
             if (searchValue) {
                 fetchChildren(searchValue);
@@ -103,7 +108,7 @@ const MenuItems = () => {
         return selectedItems
             .reduce((total, item) => total + item.price * item.quantity, 0)
             .toFixed(2);
-    },[selectedItems]);
+    }, [selectedItems]);
 
     useEffect(() => {
         if (calculateTotal() >= 500) {
@@ -114,6 +119,8 @@ const MenuItems = () => {
     }, [calculateTotal]);
 
     const handleApproveItems = async () => {
+        console.log("selected items ", selectedItems);
+        debugger
         if (calculateTotal() < 500) {
             try {
                 const formData = {
@@ -123,11 +130,11 @@ const MenuItems = () => {
                 console.log("Form data:", formData);
 
                 const response = await purchaseItem(formData);
+                setAlertMessage({ open: true, type: "success", message: "Purchase successful!" });
                 console.log("Purchase successful:", response);
-                alert("Purchase successful!");
             } catch (error) {
+                handleApiError(error, setAlertMessage);
                 console.error("Failed to submit purchase:", error);
-                alert("Failed to submit purchase. Please try again.");
             }
         } else {
             setShowModal(true);
@@ -188,7 +195,7 @@ const MenuItems = () => {
                                 {menuItems.map((item) => (
                                     <TableRow key={item.id}>
                                         <TableCell className="text-capitalize"><img src={`${IMAGE_BASE_URL}${item.image}`} width={35} className="rounded-1 border border-2 me-1" height={35} alt={item.name} /> {item.name}</TableCell>
-                                        <TableCell align="center">{item.stock > 0 ? <span className="text-success fw-600">{item.stock}</span> : <span className=" bg-danger bg-opacity-25 text-danger p-1 rounded-1 fs-10">No Stock</span>}</TableCell>
+                                        <TableCell align="center">{item.stock > 0 ? <span className="text-success fw-600">{item.stock}</span> : <span className=" bg-danger bg-opacity-25 text-danger p-1 rounded-1 fs-10">Out Of Stock</span>}</TableCell>
                                         <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{item.price}</TableCell>
                                         <TableCell>
                                             <div className="d-flex align-items-center">
@@ -276,6 +283,9 @@ const MenuItems = () => {
                     </Typography>
                 </Box>
             </Modal>
+
+            {/* Snackbar Alert */}
+            <AlertMessage alertMessage={alertMessage} setAlertMessage={setAlertMessage} />
         </div>
     );
 };

@@ -84,9 +84,10 @@ export const forceDeleteCafeteriaItem = async (id) => {
   }
 }
 
+// Add stock
 export const addStock = async (stockData) => {
   try {
-    const response = await API.post("", stockData);
+    const response = await API.post(`${BASE_URL}/add-stock`, stockData);
     return response.data;
   } catch (error) {
     console.error("Error adding stock", error);
@@ -94,12 +95,36 @@ export const addStock = async (stockData) => {
   }
 }
 
+// Remove Stock
 export const removeStock = async (stockData) => {
   try {
-    const response = await API.post("", stockData);
+    const response = await API.post(`${BASE_URL}/remove-stock`, stockData);
     return response.data;
   } catch (error) {
     console.error("Error removing stock", error);
     throw error;
   }
 }
+
+// get stock history
+export const getItemStockHistory = async ({ page = 1 }) => {
+  try {
+    const response = await API.get(`${BASE_URL}?page=${page}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching items stock history", error);
+    throw error;
+  }
+};
+
+// Cafeteria purchase
+export const purchaseItem = async (formData) => {
+  try {
+    const response = await API.post(`${BASE_URL}/purchase`, formData);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error purchasing item", error);
+    throw error;
+  }
+};

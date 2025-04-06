@@ -13,6 +13,16 @@ export const getAllCafeteriaItems = async ({ page = 1, per_page = 10, search = "
   }
 };
 
+export const getCafeteriaItems = async () => {
+  try {
+    const response = await API.get(`${BASE_URL}?with_deleted=false`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching cafeteria items", error);
+    throw error;
+  }
+};
+
 // Add a new cafeteria item
 export const addCafeteriaItem = async (data) => {
   try {
@@ -120,11 +130,27 @@ export const getItemStockHistory = async ({ page = 1 }) => {
 // Cafeteria purchase
 export const purchaseItem = async (formData) => {
   try {
-    const response = await API.post(`${BASE_URL}/purchase/child`, formData);
+    const response = await API.post(`${BASE_URL}/purchase`, formData);
     console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error purchasing item", error);
     throw error;
+  }
+};
+
+// Get cafeteria transactions
+export const getCafeteriaTransactions = async ({ date, child_id }) => {
+  try {
+      const response = await API.get(`${BASE_URL}/purchases`, {
+          params: {
+              ...(date && { date }),
+              ...(child_id && { child_id })
+          }
+      });
+      return response.data;
+  } catch (error) {
+      console.error("Error fetching cafeteria transactions:", error);
+      throw error;
   }
 };

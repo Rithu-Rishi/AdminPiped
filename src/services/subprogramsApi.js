@@ -58,3 +58,14 @@ export const deleteSubProgram = async (id) => {
     throw error;
   }
 };
+
+// Fetch sub programs
+export const getSubProgramFocus = async (programId) => {
+  try {
+    const response = await API.get(`/api/programs/${programId}/sub-program`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching skill levels:", error);
+    throw error;
+  }
+};

@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter, Paper, Modal, Box, Typography,
-    FormControlLabel,
-    Autocomplete,
-    TextField,
-    Checkbox
+    FormControlLabel, Autocomplete, TextField, Checkbox
 } from "@mui/material";
 import { Col, Row, Button } from "react-bootstrap";
 import { getAllChildren } from "../services/childApi";
-import { getAllCafeteriaItems, purchaseItem } from "../services/cafeteriaApi"; // Import the API method
+import { getCafeteriaItems, purchaseItem } from "../services/cafeteriaApi";
 import { IMAGE_BASE_URL } from "../config/constants";
 import Child from '../assets/images/child.png';
 import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
@@ -17,50 +14,46 @@ import { handleApiError } from "../utils/apiErrorHandler";
 import Spinner from "../includes/Spinner";
 
 const MenuItems = () => {
-    const [menuItems, setMenuItems] = useState([]); // State to store fetched cafeteria items
+    const [menuItems, setMenuItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [searchValue, setSearchValue] = useState("");
+    const [childSearchText, setChildSearchText] = useState("");
     const [childData, setChildData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedChild, setSelectedChild] = useState(null);
     const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
 
-    // Fetch cafeteria items from the API
-    const fetchCafeteriaItems = useCallback(async () => {
-        setLoading(true);
+    // get all children by search
+    const fetchChildren = useCallback(async () => {
         try {
-            const response = await getAllCafeteriaItems({ search: searchValue });
-            setMenuItems(response.data); // Update state with fetched items
-            console.log("Cafeteria items fetched successfully:", response);
-        } catch (error) {
-            console.error("Failed to fetch cafeteria items:", error);
-        }
-        setLoading(false);
-    }, [searchValue]);
-
-    // Fetch child data from the API
-    const fetchChildren = async (search) => {
-        setLoading(true);
-        try {
-            const response = await getAllChildren({ search });
+            const response = await getAllChildren({ search: childSearchText });
             setChildData(response.data || []);
         } catch (err) {
             console.error("Failed to fetch child data.");
         }
-        setLoading(false);
-    };
+    }, [childSearchText]);
 
-    // Fetch cafeteria items on component mount and when searchValue changes
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (childSearchText) fetchChildren();
+        }, 300);
+        return () => clearTimeout(delayDebounce);
+    }, [childSearchText, fetchChildren]);
+
+    // get all cafeteria
+    const fetchCafeteriaItems = useCallback(async () => {
+        try {
+            const response = await getCafeteriaItems();
+            console.log("items,", response);
+            setMenuItems(response.data);
+        } catch (error) {
+            console.error("Failed to fetch cafeteria items:", error);
+        }
+    }, []);
+
     useEffect(() => {
         fetchCafeteriaItems();
-        const delayDebounceFn = setTimeout(() => {
-            if (searchValue) {
-                fetchChildren(searchValue);
-            }
-        }, 500);
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchValue, fetchCafeteriaItems]);
+    }, []);
 
     const handleQuantityChange = (item, increment) => {
         setSelectedItems((prevSelected) => {
@@ -68,35 +61,22 @@ const MenuItems = () => {
             if (existingItem) {
                 const updatedQuantity = existingItem.quantity + increment;
                 if (updatedQuantity <= 0) {
-                    // Restore stock when item is removed
-                    setMenuItems((prevMenuItems) =>
-                        prevMenuItems.map((menuItem) =>
-                            menuItem.id === item.id
-                                ? { ...menuItem, stock: menuItem.stock + existingItem.quantity }
-                                : menuItem
+                    setMenuItems((prev) =>
+                        prev.map((m) =>
+                            m.id === item.id ? { ...m, stock: m.stock + existingItem.quantity } : m
                         )
                     );
                     return prevSelected.filter((selected) => selected.id !== item.id);
                 }
-                // Update stock and quantity
-                setMenuItems((prevMenuItems) =>
-                    prevMenuItems.map((menuItem) =>
-                        menuItem.id === item.id
-                            ? { ...menuItem, stock: menuItem.stock - increment }
-                            : menuItem
-                    )
+                setMenuItems((prev) =>
+                    prev.map((m) => (m.id === item.id ? { ...m, stock: m.stock - increment } : m))
                 );
                 return prevSelected.map((selected) =>
                     selected.id === item.id ? { ...selected, quantity: updatedQuantity } : selected
                 );
             } else if (increment > 0 && item.stock > 0) {
-                // Add new item to selectedItems and decrease stock
-                setMenuItems((prevMenuItems) =>
-                    prevMenuItems.map((menuItem) =>
-                        menuItem.id === item.id
-                            ? { ...menuItem, stock: menuItem.stock - 1 }
-                            : menuItem
-                    )
+                setMenuItems((prev) =>
+                    prev.map((m) => (m.id === item.id ? { ...m, stock: m.stock - 1 } : m))
                 );
                 return [...prevSelected, { ...item, quantity: 1 }];
             }
@@ -105,23 +85,18 @@ const MenuItems = () => {
     };
 
     const calculateTotal = useCallback(() => {
-        return selectedItems
-            .reduce((total, item) => total + item.price * item.quantity, 0)
-            .toFixed(2);
+        return selectedItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
     }, [selectedItems]);
 
     useEffect(() => {
-        if (calculateTotal() >= 500) {
-            setShowModal(true);
-        } else {
-            setShowModal(false);
-        }
+        if (calculateTotal() >= 500) setShowModal(true);
+        else setShowModal(false);
     }, [calculateTotal]);
 
     const handleApproveItems = async () => {
-        console.log("selected items ", selectedItems);
         if (calculateTotal() < 500) {
             try {
+                setLoading(true);
                 const formData = {
                     child_code: selectedChild?.code,
                     amount: calculateTotal(),
@@ -131,14 +106,14 @@ const MenuItems = () => {
                         price: item.price,
                     })),
                 };
-                console.log("Form data:", formData);
-
-                const response = await purchaseItem(formData);
+                await purchaseItem(formData);
                 setAlertMessage({ open: true, type: "success", message: "Purchase successful!" });
-                console.log("Purchase successful:", response);
+                setLoading(false);
+                fetchCafeteriaItems();
+                setSelectedItems([]);
+                setSelectedChild(null);
             } catch (error) {
                 handleApiError(error, setAlertMessage);
-                console.error("Failed to submit purchase:", error);
             }
         } else {
             setShowModal(true);
@@ -152,15 +127,16 @@ const MenuItems = () => {
             <div className='d-flex justify-content-between align-items-center mb-2'>
                 <Autocomplete
                     options={childData}
-                    getOptionLabel={(option) => {
-                        if (typeof option === "string") {
-                            return option;
-                        }
-                        return option?.child_name || "No Child";
-                    }}
-                    value={searchValue}
-                    onInputChange={(event, newValue) => setSearchValue(newValue)}
-                    onChange={(event, newValue) => setSelectedChild(newValue)}
+                    getOptionLabel={(option) => `${option.child_name || ''} (${option.code || ''})`}
+                    filterOptions={(options, state) =>
+                        options.filter(option =>
+                            option.child_name?.toLowerCase().includes(state.inputValue.toLowerCase()) ||
+                            option.code?.toLowerCase().includes(state.inputValue.toLowerCase())
+                        )
+                    }
+                    value={selectedChild}
+                    onInputChange={(e, newInput) => setChildSearchText(newInput)}
+                    onChange={(e, newVal) => setSelectedChild(newVal)}
                     loading={loading}
                     sx={{ width: 300 }}
                     renderOption={(props, option) => (

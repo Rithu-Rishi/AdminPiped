@@ -236,7 +236,7 @@ const Sidebar = () => {
             <ListItemText className='text_items' primary="Teachers" />
           </ListItemButton>
         </Link>
-        <Link to='/'>
+        <Link to='/teacherFeecback'>
           <ListItemButton className='single_item'>
             <ListItemIcon className='icon_items'>
               <StarBorderPurple500OutlinedIcon />

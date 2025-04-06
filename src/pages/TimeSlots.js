@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllTimeSlots, addTimeSlot, updateTimeSlot, deleteTimeSlot } from "../services/timeslotApi";
 import { getDropDownPrograms } from "../services/programsApi";
+import { getSubProgramFocus } from "../services/subprogramsApi";
 import { getProgramSkillLevels } from "../services/skillLevelApi";
 import { getDropDownAllTeachers } from "../services/teachersApi";
 import {
@@ -14,17 +15,21 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import dayjs from "dayjs";
 
 const weekDaysList = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const TimeSlots = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [programs, setPrograms] = useState([]);
+  const [subFocus, setSubFocus] = useState([]);
   const [skillLevels, setSkillLevels] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [formData, setFormData] = useState({
-    program_id: "", skill_level_id: "", week_days: [],
-    time_ranges: [{ start_time: "", end_time: "", available_slots: "", teacher_id: "" }]
+    program_id: "", focus_id: "", skill_level_id: "", week_days: [],
+    time_ranges: [{ start_time: null, end_time: null, available_slots: "", teacher_id: "" }]
   });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
@@ -79,6 +84,16 @@ const TimeSlots = () => {
     }
   };
 
+  const fetchSubProgramFocus = async (programId) => {
+    try {
+      const response = await getSubProgramFocus(programId);
+      console.log("focus ", response);
+      setSubFocus(response.sub_programs[0]['images'] || []);
+    } catch (err) {
+      console.error("Failed to fetch skill levels.");
+    }
+  };
+
   const fetchSkillLevels = async (programId) => {
     try {
       const response = await getProgramSkillLevels(programId);
@@ -91,14 +106,15 @@ const TimeSlots = () => {
 
   const handleProgramChange = (e) => {
     const program_id = e.target.value;
-    setFormData({ ...formData, program_id, skill_level_id: "" });
+    setFormData({ ...formData, program_id, focus_id: "", skill_level_id: "" });
+    fetchSubProgramFocus(program_id);
     fetchSkillLevels(program_id);
   };
 
   const handleAddTimeRange = () => {
     setFormData({
       ...formData,
-      time_ranges: [...formData.time_ranges, { start_time: "", end_time: "", available_slots: "", teacher_id: "" }]
+      time_ranges: [...formData.time_ranges, { start_time: null, end_time: null, available_slots: "", teacher_id: "" }]
     });
   };
 
@@ -114,20 +130,33 @@ const TimeSlots = () => {
     setFormData({ ...formData, time_ranges: updated });
   };
 
+  const parseTime = (timeStr) => {
+    return timeStr ? dayjs(`1970-01-01 ${timeStr}`, "YYYY-MM-DD hh:mm A").toDate() : null;
+  };
+
   const openFormModal = async (row = null) => {
     if (row) {
-      await fetchSkillLevels(row.program_id); // Ensure skill levels are loaded before setting formData
+      await fetchSubProgramFocus(row.program_id);
+      await fetchSkillLevels(row.program_id);
+
       setFormData({
         program_id: row.program_id || "",
+        focus_id: row.focus_id || "",
         skill_level_id: row.skill_level_id || "",
         week_days: row.week_days || [],
-        time_ranges: row.time_ranges ? row.time_ranges.map(range => ({ ...range })) : [{ start_time: "", end_time: "", available_slots: "", teacher_id: "" }]
+        time_ranges: row.time_ranges
+          ? row.time_ranges.map(range => ({
+            ...range,
+            start_time: parseTime(range.start_time),
+            end_time: parseTime(range.end_time),
+          }))
+          : [{ start_time: null, end_time: null, available_slots: "", teacher_id: "" }]
       });
       setEditId(row.id);
     } else {
       setFormData({
-        program_id: "", skill_level_id: "", week_days: [],
-        time_ranges: [{ start_time: "", end_time: "", available_slots: "", teacher_id: "" }]
+        program_id: "", focus_id: "", skill_level_id: "", week_days: [],
+        time_ranges: [{ start_time: null, end_time: null, available_slots: "", teacher_id: "" }]
       });
       setEditId(null);
     }
@@ -157,13 +186,20 @@ const TimeSlots = () => {
   // };
 
   const handleSubmit = async () => {
+    const formattedRanges = formData.time_ranges.map(range => ({
+      start_time: formatTime(range.start_time),
+      end_time: formatTime(range.end_time),
+      available_slots: range.available_slots,
+      teacher_id: range.teacher_id
+    }));
+    const payload = { ...formData, time_ranges: formattedRanges };
     setLoading(true);
     try {
       if (editId) {
-        await updateTimeSlot(editId, formData);
+        await updateTimeSlot(editId, payload);
         setAlertMessage({ open: true, type: "success", message: "Time Slot updated successfully!" });
       } else {
-        await addTimeSlot(formData);
+        await addTimeSlot(payload);
         setAlertMessage({ open: true, type: "success", message: "Time Slot(s) created successfully!" });
       }
       setFormModalOpen(false);
@@ -172,6 +208,11 @@ const TimeSlots = () => {
       handleApiError(err, setAlertMessage);
     }
     setLoading(false);
+  };
+
+  const formatTime = (date) => {
+    if (!date) return "";
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
   };
 
   return (
@@ -207,6 +248,7 @@ const TimeSlots = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Program</TableCell>
+                  <TableCell>Sub Program</TableCell>
                   <TableCell>Skill Level</TableCell>
                   <TableCell>Week Days</TableCell>
                   <TableCell>Time Ranges</TableCell>
@@ -218,6 +260,7 @@ const TimeSlots = () => {
                 {timeSlots.map((slot) => (
                   <TableRow key={slot.id}>
                     <TableCell>{slot.program_name}</TableCell>
+                    <TableCell>{slot.title}</TableCell>
                     <TableCell>{slot.skill_name}</TableCell>
                     <TableCell>{slot.week_days.map((day) => weekDaysList[day]).join(", ")}</TableCell>
                     <TableCell>
@@ -292,6 +335,14 @@ const TimeSlots = () => {
                 </Select>
               </FormControl>
               <FormControl size="small" fullWidth>
+                <InputLabel id="label-helper-sub">Select Sub Program</InputLabel>
+                <Select size="small" fullWidth name="focus_id" labelId="label-helper-sub" label="Select Sub Program" value={formData.focus_id} onChange={(e) => setFormData({ ...formData, focus_id: e.target.value })}>
+                  {subFocus.map((focus) => (
+                    <MenuItem key={focus.id} value={focus.id}>{focus.title}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl size="small" fullWidth>
                 <InputLabel id="label-helper-one">Select Skill Level</InputLabel>
                 <Select size="small" fullWidth name="skill_level_id" labelId="label-helper-One" label="Select Skill Level" value={formData.skill_level_id} onChange={(e) => setFormData({ ...formData, skill_level_id: e.target.value })}>
                   {skillLevels.map((level) => (
@@ -309,12 +360,32 @@ const TimeSlots = () => {
 
             {formData.time_ranges.map((range, index) => (
               <Box key={index} className="d-flex align-items-center" sx={{ gap: 1 }}>
-                <TextField size="small" label="Start Time" value={range.start_time} onChange={(e) => handleChangeTimeRange(index, "start_time", e.target.value)} />
-                <TextField size="small" label="End Time" value={range.end_time} onChange={(e) => handleChangeTimeRange(index, "end_time", e.target.value)} />
+                <DatePicker
+                  selected={range.start_time}
+                  onChange={(time) => handleChangeTimeRange(index, "start_time", time)}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={30}
+                  timeCaption="Time"
+                  dateFormat="h:mm aa"
+                  placeholderText="Select Start Time"
+                  className="form-control"
+                />
+                <DatePicker
+                  selected={range.end_time}
+                  onChange={(time) => handleChangeTimeRange(index, "end_time", time)}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={30}
+                  timeCaption="Time"
+                  dateFormat="h:mm aa"
+                  placeholderText="Select End Time"
+                  className="form-control"
+                />
                 <TextField size="small" label="Available Slots" value={range.available_slots} onChange={(e) => handleChangeTimeRange(index, "available_slots", e.target.value)} />
                 <FormControl size="small">
                   <InputLabel id="label-helper-teacher">Select Teacher</InputLabel>
-                  <Select 
+                  <Select
                     size="small" className="custom_width"
                     value={range.teacher_id} labelId="label-helper-teacher" label="Select Teacher"
                     onChange={(e) => handleChangeTimeRange(index, "teacher_id", e.target.value)}

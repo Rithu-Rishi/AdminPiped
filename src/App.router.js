@@ -30,6 +30,7 @@ import Admin from "./pages/Admin";
 import MenuItems from "./pages/MenuItems";
 import ViewTransactions from "./pages/ViewTransactions";
 import HelpSupport from "./pages/HelpSupport";
+import TeacherFeedback from "./pages/TeacherFeedback";
 
 const AppRouter = () => {
     return (
@@ -65,6 +66,7 @@ const AppRouter = () => {
                     <Route path="/menuItems" element={<MenuItems />} />
                     <Route path="/viewTransactions" element={<ViewTransactions />} />
                     <Route path="/helpSupport" element={<HelpSupport />} />
+                    <Route path="/teacherFeecback" element={<TeacherFeedback />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Login />} />

@@ -1,62 +1,141 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter, Paper
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    TableFooter, Paper, TextField, Autocomplete, Typography
 } from "@mui/material";
-import { CurrencyRupee as CurrencyRupeeIcon, CalendarMonth as CalendarMonthIcon } from "@mui/icons-material";
-
+import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
+import { getAllChildren } from "../services/childApi";
+import { getCafeteriaTransactions } from "../services/cafeteriaApi";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Spinner from "../includes/Spinner";
+import { formatDate } from "../utils/dateUtils";
 
 const ViewTransactions = () => {
-    const menuItems = [
-        { id: 1, name: "Ravi", tid: "PP105FFDc", price: 50, items: "Pizza x 1" },
-        { id: 2, name: "Kumar", tid: "PP105F565", price: 50, items: "coke, samosa" },
-        { id: 3, name: "Kia", tid: "PP10545566", price: 50, items: "coke, samosa, dosa" },
-        { id: 4, name: "Ravi", tid: "PP105FFDc", price: 50, items: "Pizza x 1" },
-        { id: 5, name: "Kumar", tid: "PP105F565", price: 50, items: "coke, samosa" },
-        { id: 6, name: "Kia", tid: "PP10545566", price: 50, items: "coke, samosa, dosa" }
-    ];
+    const [transactions, setTransactions] = useState([]);
+    const [date, setDate] = useState(new Date());
+    const [loading, setLoading] = useState(false);
+    const [childSearchText, setChildSearchText] = useState("");
+    const [childData, setChildData] = useState([]);
+    const [selectedChild, setSelectedChild] = useState(null);
+
+    useEffect(() => {
+        fetchTransactions();
+    }, [date, selectedChild]);
+
+    const fetchTransactions = async () => {
+        setLoading(true);
+        try {
+            const payload = {
+                date: date.toISOString().split("T")[0],
+                child_id: selectedChild?.id || null
+            };
+            const response = await getCafeteriaTransactions(payload);
+            setTransactions(response.data || []);
+        } catch (err) {
+            console.error("Failed to fetch transactions");
+        }
+        setLoading(false);
+    };
+
+    const fetchChildren = async () => {
+        try {
+            const response = await getAllChildren({ search: childSearchText });
+            setChildData(response.data || []);
+        } catch (err) {
+            console.error("Failed to fetch children");
+        }
+    };
+
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            if (childSearchText) fetchChildren();
+        }, 300);
+        return () => clearTimeout(delay);
+    }, [childSearchText]);
+
+    const totalSales = transactions.reduce((acc, trx) => acc + parseFloat(trx.total_amount), 0);
+    const totalOrders = transactions.length;
+
+    const formatDateTime = (datetimeStr) => {
+        const date = new Date(datetimeStr);
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+        const formattedDate = date.toLocaleDateString('en-GB', options);
+        const formattedTime = date.toLocaleTimeString('en-US', timeOptions);
+        return `${formattedDate} ${formattedTime}`;
+    };
 
     return (
         <div>
             <div className='d-flex justify-content-between align-items-center mb-2'>
                 <h5>View Transactions</h5>
-                <div>
-                    <CalendarMonthIcon /> 12.03.2025
+                <div className='d-flex gap-2'>
+                    <DatePicker
+                        selected={date}
+                        onChange={(val) => setDate(val)}
+                        dateFormat="dd MMM, yyyy"
+                        className="form-control"
+                        maxDate={new Date()}
+                    />
+                    <Autocomplete
+                        options={childData}
+                        getOptionLabel={(option) => `${option.child_name || ''} (${option.code || ''})`}
+                        value={selectedChild}
+                        onInputChange={(e, value) => setChildSearchText(value)}
+                        onChange={(e, newValue) => setSelectedChild(newValue)}
+                        renderInput={(params) => (
+                            <TextField {...params} size="small" placeholder="Search Child" />
+                        )}
+                        sx={{ width: 250 }}
+                    />
                 </div>
             </div>
-
-            <TableContainer component={Paper} sx={{ maxHeight: 400, overflowY: "auto", position: "relative" }}>
-                <Table stickyHeader aria-label="sticky table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Student Name</TableCell>
-                            <TableCell>Transaction Id</TableCell>
-                            <TableCell>Price</TableCell>
-                            <TableCell>Order Items</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {menuItems.map((item) => (
-                            <TableRow key={item.id}>
-                                <TableCell>{item.name}</TableCell>
-                                <TableCell>{item.tid}</TableCell>
-                                <TableCell><CurrencyRupeeIcon className="fs-14 text-black" /> {item.price}</TableCell>
-                                <TableCell>{item.items}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <div style={{ position: "sticky", bottom: 0, background: "#e4e4e4", zIndex: 1 }}>
-                    <Table>
-                        <TableFooter>
-                            <TableRow>
-                                <TableCell className="fw-600 text-dark" width={265}>Total</TableCell>
-                                <TableCell className="fw-600 text-dark" width={300}>120 Orders</TableCell>
-                                <TableCell className="fw-600 text-dark"><CurrencyRupeeIcon className="fs-14 text-black" /> 300 Total Sales</TableCell>
-                            </TableRow>
-                        </TableFooter>
-                    </Table>
-                </div>
-            </TableContainer>
+            {loading ? <Spinner loading={loading} /> : (
+                transactions.length > 0 ? (
+                    <TableContainer component={Paper} sx={{ maxHeight: 400, overflowY: "auto", position: "relative" }}>
+                        <Table stickyHeader aria-label="sticky table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Child Name</TableCell>
+                                    <TableCell>Date</TableCell>
+                                    <TableCell>Order Items</TableCell>
+                                    <TableCell>Price</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {transactions.map((item, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{item.child?.name}</TableCell>
+                                        <TableCell>{formatDateTime(item.created_at)}</TableCell>
+                                        <TableCell>
+                                            {item.items.map((itm, idx) => (
+                                                <span key={idx}>{itm.item_name} x {itm.quantity}{idx < item.items.length - 1 ? ", " : ""}</span>
+                                            ))}
+                                        </TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" /> {item.total_amount}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <div style={{ position: "sticky", bottom: 0, background: "#e4e4e4", zIndex: 1 }}>
+                            <Table>
+                                <TableFooter>
+                                    <TableRow>
+                                        <TableCell className="fw-600 text-dark">Total</TableCell>
+                                        <TableCell className="fw-600 text-dark">{totalOrders} Orders</TableCell>
+                                        <TableCell colSpan={2} className="fw-600 text-dark">
+                                            <CurrencyRupeeIcon className="fs-14 text-black" /> {totalSales.toFixed(2)} Total Sales
+                                        </TableCell>
+                                    </TableRow>
+                                </TableFooter>
+                            </Table>
+                        </div>
+                    </TableContainer>
+                ) : (
+                    <Typography variant="body1" align="center">No Data Available</Typography>
+                )
+            )}
         </div>
     );
 };

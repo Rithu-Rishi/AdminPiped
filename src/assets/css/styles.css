@@ -31,3 +31,16 @@
 .w-16{width: 16px !important;}
 .canteenKid{border-radius: 50%;border:5px solid #f2b80b}
 .quantityBox{width:20px;display: inline-block;text-align: center;}
+
+.timdatepicker{   
+    padding: 0px 10px;
+    border-radius: 5px;
+    border: 1.4px solid #e4e4e4;
+    height: 41px;
+    color: #000000;
+}
+
+.table-container {
+    position: relative;
+    overflow: visible !important; /* Allow overflow */
+}

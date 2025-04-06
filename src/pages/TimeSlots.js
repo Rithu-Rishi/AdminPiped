@@ -369,7 +369,7 @@ const TimeSlots = () => {
                   timeCaption="Time"
                   dateFormat="h:mm aa"
                   placeholderText="Select Start Time"
-                  className="form-control"
+                  className="timdatepicker"
                 />
                 <DatePicker
                   selected={range.end_time}
@@ -380,10 +380,10 @@ const TimeSlots = () => {
                   timeCaption="Time"
                   dateFormat="h:mm aa"
                   placeholderText="Select End Time"
-                  className="form-control"
+                  className="timdatepicker"
                 />
-                <TextField size="small" label="Available Slots" value={range.available_slots} onChange={(e) => handleChangeTimeRange(index, "available_slots", e.target.value)} />
-                <FormControl size="small">
+                <TextField size="small" className="form-control" label="Available Slots" value={range.available_slots} onChange={(e) => handleChangeTimeRange(index, "available_slots", e.target.value)} />
+                <FormControl size="small" className="form-control">
                   <InputLabel id="label-helper-teacher">Select Teacher</InputLabel>
                   <Select
                     size="small" className="custom_width"

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Button, IconButton, Modal, Box, Typography, TextField, MenuItem, Select, FormControl, InputLabel
+    Button, Modal, Box, Typography, TextField
 } from "@mui/material";
-import { Edit as EditIcon, CheckCircle, Cancel, Visibility as VisibilityIcon } from "@mui/icons-material";
+import { MoreVert as Menu } from "@mui/icons-material";
 import { getTeacherFeedbacks, approveFeedback, rejectFeedback, updateFeedback } from "../services/feedbackApi";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const TeacherFeedback = () => {
     const [feedbacks, setFeedbacks] = useState([]);
@@ -93,7 +95,7 @@ const TeacherFeedback = () => {
             <h5 className="mb-3">Teacher Feedback</h5>
 
             {loading ? <Spinner loading={loading} /> : (
-                <TableContainer component={Paper}>
+                <TableContainer component={Paper} className="table-container">
                     <Table>
                         <TableHead>
                             <TableRow>
@@ -116,12 +118,20 @@ const TeacherFeedback = () => {
                                     <TableCell>{row.comments}</TableCell>
                                     <TableCell>{row.status}</TableCell>
                                     {row.status === "approved" || "rejected" &&
-                                        <TableCell align="center">
-                                            <IconButton onClick={() => handleView(row)}><VisibilityIcon /></IconButton>
-                                            <IconButton color="primary" onClick={() => handleEdit(row)}><EditIcon /></IconButton>
-                                            <IconButton color="success" onClick={() => handleApprove(row.id)}><CheckCircle /></IconButton>
-                                            <IconButton color="error" onClick={() => handleReject(row.id)}><Cancel /></IconButton>
-                                        </TableCell>
+                                    <TableCell align="center">
+                                        <DropdownButton
+                                            align="end"
+                                            title={<Menu />}
+                                            size='sm'
+                                            className="custom_dropdown"
+
+                                        >
+                                            <Dropdown.Item size="small" onClick={() => handleView(row)} className="fs-14 text-primary">View</Dropdown.Item>
+                                            <Dropdown.Item size="small" onClick={() => handleEdit(row)} className="fs-14 text-info">Edit</Dropdown.Item>
+                                            <Dropdown.Item size="small" onClick={() => handleApprove(row.id)} className="fs-14 text-success">Approve</Dropdown.Item>
+                                            <Dropdown.Item size="small" onClick={() => handleReject(row.id)} className="fs-14 text-danger">Reject</Dropdown.Item>
+                                        </DropdownButton>
+                                    </TableCell>
                                     }
                                 </TableRow>
                             ))}
@@ -131,39 +141,53 @@ const TeacherFeedback = () => {
             )}
 
             <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
-                <Box sx={{ p: 4, bgcolor: 'background.paper', borderRadius: 2, maxWidth: 600, mx: 'auto', mt: 10 }}>
-                    <Typography variant="h6" gutterBottom>Edit Feedback</Typography>
+                <Box className="custom_modal" sx={{
+                    position: 'absolute', top: '50%', left: '50%',
+                    transform: 'translate(-50%, -50%)', width: 800, bgcolor: 'background.paper',
+                    boxShadow: 12, borderRadius: 2
+                }}>
+                    <Typography variant="h6" className="custom_heading_modal" gutterBottom>Edit Feedback</Typography>
                     {formData && (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <TextField name="comments" label="Comments" multiline rows={2} value={formData.comments} onChange={handleChange} fullWidth />
-                            <TextField name="attendance_rating" label="Attendance Rating" value={formData.attendance_rating} onChange={handleChange} fullWidth />
-                            <TextField name="participation_rating" label="Participation Rating" value={formData.participation_rating} onChange={handleChange} fullWidth />
-                            <TextField name="skill_improvement_rating" label="Skill Improvement Rating" value={formData.skill_improvement_rating} onChange={handleChange} fullWidth />
-                            <TextField name="focus_discipline_rating" label="Focus & Discipline Rating" value={formData.focus_discipline_rating} onChange={handleChange} fullWidth />
-                            <TextField name="creativity_rating" label="Creativity Rating" value={formData.creativity_rating} onChange={handleChange} fullWidth />
-                            <TextField name="milestone" label="Milestone" value={formData.milestone} onChange={handleChange} fullWidth />
-                            <TextField name="next_month_goals" label="Next Month Goals" value={formData.next_month_goals} onChange={handleChange} fullWidth />
-                            <Box textAlign="right">
+                        <>
+                            <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <TextField size="small" name="comments" label="Comments" multiline rows={2} value={formData.comments} onChange={handleChange} fullWidth />
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <TextField size="small" name="attendance_rating" label="Attendance Rating" value={formData.attendance_rating} onChange={handleChange} fullWidth />
+                                    <TextField size="small" name="participation_rating" label="Participation Rating" value={formData.participation_rating} onChange={handleChange} fullWidth />
+                                    <TextField size="small" name="skill_improvement_rating" label="Skill Improvement Rating" value={formData.skill_improvement_rating} onChange={handleChange} fullWidth />
+                                    <TextField size="small" name="focus_discipline_rating" label="Focus & Discipline Rating" value={formData.focus_discipline_rating} onChange={handleChange} fullWidth />
+                                    <TextField size="small" name="creativity_rating" label="Creativity Rating" value={formData.creativity_rating} onChange={handleChange} fullWidth />
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <TextField multiline rows={2} size="small" name="milestone" label="Milestone" value={formData.milestone} onChange={handleChange} fullWidth />
+                                    <TextField multiline rows={2} size="small" name="next_month_goals" label="Next Month Goals" value={formData.next_month_goals} onChange={handleChange} fullWidth />
+                                </Box>
+                            </Box>
+                            <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
                                 <Button variant="contained" color="primary" onClick={handleUpdate}>Update</Button>
                             </Box>
-                        </Box>
+                        </>
                     )}
                 </Box>
             </Modal>
 
             {/* View Modal */}
             <Modal open={viewModalOpen} onClose={() => setViewModalOpen(false)}>
-                <Box className="custom_modal">
-                    <Typography variant="h6">Feedback Details</Typography>
-                    <Box sx={{ mt: 2 }}>
-                        <Typography><strong>Comments:</strong> {formData.comments}</Typography>
-                        <Typography><strong>Attendance Rating:</strong> {formData.attendance_rating}</Typography>
-                        <Typography><strong>Participation Rating:</strong> {formData.participation_rating}</Typography>
-                        <Typography><strong>Skill Improvement:</strong> {formData.skill_improvement_rating}</Typography>
-                        <Typography><strong>Focus/Discipline:</strong> {formData.focus_discipline_rating}</Typography>
-                        <Typography><strong>Creativity:</strong> {formData.creativity_rating}</Typography>
-                        <Typography><strong>Milestone:</strong> {formData.milestone}</Typography>
-                        <Typography><strong>Next Month Goals:</strong> {formData.next_month_goals}</Typography>
+                <Box className="custom_modal" sx={{
+                    position: 'absolute', top: '50%', left: '50%',
+                    transform: 'translate(-50%, -50%)', width: 800, bgcolor: 'background.paper',
+                    boxShadow: 12, borderRadius: 2
+                }}>
+                    <Typography variant="h6" className="custom_heading_modal">Feedback Details</Typography>
+                    <Box className="modal_body bg-white p-3" >
+                        <p className="mb-1"><strong>Comments:</strong> {formData.comments}</p>
+                        <p className="mb-1"><strong>Attendance Rating:</strong> {formData.attendance_rating}</p>
+                        <p className="mb-1"><strong>Participation Rating:</strong> {formData.participation_rating}</p>
+                        <p className="mb-1"><strong>Skill Improvement:</strong> {formData.skill_improvement_rating}</p>
+                        <p className="mb-1"><strong>Focus/Discipline:</strong> {formData.focus_discipline_rating}</p>
+                        <p className="mb-1"><strong>Creativity:</strong> {formData.creativity_rating}</p>
+                        <p className="mb-1"><strong>Milestone:</strong> {formData.milestone}</p>
+                        <p className="mb-1"><strong>Next Month Goals:</strong> {formData.next_month_goals}</p>
                     </Box>
                 </Box>
             </Modal>

@@ -117,22 +117,23 @@ const TeacherFeedback = () => {
                                     <TableCell>{row.skill_level?.skill_name}</TableCell>
                                     <TableCell>{row.comments}</TableCell>
                                     <TableCell>{row.status}</TableCell>
-                                    {row.status === "approved" || "rejected" &&
                                     <TableCell align="center">
-                                        <DropdownButton
-                                            align="end"
-                                            title={<Menu />}
-                                            size='sm'
-                                            className="custom_dropdown"
+                                        {row.status === "approved" || "rejected" &&
+                                            <DropdownButton
+                                                align="end"
+                                                title={<Menu />}
+                                                size='sm'
+                                                className="custom_dropdown"
 
-                                        >
-                                            <Dropdown.Item size="small" onClick={() => handleView(row)} className="fs-14 text-primary">View</Dropdown.Item>
-                                            <Dropdown.Item size="small" onClick={() => handleEdit(row)} className="fs-14 text-info">Edit</Dropdown.Item>
-                                            <Dropdown.Item size="small" onClick={() => handleApprove(row.id)} className="fs-14 text-success">Approve</Dropdown.Item>
-                                            <Dropdown.Item size="small" onClick={() => handleReject(row.id)} className="fs-14 text-danger">Reject</Dropdown.Item>
-                                        </DropdownButton>
+                                            >
+                                                <Dropdown.Item size="small" onClick={() => handleView(row)} className="fs-14 text-primary">View</Dropdown.Item>
+                                                <Dropdown.Item size="small" onClick={() => handleEdit(row)} className="fs-14 text-info">Edit</Dropdown.Item>
+                                                <Dropdown.Item size="small" onClick={() => handleApprove(row.id)} className="fs-14 text-success">Approve</Dropdown.Item>
+                                                <Dropdown.Item size="small" onClick={() => handleReject(row.id)} className="fs-14 text-danger">Reject</Dropdown.Item>
+                                            </DropdownButton>
+                                        }
                                     </TableCell>
-                                    }
+
                                 </TableRow>
                             ))}
                         </TableBody>

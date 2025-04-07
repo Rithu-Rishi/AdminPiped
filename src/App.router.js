@@ -31,13 +31,17 @@ import MenuItems from "./pages/MenuItems";
 import ViewTransactions from "./pages/ViewTransactions";
 import HelpSupport from "./pages/HelpSupport";
 import TeacherFeedback from "./pages/TeacherFeedback";
+import Unauthorized from "./pages/Unauthorized";
 
 const AppRouter = () => {
     return (
         <Layout>
             <Routes>
-                {/* Protected Route */}
-                <Route element={<ProtectedRoute />}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<Login />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
+                {/* Super Admin Protected Route */}
+                <Route element={<ProtectedRoute allowedRoles={['Super Admin', 'Admin']} />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/admins" element={<Admin />} />
@@ -63,13 +67,15 @@ const AppRouter = () => {
                     <Route path="/programSubscriptions" element={<ProgramSubscriptions />} />
                     <Route path="/coupons" element={<Coupon />} />
                     <Route path="/cafeteria" element={<Cafeteria />} />
-                    <Route path="/menuItems" element={<MenuItems />} />
-                    <Route path="/viewTransactions" element={<ViewTransactions />} />
                     <Route path="/helpSupport" element={<HelpSupport />} />
                     <Route path="/teacherFeecback" element={<TeacherFeedback />} />
                 </Route>
-                <Route path="/login" element={<Login />} />
-                <Route path="/" element={<Login />} />
+                {/* Cafeteria Protected Route */}
+                <Route element={<ProtectedRoute allowedRoles={['Cafeteria']} />}>
+                    <Route path="/" element={<MenuItems />} />
+                    <Route path="/menuItems" element={<MenuItems />} />
+                    <Route path="/viewTransactions" element={<ViewTransactions />} />
+                </Route>
             </Routes>
         </Layout>
     );

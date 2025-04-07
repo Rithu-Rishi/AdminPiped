@@ -26,7 +26,13 @@ function Login() {
       if (response.data.token) {
         // Step 3: Store Token and Set Authorization Header
         setAuthToken(response.data.token);
-        navigate("/dashboard"); // Redirect after login
+        localStorage.setItem("role", response.data.user.role);
+        // Redirect after login
+        if (response.data.user.role === "Super Admin" || response.data.user.role === "Admin") {
+          navigate("/dashboard");
+        } else {
+          navigate("/menuItems");
+        }
       } else {
         setError("Invalid credentials");
       }

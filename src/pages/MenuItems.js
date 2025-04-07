@@ -42,12 +42,15 @@ const MenuItems = () => {
 
     // get all cafeteria
     const fetchCafeteriaItems = useCallback(async () => {
+        setLoading(true);
         try {
             const response = await getCafeteriaItems();
             console.log("items,", response);
             setMenuItems(response.data);
+            setLoading(false);
         } catch (error) {
             console.error("Failed to fetch cafeteria items:", error);
+            setLoading(false);
         }
     }, []);
 

@@ -7,7 +7,6 @@ import logo from '../assets/images/logo.png';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 
-
 function Header() {
   const navigate = useNavigate();
   const handleLogout = async () => {
@@ -17,7 +16,7 @@ function Header() {
 
       // Clear the session storage
       setAuthToken(null);
-
+      localStorage.clear()
       // Redirect to login page
       navigate("/login");
     } catch (error) {

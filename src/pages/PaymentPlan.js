@@ -64,15 +64,42 @@ const PaymentPlan = () => {
     const handleChange = (index, field, value) => {
         setFormData((prevData) => {
             const updatedPlans = [...prevData.plans];
-            updatedPlans[index][field] = value;
-            updatedPlans[index].program_id = formData.program_id;
-            if (field === "amount" || field === "discount_percent") {
-                updatedPlans[index].final_amount = calculateFinalAmount(parseFloat(updatedPlans[index].amount) || 0, parseFloat(updatedPlans[index].discount_percent) || 0);
-            }
+            let plan = { ...updatedPlans[index], [field]: value };
+
+            // Get monthly fee from selected program
+            const selectedProgram = programs.find(p => p.id === prevData.program_id);
+            const monthlyFee = selectedProgram?.monthly_fee || 0;
+
+            // Calculate full amount based on duration
+            const months = parseFloat(plan.duration_months || 0);
+            //  plan.amount = monthlyFee * months;
+
+            // Apply discount
+            const discount = parseFloat(plan.discount_percent || 0);
+            plan.final_amount = calculateFinalAmount((monthlyFee * months), discount);
+
+            updatedPlans[index] = plan;
+
             return { ...prevData, plans: updatedPlans };
         });
     };
 
+    const handleProgramSelect = (e) => {
+        const selectedId = e.target.value;
+        const selectedProgram = programs.find(p => p.id === selectedId);
+        const monthlyFee = selectedProgram?.monthly_fee || 0;
+
+        setFormData({
+            program_id: selectedId,
+            plans: [{
+                ...formData.plans[0],
+                amount: monthlyFee,
+                duration_months: "",
+                discount_percent: "",
+                final_amount: ""
+            }]
+        });
+    };
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -118,9 +145,11 @@ const PaymentPlan = () => {
     };
 
     const addRow = () => {
+        const selectedProgram = programs.find(p => p.id === formData.program_id);
+        const monthlyFee = selectedProgram?.monthly_fee || 0;
         setFormData((prevData) => ({
             ...prevData,
-            plans: [...prevData.plans, { duration_months: "", amount: "", discount_percent: 0, final_amount: "" }]
+            plans: [...prevData.plans, { duration_months: "", amount: monthlyFee, discount_percent: 0, final_amount: "" }]
         }));
     };
 
@@ -232,7 +261,7 @@ const PaymentPlan = () => {
             < Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
                 <Box className="custom_modal" sx={{
                     position: 'absolute', top: '50%', left: '50%',
-                    transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper',
+                    transform: 'translate(-50%, -50%)', width: 800, bgcolor: 'background.paper',
                     boxShadow: 12, borderRadius: 2
                 }}>
                     <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Payment Plan' : 'Create Payment Plans'}</Typography>
@@ -240,7 +269,7 @@ const PaymentPlan = () => {
                         {!editId && (
                             <FormControl size="small" fullWidth>
                                 <InputLabel id="label-helper">Select Program</InputLabel>
-                                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={handleProgramSelect}>
                                     {programs.map((program) => (
                                         <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
                                     ))}
@@ -249,9 +278,9 @@ const PaymentPlan = () => {
                         )}
                         {formData.plans.map((plan, index) => (
                             <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                                <TextField size="small" label="Duration (Months)" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth required />
-                                <TextField size="small" label="Amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth required />
-                                <TextField size="small" label="Discount (%)" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth required />
+                                <TextField size="small" label="Duration (Months)" value={plan.duration_months} onChange={(e) => handleChange(index, "duration_months", e.target.value)} fullWidth required /> X
+                                <TextField size="small" disabled label="Amount" value={plan.amount} onChange={(e) => handleChange(index, "amount", e.target.value)} fullWidth required /> -
+                                <TextField size="small" label="Discount (%)" value={plan.discount_percent} onChange={(e) => handleChange(index, "discount_percent", e.target.value)} fullWidth required /> =
                                 <TextField size="small" label="Final Amount" value={plan.final_amount} fullWidth disabled />
                                 {!editId && (
                                     <IconButton color="error" onClick={() => removeRow(index)}>

@@ -246,7 +246,7 @@ const ProgramSkill = () => {
           <Box className="modal_body bg-white p-3" component="form" sx={{ maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
             <FormControl size="small" fullWidth>
               <InputLabel id="label-helper">Select Program</InputLabel>
-              <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+              <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}  disabled={!!editId}>
                 {programs.map((program) => (
                   <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
                 ))}

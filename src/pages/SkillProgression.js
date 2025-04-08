@@ -273,16 +273,16 @@ const SkillProgression = () => {
         }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Skill Progression' : 'Create Skill Progression'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {!editId && (
+           
               <FormControl size="small" fullWidth>
                 <InputLabel id="label-helper">Select Program</InputLabel>
-                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}>
+                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}  disabled={!!editId}>
                   {programs.map((program) => (
                     <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
-            )}
+           
             {editId ? (
               // Edit: Single Entry Form
               <>

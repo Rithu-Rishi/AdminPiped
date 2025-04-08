@@ -195,7 +195,7 @@ const Cafeteria = () => {
                                         <TableCell>{item.price}</TableCell>
                                         <TableCell>{item.stock}</TableCell>
                                         <TableCell>
-                                            {item.image && <img src={`${IMAGE_BASE_URL}${item.image}`} alt={item.name} width="40" height="40" />}
+                                            {item.image && <img src={`${IMAGE_BASE_URL}${item.image}`} alt={item.name} width="30" height="30" className="border border-2 rounded-1" />}
                                         </TableCell>
                                         <TableCell>
                                             <Switch checked={!item.deleted_at} onChange={() => handleToggle(item)} />

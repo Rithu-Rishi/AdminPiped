@@ -328,7 +328,7 @@ const TimeSlots = () => {
             <Box className="d-flex" sx={{ gap: 2 }}>
               <FormControl size="small" fullWidth>
                 <InputLabel id="label-helper">Select Program</InputLabel>
-                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={handleProgramChange}>
+                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={handleProgramChange} disabled={!!editId}>
                   {programs.map((program) => (
                     <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
                   ))}
@@ -336,7 +336,7 @@ const TimeSlots = () => {
               </FormControl>
               <FormControl size="small" fullWidth>
                 <InputLabel id="label-helper-sub">Select Sub Program</InputLabel>
-                <Select size="small" fullWidth name="focus_id" labelId="label-helper-sub" label="Select Sub Program" value={formData.focus_id} onChange={(e) => setFormData({ ...formData, focus_id: e.target.value })}>
+                <Select size="small" fullWidth name="focus_id" labelId="label-helper-sub" label="Select Sub Program" value={formData.focus_id} onChange={(e) => setFormData({ ...formData, focus_id: e.target.value })} disabled={!!editId}>
                   {subFocus.map((focus) => (
                     <MenuItem key={focus.id} value={focus.id}>{focus.title}</MenuItem>
                   ))}
@@ -344,7 +344,7 @@ const TimeSlots = () => {
               </FormControl>
               <FormControl size="small" fullWidth>
                 <InputLabel id="label-helper-one">Select Skill Level</InputLabel>
-                <Select size="small" fullWidth name="skill_level_id" labelId="label-helper-One" label="Select Skill Level" value={formData.skill_level_id} onChange={(e) => setFormData({ ...formData, skill_level_id: e.target.value })}>
+                <Select size="small" fullWidth name="skill_level_id" labelId="label-helper-One" label="Select Skill Level" value={formData.skill_level_id} onChange={(e) => setFormData({ ...formData, skill_level_id: e.target.value })} disabled={!!editId}>
                   {skillLevels.map((level) => (
                     <MenuItem key={level.id} value={level.id}>{level.skill_name}</MenuItem>
                   ))}

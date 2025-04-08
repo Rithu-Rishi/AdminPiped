@@ -1,12 +1,12 @@
 import React from "react";
 import Header from "./layouts/Header";
 import Container from 'react-bootstrap/Container';
-import { useLocation } from "react-router-dom";
+import { useLocation, Outlet } from "react-router-dom";
 import Sidebar from "./layouts/Sidebar";
 
 const Layout = ({ children }) => {
     const location = useLocation();
-    const hideHeaderRoutes = ["/login"].includes(location.pathname);
+    const hideHeaderRoutes = location.pathname === "/login";
 
     return (
         <main>
@@ -15,7 +15,7 @@ const Layout = ({ children }) => {
                 <div className="content-container w-100">
                     {!hideHeaderRoutes && <Header />}
                     <Container fluid className={hideHeaderRoutes ? "" : "mt-3"}>
-                        {children}
+                        <Outlet />
                     </Container>
                 </div>
             </div>

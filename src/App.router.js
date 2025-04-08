@@ -35,13 +35,13 @@ import Unauthorized from "./pages/Unauthorized";
 
 const AppRouter = () => {
     return (
-        <Layout>
-            <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/" element={<Login />} />
-                <Route path="/unauthorized" element={<Unauthorized />} />
-                {/* Super Admin Protected Route */}
-                <Route element={<ProtectedRoute allowedRoles={['Super Admin', 'Admin']} />}>
+        <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            {/* Super Admin Protected Route */}
+            <Route element={<ProtectedRoute allowedRoles={['Super Admin', 'Admin']} />}>
+                <Route element={<Layout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/admins" element={<Admin />} />
@@ -70,14 +70,17 @@ const AppRouter = () => {
                     <Route path="/helpSupport" element={<HelpSupport />} />
                     <Route path="/teacherFeecback" element={<TeacherFeedback />} />
                 </Route>
-                {/* Cafeteria Protected Route */}
-                <Route element={<ProtectedRoute allowedRoles={['Cafeteria']} />}>
+            </Route>
+            {/* Cafeteria Protected Route */}
+            <Route element={<ProtectedRoute allowedRoles={['Cafeteria']} />}>
+                <Route element={<Layout />}>
                     <Route path="/" element={<MenuItems />} />
                     <Route path="/menuItems" element={<MenuItems />} />
                     <Route path="/viewTransactions" element={<ViewTransactions />} />
                 </Route>
-            </Routes>
-        </Layout>
+            </Route>
+        </Routes>
+
     );
 };
 

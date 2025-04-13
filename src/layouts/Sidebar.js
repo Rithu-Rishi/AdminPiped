@@ -26,6 +26,7 @@ import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettin
 import FoodBankOutlinedIcon from '@mui/icons-material/FoodBankOutlined';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 
 const Sidebar = () => {
   const [open, setOpen] = React.useState(false);
@@ -163,14 +164,6 @@ const Sidebar = () => {
                   <ListItemText className='text_items' primary="Time Slots" />
                 </ListItemButton>
               </Link>
-              {/* <Link to="/assignTeachers">
-            <ListItemButton className='single_item' sx={{ pl: 4 }}>
-              <ListItemIcon className='icon_items'>
-                <RemoveIcon />
-              </ListItemIcon>
-              <ListItemText className='text_items' primary="Assign teachers" />
-            </ListItemButton>
-          </Link> */}
             </Collapse>
 
             {/* <ListItemButton className='single_item' onClick={handleClickConteen}>
@@ -250,6 +243,14 @@ const Sidebar = () => {
                   <StarBorderPurple500OutlinedIcon />
                 </ListItemIcon>
                 <ListItemText className='text_items' primary="Teachers Feedback" />
+              </ListItemButton>
+            </Link>
+            <Link to='/attendance'>
+              <ListItemButton className='single_item'>
+                <ListItemIcon className='icon_items'>
+                  <CheckCircleOutlinedIcon />
+                </ListItemIcon>
+                <ListItemText className='text_items' primary="Attendance" />
               </ListItemButton>
             </Link>
             <Link to='/transitions'>

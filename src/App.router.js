@@ -31,6 +31,7 @@ import MenuItems from "./pages/MenuItems";
 import ViewTransactions from "./pages/ViewTransactions";
 import HelpSupport from "./pages/HelpSupport";
 import TeacherFeedback from "./pages/TeacherFeedback";
+import Attendance from "./pages/Attendance";
 import Unauthorized from "./pages/Unauthorized";
 
 const AppRouter = () => {
@@ -69,6 +70,7 @@ const AppRouter = () => {
                     <Route path="/cafeteria" element={<Cafeteria />} />
                     <Route path="/helpSupport" element={<HelpSupport />} />
                     <Route path="/teacherFeecback" element={<TeacherFeedback />} />
+                    <Route path="/attendance" element={<Attendance />} />
                 </Route>
             </Route>
             {/* Cafeteria Protected Route */}

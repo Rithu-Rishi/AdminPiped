@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Select, FormControl,
-    Paper, Typography, Box, TextField, Button, MenuItem, TablePagination, InputLabel
+    Paper, Typography, Box, MenuItem, TablePagination, InputLabel
 } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getAttendanceRecords } from '../services/attendanceApi';
@@ -152,8 +154,7 @@ const Attendance = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Date</TableCell>
-                                    <TableCell>Child</TableCell>
+                                    <TableCell colSpan={2}>Child</TableCell>
                                     <TableCell>Program</TableCell>
                                     <TableCell>Focus</TableCell>
                                     <TableCell>Skill</TableCell>
@@ -171,16 +172,16 @@ const Attendance = () => {
                                             </TableCell>
                                         </TableRow>
                                         {group.records.map((rec, idx) => (
-                                            <TableRow key={`${group.date}-${idx}`}>
-                                                <TableCell></TableCell>
-                                                <TableCell>{rec.child_name}</TableCell>
-                                                <TableCell>{rec.program_name}</TableCell>
-                                                <TableCell>{rec.focus_name}</TableCell>
-                                                <TableCell>{rec.skill_level}</TableCell>
-                                                <TableCell>{rec.teacher_name}</TableCell>
-                                                <TableCell>{rec.start_time} - {rec.end_time}</TableCell>
-                                                <TableCell className={rec.status === 'present' ? 'text-success' : 'text-danger'}>
-                                                    {rec.status.toUpperCase()}
+                                            <TableRow key={`${group.date}-${idx}`} className={rec.status === 'present' ? 'bg-success bg-opacity-10' : 'bg-danger bg-opacity-10'}>
+                                                <TableCell className='text-dark' colSpan={2}>{rec.child_name}</TableCell>
+                                                <TableCell className='text-dark'>{rec.program_name}</TableCell>
+                                                <TableCell className='text-dark'>{rec.focus_name}</TableCell>
+                                                <TableCell className='text-dark'>{rec.skill_level}</TableCell>
+                                                <TableCell className='text-dark'>{rec.teacher_name}</TableCell>
+                                                <TableCell className='text-dark'>{rec.start_time} - {rec.end_time}</TableCell>
+                                                <TableCell>
+                                                    {rec.status === 'present' && <CheckCircleIcon className="text-success" titleAccess='Present' />}
+                                                    {rec.status === 'absent' && <CancelIcon className='text-danger' titleAccess='Absent' />}
                                                 </TableCell>
                                             </TableRow>
                                         ))}

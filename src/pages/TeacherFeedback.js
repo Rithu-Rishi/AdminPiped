@@ -116,7 +116,13 @@ const TeacherFeedback = () => {
                                     <TableCell>{row.sub_program_focus?.title}</TableCell>
                                     <TableCell>{row.skill_level?.skill_name}</TableCell>
                                     <TableCell>{row.comments}</TableCell>
-                                    <TableCell>{row.status}</TableCell>
+                                    <TableCell>
+                                        {row.status === "approved" ? (
+                                            <span className="text-success bg-success bg-opacity-10 py-1 px-3 rounded-2">Approved</span>) : row.status === "rejected" ? (
+                                                <span className="text-danger bg-danger bg-opacity-10 py-1 px-3 rounded-2">Rejected</span>) : (
+                                            <span className="text-warning bg-warning bg-opacity-10 py-1 px-3 rounded-2">Pending</span>)}
+                                        {/* {row.status} */}
+                                    </TableCell>
                                     <TableCell align="center">
                                         {row.status === "approved" || "rejected" &&
                                             <DropdownButton

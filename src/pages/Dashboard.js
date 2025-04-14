@@ -6,6 +6,7 @@ import {
   SupervisorAccount as SupervisorAccountIcon,
 } from "@mui/icons-material";
 import { getDashboardData } from "../services/dashboardApi";
+import TPPLoadingSign from "../assets/TPPLoadingSign-ezgif.com-video-to-gif-converter.gif";
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -37,7 +38,7 @@ const Dashboard = () => {
     <>
       {loading ? (
         <div className="d-flex justify-content-center mt-5">
-          <Spinner animation="border" variant="primary" />
+          <img src={TPPLoadingSign} alt="loader"/>
         </div>
       ) : (
         <Row>

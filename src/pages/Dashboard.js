@@ -5,8 +5,8 @@ import {
   FamilyRestroom as FamilyRestroomIcon,
   SupervisorAccount as SupervisorAccountIcon,
 } from "@mui/icons-material";
+import Spinner from "../includes/Spinner";
 import { getDashboardData } from "../services/dashboardApi";
-import TPPLoadingSign from "../assets/TPPLoadingSign-ezgif.com-video-to-gif-converter.gif";
 import { Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -18,7 +18,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { display } from "@mui/system";
 ChartJS.register(CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
@@ -162,9 +161,7 @@ const Dashboard = () => {
   return (
     <>
       {loading ? (
-        <div className="d-flex justify-content-center mt-5">
-          <img src={TPPLoadingSign} alt="loader" width={300} />
-        </div>
+        <Spinner loading={loading} />
       ) : (
         <>
           <Row>
@@ -265,14 +262,14 @@ const Dashboard = () => {
             <Col md="8">
               <Card>
                 <Card.Body className="py-2">
-                  <Bar data={chartData} options={chartOptions}/>
+                  <Bar data={chartData} options={chartOptions} />
                 </Card.Body>
               </Card>
             </Col>
             <Col md="4">
               <Card>
                 <Card.Body className="px-2 py-3">
-                  <Doughnut data={doughnutData} options={doughnutOptions} plugins={[centerTextPlugin]}/>
+                  <Doughnut data={doughnutData} options={doughnutOptions} plugins={[centerTextPlugin]} />
                 </Card.Body>
               </Card>
             </Col>

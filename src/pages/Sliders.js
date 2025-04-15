@@ -147,7 +147,7 @@ const Sliders = () => {
             <TableBody>
               {sliders.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell><img src={`${IMAGE_BASE_URL}${row.slide_image}`} alt={row.slide_image} width={60} /></TableCell>
+                  <TableCell><img src={`${IMAGE_BASE_URL}${row.slide_image}`} alt={row.slide_image} width={60} className="border border-2 rounded-1 p-1" /></TableCell>
                   <TableCell>{row?.slider_title}</TableCell>
                   <TableCell>{row?.slider_caption}</TableCell>
                   <TableCell>

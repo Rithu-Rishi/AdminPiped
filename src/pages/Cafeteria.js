@@ -178,11 +178,11 @@ const Cafeteria = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
+                                    <TableCell>Image</TableCell>
                                     <TableCell>Name</TableCell>
                                     <TableCell>Description</TableCell>
                                     <TableCell>Price</TableCell>
                                     <TableCell>Stock</TableCell>
-                                    <TableCell>Image</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell>Actions</TableCell>
                                 </TableRow>
@@ -190,13 +190,13 @@ const Cafeteria = () => {
                             <TableBody>
                                 {items.map((item) => (
                                     <TableRow key={item.id}>
+                                        <TableCell>
+                                            {item.image && <img src={`${IMAGE_BASE_URL}${item.image}`} alt={item.name} width="30" height="30" className="border border-2 rounded-1" />}
+                                        </TableCell>
                                         <TableCell>{item.name}</TableCell>
                                         <TableCell>{item.description}</TableCell>
                                         <TableCell>{item.price}</TableCell>
                                         <TableCell>{item.stock}</TableCell>
-                                        <TableCell>
-                                            {item.image && <img src={`${IMAGE_BASE_URL}${item.image}`} alt={item.name} width="30" height="30" className="border border-2 rounded-1" />}
-                                        </TableCell>
                                         <TableCell>
                                             <Switch checked={!item.deleted_at} onChange={() => handleToggle(item)} />
                                         </TableCell>

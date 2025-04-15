@@ -63,15 +63,15 @@ const Sidebar = () => {
         {isExpanded ? <MenuIcon /> : <CloseIcon />}
       </span>
 
-      <List className='Sidebar_list'
+      <List className='Sidebar_list pt-0'
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
         component="nav"
         aria-labelledby="nested-list-subheader"
 
       >
-        <div className='text-center logo'>
+        {/* <div className='text-center logo'>
           <img src={logo} alt="Preview" className='pe-3' height={50} />
-        </div>
+        </div> */}
         {(role === "Super Admin" || role === "Admin") && (
           <>
             <Link to="/dashboard">

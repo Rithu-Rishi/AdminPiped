@@ -10,10 +10,10 @@ const Layout = ({ children }) => {
 
     return (
         <main>
-            <div className="app-container d-flex">
+            {!hideHeaderRoutes && <Header />}
+            <div className="app-container d-flex">            
                 {!hideHeaderRoutes && <Sidebar />}
                 <div className="content-container w-100">
-                    {!hideHeaderRoutes && <Header />}
                     <Container fluid className={hideHeaderRoutes ? "" : "mt-3"}>
                         <Outlet />
                     </Container>

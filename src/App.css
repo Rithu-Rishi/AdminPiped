@@ -5,6 +5,7 @@ body {
     font-size: 14px !important;
     font-family: "Poppins", serif !important;
     background: #f9fafc !important;
+    overflow: hidden;
 }
 
 table,
@@ -23,8 +24,8 @@ p {
 }
 
 .sidebar {
-    max-height: calc(100vh);
-    min-height: calc(100vh);
+    max-height: calc(100vh - 40px);
+    min-height: calc(100vh - 40px);
     overflow: hidden;
     transition: width 0.3s ease-in-out;
     white-space: nowrap;
@@ -40,7 +41,7 @@ p {
 
 .content-container {
     overflow: auto;
-    max-height: calc(100vh - 0px);
+    max-height: calc(100vh - 65px);
     padding-bottom: 20px;
 }
 
@@ -64,6 +65,8 @@ p {
 
 .single_item {
     padding-left: 10px !important;
+    padding-bottom: 6px !important;
+    padding-top: 6px !important;
 }
 
 .icon_down {
@@ -145,6 +148,15 @@ table tr th {
     width: 62px;
 }
 
+.collapsed .text_items {
+    display: none;
+}
+
+.collapsed  .icon_items {
+    min-width: 26px !important;
+    color: #b2b8c7;
+}
+
 .collapsed .logo {
     visibility: hidden;
 }
@@ -152,6 +164,7 @@ table tr th {
 .expanded {
     width: 260px;
 }
+
 
 .togglebtn {
     cursor: pointer;

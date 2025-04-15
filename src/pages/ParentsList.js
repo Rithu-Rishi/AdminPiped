@@ -172,7 +172,7 @@ const ParentsList = () => {
                 {parents.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell><img src={row.profile_pic_url ? `${IMAGE_BASE_URL}${row.profile_pic_url}` : Parent} alt="Profile" className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />{row.name}</TableCell>
-                    <TableCell><span className="px-2 py-1 rounded-1 bg-opacity-10 bg-danger text-danger">{row.child_count}</span></TableCell>
+                    <TableCell><span className="px-2 py-1 rounded-1 bg-opacity-10 bg-success text-success">{row.child_count}</span></TableCell>
                     <TableCell>
                       {row.email}
                       {row.user.email_verified_at === null ? (

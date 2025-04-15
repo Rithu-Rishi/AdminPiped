@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Row, Col, Button, Form, Alert, Spinner } from 'react-bootstrap';
+import { Col, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import API, { setAuthToken } from '../config/api.js'
 import Logo from '../assets/images/logo.png'
 
@@ -46,7 +46,7 @@ function Login() {
 
   return (
     <div className='loginMain'>
-      <Row className=' d-flex justify-content-center align-items-center h-100'>
+      <div className=' d-flex justify-content-center align-items-center h-100'>
         <Col md='4'>
           <div className='pe-3'>
             <img src={Logo} alt="logo" className="img-fluid" />
@@ -87,7 +87,7 @@ function Login() {
           </Form>
         </Col>
 
-      </Row>
+      </div>
     </div>
 
 

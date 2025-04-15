@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Button, IconButton, Modal, Box, Typography, TextField, TablePagination, InputAdornment
+    Button, Modal, Box, Typography, TextField, TablePagination, InputAdornment
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Search as SearchIcon } from "@mui/icons-material";
+import { Add as AddIcon, Search as SearchIcon,  MoreVert as Menu, } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import {
@@ -12,6 +12,8 @@ import {
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
 import { formatDate } from '../utils/dateUtils';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const Admin = () => {
     const [admins, setAdmins] = useState([]);
@@ -133,10 +135,22 @@ const Admin = () => {
                                         <TableCell>{admin.name}</TableCell>
                                         <TableCell>{admin.email}</TableCell>
                                         <TableCell>{formatDate(admin.created_at)}</TableCell>
+
                                         <TableCell align="center">
+                                            <DropdownButton
+                                                align="end"
+                                                title={<Menu />}
+                                                size='sm'
+                                                className="custom_dropdown"
+                                            >
+                                                <Dropdown.Item size="small" className="fs-14" onClick={() => handleOpenForm(admin)}>Edit</Dropdown.Item>
+                                                <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => { setSelectedAdmin(admin); setDeleteModalOpen(true); }}>Delete</Dropdown.Item>
+                                            </DropdownButton>
+                                        </TableCell>
+                                        {/* <TableCell align="center">
                                             <IconButton color="primary" onClick={() => handleOpenForm(admin)}><EditIcon /></IconButton>
                                             <IconButton color="error" onClick={() => { setSelectedAdmin(admin); setDeleteModalOpen(true); }}><DeleteIcon /></IconButton>
-                                        </TableCell>
+                                        </TableCell> */}
                                     </TableRow>
                                 ))}
                             </TableBody>

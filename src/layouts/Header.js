@@ -28,7 +28,7 @@ function Header() {
     <>
       <Navbar className="bg-white main_header">
         <Container fluid>
-          <Navbar.Brand href="#home">
+          <Navbar.Brand href="#home" className='ms-4'>
             <img src={logo} alt="Preview" height="35" />
           </Navbar.Brand>
           <DropdownButton

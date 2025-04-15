@@ -93,7 +93,7 @@ const Attendance = () => {
         <Box>
             <Typography variant="h5" className="mb-3">Attendance Records</Typography>
 
-            <Box className="d-flex gap-3 flex-wrap mb-3">
+            <Box className="d-flex gap-3 mb-3">
                 <FormControl size="small" style={{ minWidth: 200 }}>
                     <InputLabel>Select Program</InputLabel>
                     <Select

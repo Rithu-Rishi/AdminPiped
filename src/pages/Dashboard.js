@@ -251,7 +251,7 @@ const Dashboard = () => {
                     <span className={`fw-600 ${getGrowthColor(dashboardData?.total_amount.percentage.value)}`}>
                       {dashboardData?.total_amount.percentage.value}%
                     </span>{" "}
-                    last month bookings
+                    last month Revenue
                   </Card.Text>
                 </Card.Body>
               </Card>

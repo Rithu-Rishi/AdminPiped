@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllSkillLevels, addSkillLevels, updateSkillLevels, deleteSkillLevel } from "../services/skillLevelApi";
 import { getDropDownPrograms } from "../services/programsApi";
+import { getSubProgramFocus } from "../services/subprogramsApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
   Button, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, InputAdornment
@@ -13,11 +14,14 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const ProgramSkill = () => {
   const [skillLevels, setSkillLevels] = useState([]);
   const [programs, setPrograms] = useState([]);
-  const [formData, setFormData] = useState({ program_id: "", skills: [] });
+  const [subFocus, setSubFocus] = useState([]);
+  const [formData, setFormData] = useState({ program_id: "", focus_id: "", skills: [] });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -55,6 +59,22 @@ const ProgramSkill = () => {
     } catch (err) {
       handleApiError(err, setAlertMessage);
     }
+  };
+
+  const fetchSubProgramFocus = async (programId) => {
+    try {
+      const response = await getSubProgramFocus(programId);
+      console.log("focus ", response);
+      setSubFocus(response.sub_programs[0]['images'] || []);
+    } catch (err) {
+      console.error("Failed to fetch skill levels.");
+    }
+  };
+
+  const handleProgramChange = (e) => {
+    const program_id = e.target.value;
+    setFormData({ ...formData, program_id, focus_id: "" });
+    fetchSubProgramFocus(program_id);
   };
 
   const openFormModal = (row = null) => {
@@ -244,23 +264,34 @@ const ProgramSkill = () => {
         }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Skill' : 'Create Skill'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
-            <FormControl size="small" fullWidth>
-              <InputLabel id="label-helper">Select Program</InputLabel>
-              <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}  disabled={!!editId}>
-                {programs.map((program) => (
-                  <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Box className="d-flex" sx={{ gap: 2 }}>
+              <FormControl size="small" fullWidth>
+                <InputLabel id="label-helper">Select Program</InputLabel>
+                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={handleProgramChange} disabled={!!editId}>
+                  {programs.map((program) => (
+                    <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl size="small" fullWidth>
+                <InputLabel id="label-helper-sub">Select Sub Program</InputLabel>
+                <Select size="small" fullWidth name="focus_id" labelId="label-helper-sub" label="Select Sub Program" value={formData.focus_id} onChange={(e) => setFormData({ ...formData, focus_id: e.target.value })} disabled={!!editId}>
+                  {subFocus.map((focus) => (
+                    <MenuItem key={focus.id} value={focus.id}>{focus.title}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
             {formData.skills.map((skill, index) => (
-              <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '80vh', overflowY: 'auto', pt: 1 }}>
+              <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '120vh', overflowY: 'auto', pt: 1 }}>
                 <TextField size="small" label="Skill Name" value={skill.skill_name} onChange={(e) => handleChange(index, "skill_name", e.target.value)} fullWidth required />
                 <Box className='d-flex' sx={{ gap: 2 }}>
                   <TextField size="small" label="Period" value={skill.skill_period} onChange={(e) => handleChange(index, "skill_period", e.target.value)} fullWidth required />
                   <TextField size="small" label="Amount" type="number" value={skill.skill_amount} onChange={(e) => handleChange(index, "skill_amount", e.target.value)} fullWidth required />
                   <TextField size="small" label="Discount" type="number" value={skill.skill_discount} onChange={(e) => handleChange(index, "skill_discount", e.target.value)} fullWidth required />
                 </Box>
-                <TextField size="small" label="Description" multiline rows={2} value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required />
+                {/* <TextField size="small" label="Description" multiline rows={2} value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required /> */}
+                <ReactQuill theme="snow" value={skill.skill_description} style={{ height: '50px' }} onChange={(value) => handleChange(index, "skill_description", value)} />
                 <div className="text-end">
                   {!editId && (<Link color="error" className="text-danger rounded-5" onClick={() => handleRemoveRow(index)}>
                     <CloseIcon />

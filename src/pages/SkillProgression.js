@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllSkillProgressions, addSkillProgressions, updateSkillProgression, deleteSkillProgression } from "../services/skillProgressionApi";
 import { getDropDownPrograms } from "../services/programsApi";
+import { getSubProgramFocus } from "../services/subprogramsApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
   Button, IconButton, Modal, Box, Typography, TextField, Select, MenuItem, TablePagination, InputAdornment
@@ -17,8 +18,9 @@ import { handleApiError } from "../utils/apiErrorHandler";
 const SkillProgression = () => {
   const [progressions, setProgressions] = useState([]);
   const [programs, setPrograms] = useState([]);
+  const [subFocus, setSubFocus] = useState([]);
   const [formData, setFormData] = useState({
-    program_id: "", titles: [""], descriptions: [""], images: [], imagePreviews: [],
+    program_id: "", focus_id: "", titles: [""], descriptions: [""], images: [], imagePreviews: [],
     title: "", description: "", image: null, imagePreview: "",
   });
   const [editId, setEditId] = useState(null);
@@ -58,6 +60,22 @@ const SkillProgression = () => {
     } catch (err) {
       handleApiError(err, setAlertMessage);
     }
+  };
+
+  const fetchSubProgramFocus = async (programId) => {
+    try {
+      const response = await getSubProgramFocus(programId);
+      console.log("focus ", response);
+      setSubFocus(response.sub_programs[0]['images'] || []);
+    } catch (err) {
+      console.error("Failed to fetch skill levels.");
+    }
+  };
+
+  const handleProgramChange = (e) => {
+    const program_id = e.target.value;
+    setFormData({ ...formData, program_id, focus_id: "" });
+    fetchSubProgramFocus(program_id);
   };
 
   const openFormModal = (row = null) => {
@@ -273,16 +291,24 @@ const SkillProgression = () => {
         }}>
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Skill Progression' : 'Create Skill Progression'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-           
+            <Box className="d-flex" sx={{ gap: 2 }}>
               <FormControl size="small" fullWidth>
                 <InputLabel id="label-helper">Select Program</InputLabel>
-                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}  disabled={!!editId}>
+                <Select size="small" fullWidth name="program_id" labelId="label-helper" label="Select Program" value={formData.program_id} onChange={handleProgramChange} disabled={!!editId}>
                   {programs.map((program) => (
                     <MenuItem key={program.id} value={program.id}>{program.program_name}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
-           
+              <FormControl size="small" fullWidth>
+                <InputLabel id="label-helper-sub">Select Sub Program</InputLabel>
+                <Select size="small" fullWidth name="focus_id" labelId="label-helper-sub" label="Select Sub Program" value={formData.focus_id} onChange={(e) => setFormData({ ...formData, focus_id: e.target.value })} disabled={!!editId}>
+                  {subFocus.map((focus) => (
+                    <MenuItem key={focus.id} value={focus.id}>{focus.title}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
             {editId ? (
               // Edit: Single Entry Form
               <>

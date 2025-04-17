@@ -283,7 +283,7 @@ const ProgramSkill = () => {
               </FormControl>
             </Box>
             {formData.skills.map((skill, index) => (
-              <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '120vh', overflowY: 'auto', pt: 1 }}>
+              <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1}}>
                 <TextField size="small" label="Skill Name" value={skill.skill_name} onChange={(e) => handleChange(index, "skill_name", e.target.value)} fullWidth required />
                 <Box className='d-flex' sx={{ gap: 2 }}>
                   <TextField size="small" label="Period" value={skill.skill_period} onChange={(e) => handleChange(index, "skill_period", e.target.value)} fullWidth required />
@@ -291,8 +291,10 @@ const ProgramSkill = () => {
                   <TextField size="small" label="Discount" type="number" value={skill.skill_discount} onChange={(e) => handleChange(index, "skill_discount", e.target.value)} fullWidth required />
                 </Box>
                 {/* <TextField size="small" label="Description" multiline rows={2} value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required /> */}
+                <div>
                 <ReactQuill theme="snow" value={skill.skill_description} style={{ height: '50px' }} onChange={(value) => handleChange(index, "skill_description", value)} />
-                <div className="text-end">
+                </div>
+                <div className="text-end mt-4">
                   {!editId && (<Link color="error" className="text-danger rounded-5" onClick={() => handleRemoveRow(index)}>
                     <CloseIcon />
                   </Link>

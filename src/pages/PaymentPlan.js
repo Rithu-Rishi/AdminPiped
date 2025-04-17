@@ -58,27 +58,21 @@ const PaymentPlan = () => {
     };
 
     const calculateFinalAmount = (amount, discount) => {
-        return amount - (amount * discount / 100);
+        return amount - (amount * discount / 100).toFixed(2);;
     };
 
     const handleChange = (index, field, value) => {
         setFormData((prevData) => {
             const updatedPlans = [...prevData.plans];
-            let plan = { ...updatedPlans[index], [field]: value };
+            updatedPlans[index][field] = value;
+            updatedPlans[index].program_id = formData.program_id;
 
-            // Get monthly fee from selected program
-            const selectedProgram = programs.find(p => p.id === prevData.program_id);
-            const monthlyFee = selectedProgram?.monthly_fee || 0;
+            const duration = parseFloat(updatedPlans[index].duration_months) || 1;
+            const amount = parseFloat(updatedPlans[index].amount) || 0;
+            const discount = parseFloat(updatedPlans[index].discount_percent) || 0;
 
-            // Calculate full amount based on duration
-            const months = parseFloat(plan.duration_months || 0);
-            //  plan.amount = monthlyFee * months;
-
-            // Apply discount
-            const discount = parseFloat(plan.discount_percent || 0);
-            plan.final_amount = calculateFinalAmount((monthlyFee * months), discount);
-
-            updatedPlans[index] = plan;
+            const total = amount * duration;
+            updatedPlans[index].final_amount = calculateFinalAmount(total, discount);
 
             return { ...prevData, plans: updatedPlans };
         });
@@ -95,8 +89,8 @@ const PaymentPlan = () => {
                 ...formData.plans[0],
                 amount: monthlyFee,
                 duration_months: "",
-                discount_percent: "",
-                final_amount: ""
+                discount_percent: 0,
+                final_amount: calculateFinalAmount(monthlyFee * 1, 0)
             }]
         });
     };

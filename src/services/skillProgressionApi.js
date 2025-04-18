@@ -16,7 +16,7 @@ export const addSkillProgressions = async (progressionData) => {
     try {
         const formData = new FormData();
         formData.append("program_id", progressionData.program_id);
-
+        formData.append("focus_id", progressionData.focus_id);
         progressionData.titles.forEach((title, index) => {
             formData.append(`titles[${index}]`, title);
             formData.append(`descriptions[${index}]`, progressionData.descriptions[index]);
@@ -38,6 +38,7 @@ export const updateSkillProgression = async (id, progressionData) => {
     try {
         const formData = new FormData();
         formData.append("program_id", progressionData.program_id);
+        formData.append("focus_id", progressionData.focus_id);
         formData.append("title", progressionData.title);
         formData.append("description", progressionData.description);
         if (progressionData.image instanceof File) {

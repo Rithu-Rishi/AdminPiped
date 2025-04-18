@@ -11,6 +11,7 @@ import { IMAGE_BASE_URL } from "../config/constants";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import { handleApiError } from "../utils/apiErrorHandler";
+import NoData from "../includes/NoData";
 
 const Sliders = () => {
   const [sliders, setSliders] = useState([]);
@@ -171,9 +172,7 @@ const Sliders = () => {
           </Table>
         </TableContainer>
       ) : (
-        <Typography variant="body1" align="center">
-          No Data Available
-        </Typography>
+        <NoData />
       )}
 
       {/* Delete Confirmation Modal */}

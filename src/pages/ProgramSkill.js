@@ -16,6 +16,7 @@ import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import NoData from "../includes/NoData";
 
 const ProgramSkill = () => {
   const [skillLevels, setSkillLevels] = useState([]);
@@ -83,6 +84,7 @@ const ProgramSkill = () => {
         program_id: row.program_id,
         skills: [{
           program_id: row.program_id,
+          focus_id: row.focus_id,
           skill_name: row.skill_name,
           skill_description: row.skill_description,
           skill_period: row.skill_period,
@@ -92,7 +94,7 @@ const ProgramSkill = () => {
       });
       setEditId(row.id);
     } else {
-      setFormData({ program_id: "", skills: [{ skill_name: "", skill_description: "", skill_period: "", skill_amount: "", skill_discount: 0 }] });
+      setFormData({ program_id: "", focus_id: "", skills: [{ skill_name: "", skill_description: "", skill_period: "", skill_amount: "", skill_discount: 0 }] });
       setEditId(null);
     }
     setFormModalOpen(true);
@@ -118,6 +120,7 @@ const ProgramSkill = () => {
     const updatedSkills = [...formData.skills];
     updatedSkills[index][field] = value;
     updatedSkills[index].program_id = formData.program_id;
+    updatedSkills[index].focus_id = formData.focus_id;
     setFormData({ ...formData, skills: updatedSkills });
   };
 
@@ -130,7 +133,7 @@ const ProgramSkill = () => {
         setAlertMessage({ open: true, type: "success", message: "Skill updated successfully!" });
       } else {
         console.log(formData);
-        const updatedSkills = formData.skills.map(skill => ({ ...skill, program_id: formData.program_id }));
+        const updatedSkills = formData.skills.map(skill => ({ ...skill, program_id: formData.program_id, focus_id: formData.focus_id }));
         console.log({ skills: updatedSkills });
         console.log(updatedSkills);
         await addSkillLevels({ skills: updatedSkills });
@@ -146,7 +149,7 @@ const ProgramSkill = () => {
 
   // Add a Row
   const handleAddRow = () => {
-    setFormData({ ...formData, skills: [...formData.skills, { program_id: formData.program_id, skill_name: "", skill_description: "", skill_period: "", skill_amount: "", skill_discount: "" }] });
+    setFormData({ ...formData, skills: [...formData.skills, { program_id: formData.program_id, focus_id: formData.focus_id, skill_name: "", skill_description: "", skill_period: "", skill_amount: "", skill_discount: "" }] });
   };
 
   // Delete a Row
@@ -189,11 +192,12 @@ const ProgramSkill = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Program</TableCell>
+                  <TableCell>Sub Program</TableCell>
                   <TableCell>Skill Name</TableCell>
-                  <TableCell>Description</TableCell>
+                  {/* <TableCell>Description</TableCell> */}
                   <TableCell>Period</TableCell>
-                  <TableCell>Amount</TableCell>
-                  <TableCell>Discount</TableCell>
+                  {/* <TableCell>Amount</TableCell>
+                  <TableCell>Discount</TableCell> */}
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -201,11 +205,12 @@ const ProgramSkill = () => {
                 {skillLevels.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>{row.program?.program_name}</TableCell>
+                    <TableCell>{row.sub_program_focus?.title}</TableCell>
                     <TableCell>{row.skill_name}</TableCell>
-                    <TableCell>{row.skill_description}</TableCell>
+                    {/* <TableCell>{row.skill_description}</TableCell> */}
                     <TableCell>{row.skill_period} Months</TableCell>
-                    <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{row.skill_amount}</TableCell>
-                    <TableCell>{row.skill_discount}</TableCell>
+                    {/* <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{row.skill_amount}</TableCell>
+                    <TableCell>{row.skill_discount}</TableCell> */}
                     <TableCell align="center">
                       <DropdownButton
                         align="end"
@@ -235,7 +240,7 @@ const ProgramSkill = () => {
             />
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 
@@ -283,16 +288,16 @@ const ProgramSkill = () => {
               </FormControl>
             </Box>
             {formData.skills.map((skill, index) => (
-              <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1}}>
-                <TextField size="small" label="Skill Name" value={skill.skill_name} onChange={(e) => handleChange(index, "skill_name", e.target.value)} fullWidth required />
+              <Box component="form" key={`skill-${index}`} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
                 <Box className='d-flex' sx={{ gap: 2 }}>
+                  <TextField size="small" label="Skill Name" value={skill.skill_name} onChange={(e) => handleChange(index, "skill_name", e.target.value)} fullWidth required />
                   <TextField size="small" label="Period" value={skill.skill_period} onChange={(e) => handleChange(index, "skill_period", e.target.value)} fullWidth required />
-                  <TextField size="small" label="Amount" type="number" value={skill.skill_amount} onChange={(e) => handleChange(index, "skill_amount", e.target.value)} fullWidth required />
-                  <TextField size="small" label="Discount" type="number" value={skill.skill_discount} onChange={(e) => handleChange(index, "skill_discount", e.target.value)} fullWidth required />
+                  {/* <TextField size="small" label="Amount" type="number" value={skill.skill_amount} onChange={(e) => handleChange(index, "skill_amount", e.target.value)} fullWidth disabled />
+                  <TextField size="small" label="Discount" type="number" value={skill.skill_discount} onChange={(e) => handleChange(index, "skill_discount", e.target.value)} fullWidth disabled /> */}
                 </Box>
                 {/* <TextField size="small" label="Description" multiline rows={2} value={skill.skill_description} onChange={(e) => handleChange(index, "skill_description", e.target.value)} fullWidth required /> */}
                 <div>
-                <ReactQuill theme="snow" value={skill.skill_description} style={{ height: '50px' }} onChange={(value) => handleChange(index, "skill_description", value)} />
+                  <ReactQuill theme="snow" value={skill.skill_description} style={{ height: '50px' }} onChange={(value) => handleChange(index, "skill_description", value)} />
                 </div>
                 <div className="text-end mt-4">
                   {!editId && (<Link color="error" className="text-danger rounded-5" onClick={() => handleRemoveRow(index)}>

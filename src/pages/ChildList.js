@@ -16,6 +16,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
 import Child from '../assets/images/child.png';
 import useDebounce from "../hooks/useDebounce";
+import NoData from "../includes/NoData";
 
 const ChildList = () => {
   const [children, setChildren] = useState([]);
@@ -214,7 +215,7 @@ const ChildList = () => {
             />
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 

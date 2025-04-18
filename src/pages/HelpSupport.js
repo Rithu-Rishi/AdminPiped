@@ -8,6 +8,7 @@ import { getHelpSupportQueries } from "../services/adminApi";
 import useDebounce from "../hooks/useDebounce";
 import { Search as SearchIcon } from "@mui/icons-material";
 import { formatDate } from '../utils/dateUtils';
+import NoData from "../includes/NoData";
 
 const HelpSupport = () => {
     const [queries, setQueries] = useState([]);
@@ -93,7 +94,7 @@ const HelpSupport = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
         </>

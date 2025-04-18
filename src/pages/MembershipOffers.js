@@ -11,6 +11,7 @@ import { IMAGE_BASE_URL } from "../config/constants";
 import AlertMessage from "../includes/AlertMessage";
 import Spinner from "../includes/Spinner";
 import { handleApiError } from "../utils/apiErrorHandler";
+import NoData from "../includes/NoData";
 
 const MembershipOffers = () => {
   const [offers, setOffers] = useState([]);
@@ -161,7 +162,7 @@ const MembershipOffers = () => {
             </Table>
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 

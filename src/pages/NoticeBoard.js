@@ -14,6 +14,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import AlertMessage from "../includes/AlertMessage";
 import Spinner from "../includes/Spinner";
 import { handleApiError } from "../utils/apiErrorHandler";
+import NoData from "../includes/NoData";
 
 const NoticeBoard = () => {
   const [notices, setNotices] = useState([]);
@@ -147,7 +148,7 @@ const NoticeBoard = () => {
             </Table>
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 

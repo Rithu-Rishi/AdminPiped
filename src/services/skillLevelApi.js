@@ -44,10 +44,20 @@ export const deleteSkillLevel = async (id) => {
   }
 };
 
-// Fetch skill levels Pprogram
+// Fetch skill levels Program
 export const getProgramSkillLevels = async (programId) => {
   try {
     const response = await API.get(`/api/programs/${programId}/skill-levels`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching skill levels:", error);
+    throw error;
+  }
+};
+// Fetch skill levels
+export const getSkillLevels = async (programId, focusId) => {
+  try {
+    const response = await API.get(`/api/program/skill-levels?program_id=${programId}&focus_id=${focusId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching skill levels:", error);

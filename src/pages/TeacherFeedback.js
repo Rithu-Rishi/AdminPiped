@@ -9,6 +9,7 @@ import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import NoData from "../includes/NoData";
 
 const TeacherFeedback = () => {
     const [feedbacks, setFeedbacks] = useState([]);
@@ -95,56 +96,60 @@ const TeacherFeedback = () => {
             <h5 className="mb-3">Teacher Feedback</h5>
 
             {loading ? <Spinner loading={loading} /> : (
-                <TableContainer component={Paper} className="table-container">
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Child</TableCell>
-                                <TableCell>Program</TableCell>
-                                <TableCell>Sub Program</TableCell>
-                                <TableCell>Skill Level</TableCell>
-                                <TableCell>Comment</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell align="center">Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {feedbacks.map((row) => (
-                                <TableRow key={row.id}>
-                                    <TableCell>{row.child?.child_name}</TableCell>
-                                    <TableCell>{row.program?.program_name}</TableCell>
-                                    <TableCell>{row.sub_program_focus?.title}</TableCell>
-                                    <TableCell>{row.skill_level?.skill_name}</TableCell>
-                                    <TableCell>{row.comments}</TableCell>
-                                    <TableCell>
-                                        {row.status === "approved" ? (
-                                            <span className="text-success bg-success bg-opacity-10 py-1 px-3 rounded-2">Approved</span>) : row.status === "rejected" ? (
-                                                <span className="text-danger bg-danger bg-opacity-10 py-1 px-3 rounded-2">Rejected</span>) : (
-                                            <span className="text-warning bg-warning bg-opacity-10 py-1 px-3 rounded-2">Pending</span>)}
-                                        {/* {row.status} */}
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        {row.status === "approved" || "rejected" &&
-                                            <DropdownButton
-                                                align="end"
-                                                title={<Menu />}
-                                                size='sm'
-                                                className="custom_dropdown"
-
-                                            >
-                                                <Dropdown.Item size="small" onClick={() => handleView(row)} className="fs-14 text-primary">View</Dropdown.Item>
-                                                <Dropdown.Item size="small" onClick={() => handleEdit(row)} className="fs-14 text-info">Edit</Dropdown.Item>
-                                                <Dropdown.Item size="small" onClick={() => handleApprove(row.id)} className="fs-14 text-success">Approve</Dropdown.Item>
-                                                <Dropdown.Item size="small" onClick={() => handleReject(row.id)} className="fs-14 text-danger">Reject</Dropdown.Item>
-                                            </DropdownButton>
-                                        }
-                                    </TableCell>
-
+                feedbacks.length > 0 ? (
+                    <TableContainer component={Paper} className="table-container">
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Child</TableCell>
+                                    <TableCell>Program</TableCell>
+                                    <TableCell>Sub Program</TableCell>
+                                    <TableCell>Skill Level</TableCell>
+                                    <TableCell>Comment</TableCell>
+                                    <TableCell>Status</TableCell>
+                                    <TableCell align="center">Actions</TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                            </TableHead>
+                            <TableBody>
+                                {feedbacks.map((row) => (
+                                    <TableRow key={row.id}>
+                                        <TableCell>{row.child?.child_name}</TableCell>
+                                        <TableCell>{row.program?.program_name}</TableCell>
+                                        <TableCell>{row.sub_program_focus?.title}</TableCell>
+                                        <TableCell>{row.skill_level?.skill_name}</TableCell>
+                                        <TableCell>{row.comments}</TableCell>
+                                        <TableCell>
+                                            {row.status === "approved" ? (
+                                                <span className="text-success bg-success bg-opacity-10 py-1 px-3 rounded-2">Approved</span>) : row.status === "rejected" ? (
+                                                    <span className="text-danger bg-danger bg-opacity-10 py-1 px-3 rounded-2">Rejected</span>) : (
+                                                <span className="text-warning bg-warning bg-opacity-10 py-1 px-3 rounded-2">Pending</span>)}
+                                            {/* {row.status} */}
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            {row.status === "approved" || "rejected" &&
+                                                <DropdownButton
+                                                    align="end"
+                                                    title={<Menu />}
+                                                    size='sm'
+                                                    className="custom_dropdown"
+
+                                                >
+                                                    <Dropdown.Item size="small" onClick={() => handleView(row)} className="fs-14 text-primary">View</Dropdown.Item>
+                                                    <Dropdown.Item size="small" onClick={() => handleEdit(row)} className="fs-14 text-info">Edit</Dropdown.Item>
+                                                    <Dropdown.Item size="small" onClick={() => handleApprove(row.id)} className="fs-14 text-success">Approve</Dropdown.Item>
+                                                    <Dropdown.Item size="small" onClick={() => handleReject(row.id)} className="fs-14 text-danger">Reject</Dropdown.Item>
+                                                </DropdownButton>
+                                            }
+                                        </TableCell>
+
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                ) : (
+                    <NoData />
+                )
             )}
 
             <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>

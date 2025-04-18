@@ -1,6 +1,6 @@
 import React from "react";
 import Backdrop from "@mui/material/Backdrop";
-import TPPLoadingSign from "../assets/TPPLoadingSign-ezgif.com-video-to-gif-converter.gif";
+import TPPLoadingSign from "../assets/TPPLoadingSign.gif";
 const Spinner = ({ loading }) => {
   return (
     <Backdrop

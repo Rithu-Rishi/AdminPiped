@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllTimeSlots, addTimeSlot, updateTimeSlot, deleteTimeSlot } from "../services/timeslotApi";
 import { getDropDownPrograms } from "../services/programsApi";
 import { getSubProgramFocus } from "../services/subprogramsApi";
-import { getProgramSkillLevels } from "../services/skillLevelApi";
+import { getSkillLevels } from "../services/skillLevelApi";
 import { getDropDownAllTeachers } from "../services/teachersApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl,
@@ -18,6 +18,7 @@ import { handleApiError } from "../utils/apiErrorHandler";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
+import NoData from "../includes/NoData";
 
 const weekDaysList = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -94,21 +95,35 @@ const TimeSlots = () => {
     }
   };
 
-  const fetchSkillLevels = async (programId) => {
+  const fetchSkillLevels = async (programId, subProgramId = null) => {
     try {
-      const response = await getProgramSkillLevels(programId);
-      console.log("sdags", response.skill_levels);
-      setSkillLevels(response.skill_levels || []);
+      const response = await getSkillLevels(programId, subProgramId);
+      console.log("sdags", response);
+      if (subProgramId === null) {
+        setSkillLevels(response.program_skill_levels || []);
+      } else {
+        setSkillLevels(response.focus_skill_levels || []);
+      }
     } catch (err) {
       console.error("Failed to fetch skill levels.");
     }
   };
 
-  const handleProgramChange = (e) => {
+  const handleProgramChange = async (e) => {
     const program_id = e.target.value;
     setFormData({ ...formData, program_id, focus_id: "", skill_level_id: "" });
-    fetchSubProgramFocus(program_id);
-    fetchSkillLevels(program_id);
+    const hasSubPrograms = await fetchSubProgramFocus(program_id);
+    if (!hasSubPrograms) {
+      await fetchSkillLevels(program_id);
+    } else {
+      setSkillLevels([]); // clear if waiting for sub_program selection
+    }
+  };
+
+  const handleSubProgramChange = async (e) => {
+    const focus_id = e.target.value;
+    setFormData(prev => ({ ...prev, focus_id, skill_level_id: "" }));
+    await fetchSkillLevels(formData.program_id, focus_id);
   };
 
   const handleAddTimeRange = () => {
@@ -296,7 +311,7 @@ const TimeSlots = () => {
             />
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 
@@ -336,7 +351,7 @@ const TimeSlots = () => {
               </FormControl>
               <FormControl size="small" fullWidth>
                 <InputLabel id="label-helper-sub">Select Sub Program</InputLabel>
-                <Select size="small" fullWidth name="focus_id" labelId="label-helper-sub" label="Select Sub Program" value={formData.focus_id} onChange={(e) => setFormData({ ...formData, focus_id: e.target.value })} disabled={!!editId}>
+                <Select size="small" fullWidth name="focus_id" labelId="label-helper-sub" label="Select Sub Program" value={formData.focus_id} onChange={handleSubProgramChange} disabled={!!editId}>
                   {subFocus.map((focus) => (
                     <MenuItem key={focus.id} value={focus.id}>{focus.title}</MenuItem>
                   ))}

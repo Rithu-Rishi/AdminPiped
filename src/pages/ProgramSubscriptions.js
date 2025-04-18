@@ -8,6 +8,7 @@ import { Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
+import NoData from "../includes/NoData";
 
 const ProgramSubscriptions = () => {
     const [subscriptions, setSubscriptions] = useState([]);
@@ -101,7 +102,7 @@ const ProgramSubscriptions = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
         </>

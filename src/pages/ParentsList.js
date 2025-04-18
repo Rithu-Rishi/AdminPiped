@@ -12,6 +12,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
 import Parent from '../assets/images/parents-64.png';
+import NoData from "../includes/NoData";
 
 const ParentsList = () => {
   const [parents, setParents] = useState([]);
@@ -221,7 +222,7 @@ const ParentsList = () => {
             />
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 

@@ -4,13 +4,14 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Button, Modal, Box, Typography, TextField, TablePagination
 } from "@mui/material";
-import { Add as AddIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon  } from "@mui/icons-material";
+import { Add as AddIcon, Close as CloseIcon, MoreVert as Menu, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import { Link } from "react-router";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { handleApiError } from "../utils/apiErrorHandler";
+import NoData from "../includes/NoData";
 
 const FacilityPaymentPlans = () => {
     const [plans, setPlans] = useState([]);
@@ -180,7 +181,7 @@ const FacilityPaymentPlans = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
 

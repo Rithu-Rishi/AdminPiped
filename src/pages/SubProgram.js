@@ -13,6 +13,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { IMAGE_BASE_URL } from "../config/constants";
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
+import NoData from "../includes/NoData";
 
 const SubPrograms = () => {
   const [subPrograms, setSubPrograms] = useState([]);
@@ -252,7 +253,7 @@ const SubPrograms = () => {
             />
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 

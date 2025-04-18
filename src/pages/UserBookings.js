@@ -9,6 +9,7 @@ import Spinner from "../includes/Spinner";
 import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import { Row, Col } from "react-bootstrap";
 import useDebounce from "../hooks/useDebounce";
+import NoData from "../includes/NoData";
 
 const UserBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -123,7 +124,7 @@ const UserBookings = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
 

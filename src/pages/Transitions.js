@@ -8,6 +8,7 @@ import { CurrencyRupee as CurrencyRupeeIcon, Search as SearchIcon } from "@mui/i
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
+import NoData from "../includes/NoData";
 
 const Transitions = () => {
     const [transactions, setTransitions] = useState([]);
@@ -95,7 +96,7 @@ const Transitions = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
         </>

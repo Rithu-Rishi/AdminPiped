@@ -10,6 +10,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Spinner from "../includes/Spinner";
 import { formatDate } from "../utils/dateUtils";
+import NoData from "../includes/NoData";
 
 const ViewTransactions = () => {
     const [transactions, setTransactions] = useState([]);
@@ -133,7 +134,7 @@ const ViewTransactions = () => {
                         </div>
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
         </div>

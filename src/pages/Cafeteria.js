@@ -14,6 +14,7 @@ import AlertMessage from "../includes/AlertMessage";
 import { IMAGE_BASE_URL } from "../config/constants";
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
+import NoData from "../includes/NoData";
 
 const Cafeteria = () => {
     const [items, setItems] = useState([]);
@@ -230,7 +231,7 @@ const Cafeteria = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
 

@@ -14,6 +14,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
+import NoData from "../includes/NoData";
 
 const SkillProgression = () => {
   const [progressions, setProgressions] = useState([]);
@@ -83,6 +84,7 @@ const SkillProgression = () => {
       // Edit - Handling single row update
       setFormData({
         program_id: row.program_id || "",
+        focus_id: row.focus_id || "",
         title: row.title || "",
         description: row.description || "",
         image: null,
@@ -91,7 +93,7 @@ const SkillProgression = () => {
       setEditId(row.id);
     } else {
       setFormData({
-        program_id: "",
+        program_id: "", focus_id: "",
         titles: [""], descriptions: [""], images: [], imagePreviews: [],
         title: "", description: "", image: null, imagePreview: "",
       });
@@ -219,6 +221,7 @@ const SkillProgression = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Program</TableCell>
+                  <TableCell>Sub Program</TableCell>
                   <TableCell>Image</TableCell>
                   <TableCell>Title</TableCell>
                   <TableCell>Description</TableCell>
@@ -230,6 +233,7 @@ const SkillProgression = () => {
                 {progressions.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>{row.program?.program_name}</TableCell>
+                    <TableCell>{row.sub_program_focus?.title}</TableCell>
                     <TableCell>{row.image && <img src={`${IMAGE_BASE_URL}${row.image}`} alt={row.program_name} className="border border-2 rounded-1 p-1" width="40" height="40" />}</TableCell>
                     <TableCell>{row.title}</TableCell>
                     <TableCell>{row.description}</TableCell>
@@ -262,7 +266,7 @@ const SkillProgression = () => {
             />
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 

@@ -11,9 +11,9 @@ import { getAttendanceRecords } from '../services/attendanceApi';
 import { getDropDownPrograms } from '../services/programsApi';
 import { getDropDownAllTeachers } from '../services/teachersApi';
 import Spinner from '../includes/Spinner';
-import AlertMessage from '../includes/AlertMessage';
 import useDebounce from '../hooks/useDebounce';
 import dayjs from 'dayjs';
+import NoData from "../includes/NoData";
 
 const Attendance = () => {
     const [filters, setFilters] = useState({
@@ -199,7 +199,7 @@ const Attendance = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
         </Box>

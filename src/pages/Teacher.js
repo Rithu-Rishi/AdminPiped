@@ -16,6 +16,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
+import NoData from "../includes/NoData";
 
 const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
@@ -209,7 +210,7 @@ const Teacher = () => {
             />
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 

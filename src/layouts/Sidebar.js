@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Collapse from '@mui/material/Collapse';
+import {
+  List, ListItemButton, ListItemText, Collapse, ListItemIcon,
+  Popper, Paper, ClickAwayListener
+} from "@mui/material";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Link } from "react-router-dom";
@@ -18,7 +17,6 @@ import ReduceCapacityOutlinedIcon from '@mui/icons-material/ReduceCapacityOutlin
 import StarBorderPurple500OutlinedIcon from '@mui/icons-material/StarBorderPurple500Outlined';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import BeenhereOutlinedIcon from '@mui/icons-material/BeenhereOutlined';
-import logo from '../assets/images/logo1.png'
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AllOutOutlinedIcon from '@mui/icons-material/AllOutOutlined';
@@ -33,6 +31,7 @@ const Sidebar = () => {
   const [openOne, setOpenOne] = React.useState(false);
   const [openTwo, setOpenTwo] = React.useState(false);
   const [openConteen, setOpenCOnteen] = React.useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const role = localStorage.getItem("role");
   console.log("role ", role);
 
@@ -52,7 +51,6 @@ const Sidebar = () => {
     setOpenCOnteen(!openConteen);
   };
 
-  const [isExpanded, setIsExpanded] = useState(true);
   const toggleExpandedCollpse = () => {
     setIsExpanded(!isExpanded);
   }

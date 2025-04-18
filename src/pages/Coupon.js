@@ -14,6 +14,7 @@ import AlertMessage from "../includes/AlertMessage";
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
 import { formatDate } from '../utils/dateUtils';
+import NoData from "../includes/NoData";
 
 const Coupons = () => {
     const [coupons, setCoupons] = useState([]);
@@ -206,7 +207,7 @@ const Coupons = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
 

@@ -14,6 +14,7 @@ import { handleApiError } from "../utils/apiErrorHandler";
 import { formatDate } from '../utils/dateUtils';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import NoData from "../includes/NoData";
 
 const Admin = () => {
     const [admins, setAdmins] = useState([]);
@@ -168,7 +169,7 @@ const Admin = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
 

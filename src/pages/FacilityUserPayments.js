@@ -7,6 +7,7 @@ import {
 import Spinner from "../includes/Spinner";
 import { Search as SearchIcon, CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import useDebounce from "../hooks/useDebounce";
+import NoData from "../includes/NoData";
 
 const FacilityUserPayments = () => {
     const [payments, setPayments] = useState([]);
@@ -104,7 +105,7 @@ const FacilityUserPayments = () => {
                         />
                     </TableContainer>
                 ) : (
-                    <Typography variant="body1" align="center">No Data Available</Typography>
+                    <NoData />
                 )
             )}
         </>

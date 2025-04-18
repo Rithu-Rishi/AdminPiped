@@ -15,6 +15,7 @@ import AlertMessage from "../includes/AlertMessage";
 import Spinner from "../includes/Spinner";
 import { handleApiError } from "../utils/apiErrorHandler";
 import { formatDate } from '../utils/dateUtils';
+import NoData from "../includes/NoData";
 
 const WorkShop = () => {
   const [workshops, setWorkshops] = useState([]);
@@ -182,7 +183,7 @@ const WorkShop = () => {
             </Table>
           </TableContainer>
         ) : (
-          <Typography variant="body1" align="center">No Data Available</Typography>
+          <NoData />
         )
       )}
 

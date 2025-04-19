@@ -17,7 +17,7 @@ const FacilityPaymentPlans = () => {
     const [plans, setPlans] = useState([]);
     const [formData, setFormData] = useState({
         plans: [
-            { duration_months: "", amount: "", discount_percent: "", inital_kit_amount: "", final_amount: "" }
+            { duration_months: "", amount: "", discount_percent: 0, inital_kit_amount: "", final_amount: "" }
         ]
     });
     const [editId, setEditId] = useState(null);
@@ -49,7 +49,7 @@ const FacilityPaymentPlans = () => {
             setFormData({ plans: [{ ...plan }] });
             setEditId(plan.id);
         } else {
-            setFormData({ plans: [{ duration_months: "", amount: "", discount_percent: "", inital_kit_amount: "", final_amount: "" }] });
+            setFormData({ plans: [{ duration_months: "", amount: "", discount_percent: 0, inital_kit_amount: "", final_amount: "" }] });
             setEditId(null);
         }
         setFormModalOpen(true);
@@ -71,7 +71,7 @@ const FacilityPaymentPlans = () => {
 
     const addRow = () => {
         setFormData({
-            plans: [...formData.plans, { duration_months: "", amount: "", discount_percent: "", inital_kit_amount: "", final_amount: "" }]
+            plans: [...formData.plans, { duration_months: "", amount: "", discount_percent: 0, inital_kit_amount: "", final_amount: "" }]
         });
     };
 

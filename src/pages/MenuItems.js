@@ -97,6 +97,9 @@ const MenuItems = () => {
     }, [calculateTotal]);
 
     const handleApproveItems = async () => {
+        if (selectedChild == null) {
+            return setAlertMessage({ open: true, type: "error", message: "Please select a child!" });
+        }
         if (calculateTotal() < 500) {
             try {
                 setLoading(true);
@@ -117,6 +120,7 @@ const MenuItems = () => {
                 setSelectedChild(null);
             } catch (error) {
                 handleApiError(error, setAlertMessage);
+                setLoading(false);
             }
         } else {
             setShowModal(true);

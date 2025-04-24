@@ -33,6 +33,7 @@ import HelpSupport from "./pages/HelpSupport";
 import TeacherFeedback from "./pages/TeacherFeedback";
 import Attendance from "./pages/Attendance";
 import Unauthorized from "./pages/Unauthorized";
+import WalletTransactions from "./pages/WalletTransactions";
 
 const AppRouter = () => {
     return (
@@ -71,6 +72,7 @@ const AppRouter = () => {
                     <Route path="/helpSupport" element={<HelpSupport />} />
                     <Route path="/teacherFeecback" element={<TeacherFeedback />} />
                     <Route path="/attendance" element={<Attendance />} />
+                    <Route path="/wallet-transactions" element={<WalletTransactions />} />
                 </Route>
             </Route>
             {/* Cafeteria Protected Route */}

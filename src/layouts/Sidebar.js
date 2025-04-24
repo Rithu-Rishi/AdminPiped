@@ -25,6 +25,7 @@ import FoodBankOutlinedIcon from '@mui/icons-material/FoodBankOutlined';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import WalletOutlinedIcon from '@mui/icons-material/WalletOutlined';
 
 const Sidebar = () => {
   const [open, setOpen] = React.useState(false);
@@ -273,6 +274,14 @@ const Sidebar = () => {
                   <AllOutOutlinedIcon />
                 </ListItemIcon>
                 <ListItemText className='text_items' primary="Program Subscriptions" />
+              </ListItemButton>
+            </Link>
+            <Link to='/wallet-transactions'>
+              <ListItemButton className='single_item'>
+                <ListItemIcon className='icon_items'>
+                  <WalletOutlinedIcon />
+                </ListItemIcon>
+                <ListItemText className='text_items' primary="Wallet Transactions" />
               </ListItemButton>
             </Link>
             <Link to='/cafeteria'>

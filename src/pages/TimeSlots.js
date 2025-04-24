@@ -30,7 +30,7 @@ const TimeSlots = () => {
   const [teachers, setTeachers] = useState([]);
   const [formData, setFormData] = useState({
     program_id: "", focus_id: "", skill_level_id: "", week_days: [],
-    time_ranges: [{ start_time: null, end_time: null, available_slots: "", teacher_id: "" }]
+    time_ranges: [{ start_time: null, end_time: null, available_slots: "", teacher_id: "", booked_slots: 0 }]
   });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
@@ -129,7 +129,7 @@ const TimeSlots = () => {
   const handleAddTimeRange = () => {
     setFormData({
       ...formData,
-      time_ranges: [...formData.time_ranges, { start_time: null, end_time: null, available_slots: "", teacher_id: "" }]
+      time_ranges: [...formData.time_ranges, { start_time: null, end_time: null, available_slots: "", teacher_id: "", booked_slots: 0 }]
     });
   };
 
@@ -152,7 +152,7 @@ const TimeSlots = () => {
   const openFormModal = async (row = null) => {
     if (row) {
       await fetchSubProgramFocus(row.program_id);
-      await fetchSkillLevels(row.program_id);
+      await fetchSkillLevels(row.focus_id || row.program_id);
 
       setFormData({
         program_id: row.program_id || "",
@@ -164,14 +164,15 @@ const TimeSlots = () => {
             ...range,
             start_time: parseTime(range.start_time),
             end_time: parseTime(range.end_time),
+            booked_slots: range.booked_slots ?? 0
           }))
-          : [{ start_time: null, end_time: null, available_slots: "", teacher_id: "" }]
+          : [{ start_time: null, end_time: null, available_slots: "", teacher_id: "", booked_slots: 0 }]
       });
       setEditId(row.id);
     } else {
       setFormData({
         program_id: "", focus_id: "", skill_level_id: "", week_days: [],
-        time_ranges: [{ start_time: null, end_time: null, available_slots: "", teacher_id: "" }]
+        time_ranges: [{ start_time: null, end_time: null, available_slots: "", teacher_id: "", booked_slots: 0 }]
       });
       setEditId(null);
     }
@@ -205,7 +206,8 @@ const TimeSlots = () => {
       start_time: formatTime(range.start_time),
       end_time: formatTime(range.end_time),
       available_slots: range.available_slots,
-      teacher_id: range.teacher_id
+      teacher_id: range.teacher_id,
+      booked_slots: editId ? range.booked_slots : 0,
     }));
     const payload = { ...formData, time_ranges: formattedRanges };
     setLoading(true);

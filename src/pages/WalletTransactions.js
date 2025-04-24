@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination,
-    Paper, TextField, MenuItem, Button, InputAdornment
+    Paper, TextField, MenuItem, Button
 } from "@mui/material";
-import { Search as SearchIcon } from "@mui/icons-material";
+import { Search as SearchIcon, CalendarMonth as CalendarMonthIcon } from "@mui/icons-material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
@@ -59,38 +59,65 @@ const WalletTransactions = () => {
 
     return (
         <>
-            <div className='d-flex justify-content-between align-items-center mb-2'>
+            <div className='mb-2'>
                 <h5 className="mb-0">Wallet Transactions</h5>
             </div>
 
             <div className='d-flex gap-2 align-items-center mb-3'>
                 <TextField
+                style={{ maxWidth: "180px" }}
                     size="small" label="User ID" value={filters.user_id}
                     onChange={(e) => handleFilterChange("user_id", e.target.value)}
                 />
                 <TextField
                     select
-                    size="small" label="Type"
+                    size="small" label="Type" style={{ minWidth: 100 }}
                     value={filters.transaction_type}
                     onChange={(e) => handleFilterChange("transaction_type", e.target.value)}
                 >
-                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="all">All</MenuItem>
                     <MenuItem value="credit">Credit</MenuItem>
                     <MenuItem value="debit">Debit</MenuItem>
                 </TextField>
-                <DatePicker
-                    selected={filters.start_date}
-                    onChange={(date) => handleFilterChange("start_date", date)}
-                    className="form-control"
-                    dateFormat="yyyy-MM-dd"
-                />
-                <DatePicker
-                    selected={filters.end_date}
-                    onChange={(date) => handleFilterChange("end_date", date)}
-                    className="form-control"
-                    dateFormat="yyyy-MM-dd"
-                />
-                <Button size="small" variant="contained" onClick={handleSearch} startIcon={<SearchIcon />}>Search</Button>
+                <div className="position-relative" style={{ maxWidth: "160px" }}>
+                    <DatePicker
+                        selected={filters.start_date}
+                        onChange={(date) => handleFilterChange("start_date", date)}
+                        className="form-control form-control-lg fs-16 rounded-1"
+                        dateFormat="yyyy-MM-dd"
+                    />
+                    <span
+                        className="position-absolute"
+                        style={{
+                            right: "10px",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            pointerEvents: "none",
+                        }}
+                    >
+                        <CalendarMonthIcon />
+                    </span>
+                </div>
+                <div className="position-relative" style={{ maxWidth: "160px" }}>
+                    <DatePicker
+                        selected={filters.end_date}
+                        onChange={(date) => handleFilterChange("end_date", date)}
+                        className="form-control form-control-lg fs-16 rounded-1"
+                        dateFormat="yyyy-MM-dd"
+                    />
+                    <span
+                        className="position-absolute"
+                        style={{
+                            right: "10px",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            pointerEvents: "none",
+                        }}
+                    >
+                        <CalendarMonthIcon />
+                    </span>
+                </div>
+                <Button size="" variant="contained" onClick={handleSearch} startIcon={<SearchIcon />}>Search</Button>
             </div>
 
             {loading ? <Spinner loading={loading} /> : (

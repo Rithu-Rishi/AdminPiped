@@ -137,7 +137,7 @@ const WalletTransactions = () => {
                                     <TableCell>{dayjs(txn.date).format("DD MMM YYYY, hh:mm A")}</TableCell>
                                     <TableCell>{txn.transaction_type}</TableCell>
                                     <TableCell className={txn.transaction_type === 'credit' ? 'text-success' : 'text-danger'}>
-                                        ₹ {txn.amount.toFixed(2)}
+                                        ₹ {txn.amount}
                                     </TableCell>
                                     <TableCell>{txn.description}</TableCell>
                                 </TableRow>

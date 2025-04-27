@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { CalendarMonth as CalendarMonthIcon } from "@mui/icons-material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getAttendanceRecords } from '../services/attendanceApi';
@@ -93,7 +94,7 @@ const Attendance = () => {
         <Box>
             <Typography variant="h5" className="mb-3">Attendance Records</Typography>
 
-            <Box className="d-flex gap-3 mb-3">
+            <Box className="d-flex gap-2 justify-content-end mb-3">
                 <FormControl size="small" style={{ minWidth: 200 }}>
                     <InputLabel>Select Program</InputLabel>
                     <Select
@@ -130,22 +131,46 @@ const Attendance = () => {
                     value={filters.child_id}
                     onChange={(e) => setFilters({ ...filters, child_id: e.target.value })}
                 /> */}
-
-                <DatePicker
-                    selected={filters.from_date}
-                    onChange={(date) => setFilters({ ...filters, from_date: date })}
-                    dateFormat="dd MMM, yyyy"
-                    placeholderText="From Date"
-                    className="form-control"
-                />
-
-                <DatePicker
-                    selected={filters.to_date}
-                    onChange={(date) => setFilters({ ...filters, to_date: date })}
-                    dateFormat="dd MMM, yyyy"
-                    placeholderText="To Date"
-                    className="form-control"
-                />
+                <div className="position-relative" style={{ maxWidth: "200px" }}>
+                    <DatePicker
+                        selected={filters.from_date}
+                        onChange={(date) => setFilters({ ...filters, from_date: date })}
+                        dateFormat="dd MMM, yyyy"
+                        placeholderText="From Date"
+                        className="form-control"
+                    />
+                    <span
+                        className="position-absolute"
+                        style={{
+                            right: "10px",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            pointerEvents: "none",
+                        }}
+                    >
+                        <CalendarMonthIcon />
+                    </span>
+                </div>
+                <div className="position-relative" style={{ maxWidth: "200px" }}>
+                    <DatePicker
+                        selected={filters.to_date}
+                        onChange={(date) => setFilters({ ...filters, to_date: date })}
+                        dateFormat="dd MMM, yyyy"
+                        placeholderText="To Date"
+                        className="form-control"
+                    />
+                    <span
+                        className="position-absolute"
+                        style={{
+                            right: "10px",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            pointerEvents: "none",
+                        }}
+                    >
+                        <CalendarMonthIcon />
+                    </span>
+                </div>
             </Box>
 
             {loading ? <Spinner loading={loading} /> : (

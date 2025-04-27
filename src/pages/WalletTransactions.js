@@ -63,15 +63,15 @@ const WalletTransactions = () => {
                 <h5 className="mb-0">Wallet Transactions</h5>
             </div>
 
-            <div className='d-flex gap-2 align-items-center mb-3'>
-                <TextField
+            <div className='d-flex gap-2 justify-content-end mb-3'>
+                {/* <TextField
                 style={{ maxWidth: "180px" }}
                     size="small" label="User ID" value={filters.user_id}
                     onChange={(e) => handleFilterChange("user_id", e.target.value)}
-                />
+                /> */}
                 <TextField
                     select
-                    size="small" label="Type" style={{ minWidth: 100 }}
+                    size="small" label="Type" style={{ minWidth: 150 }}
                     value={filters.transaction_type}
                     onChange={(e) => handleFilterChange("transaction_type", e.target.value)}
                 >

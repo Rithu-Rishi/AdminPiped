@@ -256,6 +256,29 @@ const Dashboard = () => {
                 </Card.Body>
               </Card>
             </Col>
+
+            {/* Total Wallet */}
+            <Col>
+              <Card className="Cards border_info mb-3">
+                <Card.Body>
+                  <div className="d-flex align-items-center mb-3">
+                    <div className="rounded-2 bg-opacity-25 bg-info p-2 me-3">
+                      <span className="text-info">
+                        <AddCardIcon />
+                      </span>
+                    </div>
+                    <h4 className="mb-0">{dashboardData?.wallet_activity.total_recharges}</h4>
+                  </div>
+                  <Card.Title>Total Wallet</Card.Title>
+                  <Card.Text>
+                    {/* <span className={`fw-600 ${getGrowthColor(dashboardData?.total_amount.percentage.value)}`}>
+                      {dashboardData?.total_amount.percentage.value}%
+                    </span>{" "} */}
+                    Total Wallet Amount
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
           </Row>
           {/* Line Chart */}
           <Row className="mt-4">

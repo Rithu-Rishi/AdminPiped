@@ -175,7 +175,7 @@ const ChildList = () => {
                   <TableCell>Parent</TableCell>
                   <TableCell>Gender</TableCell>
                   <TableCell>Date of Birth</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  {/* <TableCell align="center">Actions</TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -185,17 +185,17 @@ const ChildList = () => {
                     <TableCell>{row.user.name}</TableCell>
                     <TableCell><span className={`px-3 py-1 rounded-1 bg-opacity-10 ${row.gender === 'Male' ? 'bg-success text-success' : 'bg-danger text-danger'}`}>{row.gender}</span></TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
-                    <TableCell align="center">
+                    {/* <TableCell align="center">
                       <DropdownButton
                         align="end"
                         title={<Menu />}
                         size='sm'
                         className="custom_dropdown"
                       >
-                        {/* <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item> */}
+                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
                         <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(row)}>Delete</Dropdown.Item>
                       </DropdownButton>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>

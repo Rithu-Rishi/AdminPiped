@@ -166,7 +166,7 @@ const ParentsList = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Mobile</TableCell>
                   <TableCell>DOB</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  {/* <TableCell align="center">Actions</TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -192,17 +192,17 @@ const ParentsList = () => {
                     </TableCell>
                     <TableCell>{row.mobile_number || 'N/A'}</TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
-                    <TableCell align="center">
+                    {/* <TableCell align="center">
                       <DropdownButton
                         align="end"
                         title={<Menu />}
                         size='sm'
                         className="custom_dropdown"
                       >
-                        {/* <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item> */}
+                        <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
                         <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(row)}>Delete</Dropdown.Item>
                       </DropdownButton>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>

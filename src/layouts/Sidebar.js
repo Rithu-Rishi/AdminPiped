@@ -35,7 +35,6 @@ const Sidebar = () => {
   const [openConteen, setOpenCOnteen] = React.useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const role = localStorage.getItem("role");
-  console.log("role ", role);
 
   const handleClick = () => {
     setOpen(!open);

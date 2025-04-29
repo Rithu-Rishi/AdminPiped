@@ -44,7 +44,6 @@ const ProgramSkill = () => {
     setLoading(true);
     try {
       const response = await getAllSkillLevels({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-      console.log("skill level", response.data);
       setSkillLevels(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
@@ -65,7 +64,6 @@ const ProgramSkill = () => {
   const fetchSubProgramFocus = async (programId) => {
     try {
       const response = await getSubProgramFocus(programId);
-      console.log("focus ", response);
       setSubFocus(response.sub_programs[0]['images'] || []);
     } catch (err) {
       console.error("Failed to fetch skill levels.");
@@ -132,10 +130,7 @@ const ProgramSkill = () => {
         await updateSkillLevels(editId, formData.skills[0]);
         setAlertMessage({ open: true, type: "success", message: "Skill updated successfully!" });
       } else {
-        console.log(formData);
         const updatedSkills = formData.skills.map(skill => ({ ...skill, program_id: formData.program_id, focus_id: formData.focus_id }));
-        console.log({ skills: updatedSkills });
-        console.log(updatedSkills);
         await addSkillLevels({ skills: updatedSkills });
         setAlertMessage({ open: true, type: "success", message: "Program Created successfully!" });
       }

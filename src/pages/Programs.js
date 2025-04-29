@@ -45,7 +45,6 @@ const Programs = () => {
       const response = await getAllPrograms({
         page: page + 1, per_page: rowsPerPage, search: debouncedSearch
       });
-      console.log("program", response);
       setPrograms(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {

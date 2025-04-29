@@ -37,7 +37,6 @@ const TeacherFeedback = () => {
         setLoading(true);
         try {
             const response = await getTeacherFeedbacks();
-            console.log("respson ", response);
             setFeedbacks(response.data);
         } catch (error) {
             setAlertMessage({ open: true, type: 'error', message: 'Failed to fetch feedbacks.' });

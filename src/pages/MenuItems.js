@@ -45,7 +45,6 @@ const MenuItems = () => {
         setLoading(true);
         try {
             const response = await getCafeteriaItems();
-            console.log("items,", response);
             setMenuItems(response.data);
             setLoading(false);
         } catch (error) {
@@ -126,8 +125,6 @@ const MenuItems = () => {
             setShowModal(true);
         }
     };
-
-    console.log("Selected Child:", selectedChild);
 
     return (
         <div>

@@ -40,7 +40,6 @@ const PaymentPlan = () => {
         setLoading(true);
         try {
             const response = await getAllPaymentPlans({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-            console.log("payment plan ", response);
             setPlans(response.data || []);
             setTotalCount(response.total || 0);
         } catch (err) {

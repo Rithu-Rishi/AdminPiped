@@ -6,7 +6,6 @@ const BASE_URL = "/api/wallet/purchase";
 export const purchaseItem = async (formData) => {
   try {
     const response = await API.post(BASE_URL, formData);
-    console.log(response.data);
     return response.data;
 
   } catch (error) {

@@ -39,7 +39,6 @@ const Admin = () => {
         setLoading(true);
         try {
             const response = await getAllAdmins({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-            console.log(response);
             setAdmins(response.data);
             setTotalCount(response.total);
         } catch (err) {

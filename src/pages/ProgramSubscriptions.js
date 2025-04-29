@@ -27,7 +27,6 @@ const ProgramSubscriptions = () => {
         setLoading(true);
         try {
             const response = await getProgramSubscriptions({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-            console.log(response.data);
             setSubscriptions(response.data || []);
             setTotalCount(response.total || 0);
         } catch (err) {

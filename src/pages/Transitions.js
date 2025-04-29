@@ -27,7 +27,6 @@ const Transitions = () => {
         setLoading(true);
         try {
             const response = await getProgramTransactions({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-            console.log("data ", response);
             setTransitions(response.data || []);
             setTotalCount(response.total || 0);
         } catch (err) {

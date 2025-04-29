@@ -57,7 +57,6 @@ const AssignTeachers = () => {
     setLoading(true);
     try {
       const response = await getDropDownAllTeachers();
-      console.log("teachers in assign", response);
       setTeachers(response.data || []);
     } catch (err) {
       console.error("Failed to fetch teachers.");
@@ -69,7 +68,6 @@ const AssignTeachers = () => {
     setLoading(true);
     try {
       const response = await getProgramsWithTeachers({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-      console.log("teachers data ", response);
       setAssignments(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {

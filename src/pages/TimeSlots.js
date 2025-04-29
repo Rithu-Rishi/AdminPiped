@@ -54,7 +54,6 @@ const TimeSlots = () => {
     setLoading(true);
     try {
       const response = await getAllTimeSlots({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-      console.log("time slots ", response);
       setTimeSlots(response.data || []);
       setTotalCount(response.total || 0);
       // Reset page if out of range
@@ -88,7 +87,6 @@ const TimeSlots = () => {
   const fetchSubProgramFocus = async (programId) => {
     try {
       const response = await getSubProgramFocus(programId);
-      console.log("focus ", response);
       setSubFocus(response.sub_programs[0]['images'] || []);
     } catch (err) {
       console.error("Failed to fetch skill levels.");
@@ -98,7 +96,6 @@ const TimeSlots = () => {
   const fetchSkillLevels = async (programId, subProgramId = null) => {
     try {
       const response = await getSkillLevels(programId, subProgramId);
-      console.log("sdags", response);
       if (subProgramId === null) {
         setSkillLevels(response.program_skill_levels || []);
       } else {

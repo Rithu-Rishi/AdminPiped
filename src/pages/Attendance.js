@@ -72,7 +72,6 @@ const Attendance = () => {
                 page: page + 1,
                 per_page: rowsPerPage
             });
-            console.log("attendance ", response);
             setAttendanceData(response.data || []);
             setTotalCount(response.total || 0);
         } catch (err) {

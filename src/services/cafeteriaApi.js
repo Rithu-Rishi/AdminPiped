@@ -131,7 +131,6 @@ export const getItemStockHistory = async ({ page = 1 }) => {
 export const purchaseItem = async (formData) => {
   try {
     const response = await API.post(`${BASE_URL}/purchase`, formData);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error purchasing item", error);

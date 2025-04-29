@@ -19,7 +19,7 @@ const SubPrograms = () => {
   const [subPrograms, setSubPrograms] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [formData, setFormData] = useState({
-    program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [], deleted_images: []
+    program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [], deleted_images: [], updated_images: []
   });
   const [editId, setEditId] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
@@ -42,7 +42,6 @@ const SubPrograms = () => {
     setLoading(true);
     try {
       const response = await getAllSubPrograms({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-      console.log("sub program ", response.data);
       setSubPrograms(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
@@ -54,7 +53,6 @@ const SubPrograms = () => {
   const fetchPrograms = async () => {
     try {
       const response = await getDropDownPrograms();
-      console.log("programs drop down ", response.data);
       setPrograms(response.data || []);
     } catch (err) {
       console.error("Failed to fetch programs.");
@@ -106,17 +104,26 @@ const SubPrograms = () => {
         payload.append("program_id", formData.program_id);
         payload.append("sub_title", formData.sub_title);
         payload.append("keywords", formData.keywords);
-
+        debugger
         // Filter and send only NEWLY uploaded images
         formData.images.forEach((img, index) => {
           if (img instanceof File) {
-            // Only send new image files
             payload.append("images[]", img);
             payload.append("image_titles[]", formData.image_titles[index]);
             payload.append("image_colors[]", formData.image_colors[index]);
           }
         });
 
+        if (Array.isArray(formData.updated_images) && formData.updated_images.length > 0) {
+          formData.updated_images.forEach((img, index) => {
+            payload.append(`updated_images[${index}][id]`, img.id);
+            payload.append(`updated_images[${index}][title]`, img.title);
+            payload.append(`updated_images[${index}][color_code]`, img.color_code);
+            if (img.file) {
+              payload.append(`updated_images[${index}][file]`, img.file);
+            }
+          });
+        }
         if (formData.deleted_images.length > 0) {
           formData.deleted_images.forEach((imageId) => payload.append("deleted_images[]", imageId));
         }
@@ -137,8 +144,13 @@ const SubPrograms = () => {
 
   const openFormModal = (subProgram = null) => {
     if (subProgram) {
-      console.log(subProgram);
-      console.log(subProgram.images);
+      const existingUpdatedImages = (subProgram.images || []).map((img) => ({
+        id: img.id,
+        title: img.title || "",
+        color_code: img.color_code || "",
+        file: null, // Existing images have no new file yet
+      }));
+
       setFormData({
         program_id: subProgram.program_id,
         sub_title: subProgram.sub_title,
@@ -146,12 +158,13 @@ const SubPrograms = () => {
         images: subProgram.images || [],
         image_titles: subProgram.images?.map(img => img.title || ""),
         image_colors: subProgram.images?.map(img => img.color_code || ""),
-        deleted_images: []
+        deleted_images: [],
+        updated_images: existingUpdatedImages
       });
-      console.log(formData.images);
+      
       setEditId(subProgram.id);
     } else {
-      setFormData({ program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [], deleted_images: [] });
+      setFormData({ program_id: "", sub_title: "", keywords: "", images: [], image_titles: [], image_colors: [], deleted_images: [], updated_images: [] });
       setEditId(null);
     }
     setFormModalOpen(true);
@@ -173,6 +186,12 @@ const SubPrograms = () => {
 
   const handleNewImageUpload = (event) => {
     const files = Array.from(event.target.files);
+    const validFiles = files.filter(file => file.size <= 2 * 1024 * 1024);
+
+    if (validFiles.length !== files.length) {
+      setAlertMessage({ open: true, type: "error", message: "Only images below 2MB are allowed." });
+    }
+
     setFormData((prevData) => ({
       ...prevData,
       images: [...prevData.images, ...files]
@@ -199,7 +218,7 @@ const SubPrograms = () => {
               ),
             }}
           />
-          <Button  variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
+          <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Sub Program
           </Button>
         </div>
@@ -291,17 +310,33 @@ const SubPrograms = () => {
             <input type="file" className="mt-3 rounded-2 border w-100 p-2 " multiple accept="image/*" onChange={handleNewImageUpload} />
             <div className="form-text text-warning fs-10">&#128712; * (Allow only below 2MB size)</div>
             {formData.images.map((img, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mt:2 }}>
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
                 <img src={typeof img.path === 'string' ? `${IMAGE_BASE_URL}${img.path}` : URL.createObjectURL(img)} alt="Preview" className="rounded-3" width="40" height="40" />
                 <TextField label="Image Title" size="small" value={formData.image_titles[index] || ""} onChange={(e) => {
                   const updatedTitles = [...formData.image_titles];
                   updatedTitles[index] = e.target.value;
-                  setFormData({ ...formData, image_titles: updatedTitles });
+                  const updatedImages = [...formData.updated_images];
+                  if (updatedImages[index]) {
+                    updatedImages[index].title = e.target.value;
+                  }
+                  setFormData(prev => ({
+                    ...prev,
+                    image_titles: updatedTitles,
+                    updated_images: updatedImages,
+                  }));
                 }} fullWidth required />
                 <TextField label="Image Color" type="color" size="small" value={formData.image_colors[index] || ""} onChange={(e) => {
                   const updatedColors = [...formData.image_colors];
                   updatedColors[index] = e.target.value;
-                  setFormData({ ...formData, image_colors: updatedColors });
+                  const updatedImages = [...formData.updated_images];
+                  if (updatedImages[index]) {
+                    updatedImages[index].color_code = e.target.value;
+                  }
+                  setFormData(prev => ({
+                    ...prev,
+                    image_colors: updatedColors,
+                    updated_images: updatedImages,
+                  }));
                 }} fullWidth required />
                 <IconButton color="error" onClick={() => handleRemoveImage(index, img.id)}>
                   <CloseIcon />

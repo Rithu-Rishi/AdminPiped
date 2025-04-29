@@ -47,7 +47,6 @@ const Teacher = () => {
     setLoading(true);
     try {
       const response = await getAllTeachers({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-      console.log("teachers ", response);
       setTeachers(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
@@ -76,7 +75,6 @@ const Teacher = () => {
   const handleDelete = async () => {
     setLoading(true);
     const response = await deleteTeacher(selectedRow.id);
-    console.log(response);
     if (response) {
       setAlertMessage({ open: true, type: "success", message: response.message });
     }

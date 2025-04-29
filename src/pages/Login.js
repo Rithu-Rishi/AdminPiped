@@ -22,7 +22,6 @@ function Login() {
 
       // Step 2: Make login request
       const response = await API.post("/api/admin-login", { email, password });
-      console.log(response);
       if (response.data.token) {
         // Step 3: Store Token and Set Authorization Header
         setAuthToken(response.data.token);

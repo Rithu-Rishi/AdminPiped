@@ -42,9 +42,7 @@ const UserBookings = () => {
         setLoading(true);
         try {
             const response = await getBookingDetails(bookingId);
-            console.log("response ", response);
             setBookingDetails(response);
-            console.log("details ", bookingDetails);
             setDetailModalOpen(true);
         } catch (err) {
             console.error("Failed to fetch booking details.");

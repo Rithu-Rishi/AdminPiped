@@ -45,7 +45,6 @@ const SkillProgression = () => {
     setLoading(true);
     try {
       const response = await getAllSkillProgressions({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
-      console.log("skill progression ", response);
       setProgressions(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
@@ -66,7 +65,6 @@ const SkillProgression = () => {
   const fetchSubProgramFocus = async (programId) => {
     try {
       const response = await getSubProgramFocus(programId);
-      console.log("focus ", response);
       setSubFocus(response.sub_programs[0]['images'] || []);
     } catch (err) {
       console.error("Failed to fetch skill levels.");
@@ -151,7 +149,6 @@ const SkillProgression = () => {
   // Handle Create/Edit Submit
   const handleSubmit = async () => {
     setLoading(true);
-    console.log("before submit", formData);
     try {
       if (editId) {
         await updateSkillProgression(editId, formData);

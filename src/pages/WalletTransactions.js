@@ -126,6 +126,7 @@ const WalletTransactions = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Date</TableCell>
+                                <TableCell>Parent Name</TableCell>
                                 <TableCell>Type</TableCell>
                                 <TableCell>Amount</TableCell>
                                 <TableCell>Description</TableCell>
@@ -135,6 +136,7 @@ const WalletTransactions = () => {
                             {transactions.map((txn, idx) => (
                                 <TableRow key={idx}>
                                     <TableCell>{dayjs(txn.date).format("DD MMM YYYY, hh:mm A")}</TableCell>
+                                    <TableCell>{txn.wallet.user.name}</TableCell>
                                     <TableCell>{txn.transaction_type}</TableCell>
                                     <TableCell className={txn.transaction_type === 'credit' ? 'text-success' : 'text-danger'}>
                                         ₹ {txn.amount}

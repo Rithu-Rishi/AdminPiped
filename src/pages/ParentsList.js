@@ -17,6 +17,7 @@ import NoData from "../includes/NoData";
 const ParentsList = () => {
   const [parents, setParents] = useState([]);
   const [formData, setFormData] = useState({
+    id: "",
     name: "",
     email: "",
     mobile_number: "",
@@ -62,24 +63,25 @@ const ParentsList = () => {
     setLoading(false);
   };
 
-  // const openFormModal = (parent = null) => {
-  //   if (parent) {
-  //     setFormData({
-  //       name: parent.name || "",
-  //       email: parent.email || "",
-  //       mobile_number: parent.mobile_number || "",
-  //       date_of_birth: parent.date_of_birth || "",
-  //       profile_image: null
-  //     });
-  //     setPreviewImage(parent.profile_image);
-  //     setEditId(parent.user_id);
-  //   } else {
-  //     setFormData({ name: "", email: "", mobile_number: "", date_of_birth: "", profile_image: null });
-  //     setPreviewImage(null);
-  //     setEditId(null);
-  //   }
-  //   setFormModalOpen(true);
-  // };
+  const openFormModal = (parent = null) => {
+    if (parent) {
+      setFormData({
+        id: parent.user_id,
+        name: parent.name || "",
+        email: parent.email || "",
+        mobile_number: parent.mobile_number || "",
+        date_of_birth: parent.date_of_birth || "",
+        profile_image: null
+      });
+      setPreviewImage(parent.profile_image);
+      setEditId(parent.user_id);
+    } else {
+      setFormData({ name: "", email: "", mobile_number: "", date_of_birth: "", profile_image: null });
+      setPreviewImage(null);
+      setEditId(null);
+    }
+    setFormModalOpen(true);
+  };
 
   // Handle Input Change in Form
   const handleChange = (e) => {
@@ -97,7 +99,7 @@ const ParentsList = () => {
     setLoading(true);
     try {
       if (editId) {
-        await updateParent(editId, formData);
+        await updateParent(formData.id, formData);
       } else {
         await addParent(formData);
       }
@@ -166,7 +168,7 @@ const ParentsList = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Mobile</TableCell>
                   <TableCell>DOB</TableCell>
-                  {/* <TableCell align="center">Actions</TableCell> */}
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -192,7 +194,7 @@ const ParentsList = () => {
                     </TableCell>
                     <TableCell>{row.mobile_number || 'N/A'}</TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
-                    {/* <TableCell align="center">
+                    <TableCell align="center">
                       <DropdownButton
                         align="end"
                         title={<Menu />}
@@ -200,9 +202,9 @@ const ParentsList = () => {
                         className="custom_dropdown"
                       >
                         <Dropdown.Item size="small" className="fs-14" onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
-                        <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(row)}>Delete</Dropdown.Item>
+                        {/* <Dropdown.Item className="text-danger fs-14" size="small" onClick={() => openDeleteModal(row)}>Delete</Dropdown.Item> */}
                       </DropdownButton>
-                    </TableCell> */}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -252,14 +254,14 @@ const ParentsList = () => {
           <Typography variant="h6" className="custom_heading_modal" gutterBottom>{editId ? 'Edit Parent' : 'Create Parent'}</Typography>
           <Box className="modal_body bg-white p-3" component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box className='d-flex' sx={{ gap: 2 }}>
-              <TextField size="small" label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth />
+              <TextField size="small" label="Name" disabled name="name" value={formData.name} onChange={handleChange} fullWidth />
               <TextField size="small" label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth />
             </Box>
             <Box className='d-flex' sx={{ gap: 2 }}>
-              <TextField size="small" label="Mobile Number" name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth />
-              <TextField size="small" label="Date of Birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth />
+              <TextField size="small" label="Mobile Number" disabled name="mobile_number" value={formData.mobile_number} onChange={handleChange} fullWidth />
+              <TextField size="small" label="Date of Birth" disabled name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} fullWidth />
             </Box>
-            <input type="file" className="border p-2 rounded-2" accept="image/*" onChange={handleFileChange} />
+            <input type="file" className="border p-2 rounded-2" accept="image/*" disabled onChange={handleFileChange} />
             {previewImage && <img src={previewImage} alt="Profile Preview" width="100" height="100" style={{ marginTop: 10 }} />}
           </Box>
           <Box className="modal_footer text-end" sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>

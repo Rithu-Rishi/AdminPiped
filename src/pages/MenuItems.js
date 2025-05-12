@@ -135,7 +135,8 @@ const MenuItems = () => {
                     filterOptions={(options, state) =>
                         options.filter(option =>
                             option.child_name?.toLowerCase().includes(state.inputValue.toLowerCase()) ||
-                            option.code?.toLowerCase().includes(state.inputValue.toLowerCase())
+                            option.code?.toLowerCase().startsWith(state.inputValue.toLowerCase()) ||
+                            option.id?.toString().startsWith(state.inputValue)
                         )
                     }
                     value={selectedChild}
@@ -150,7 +151,7 @@ const MenuItems = () => {
                                 alt={option?.child_name || "No Name"}
                                 style={{ width: 30, height: 30, borderRadius: "50%", marginRight: 10 }}
                             />
-                            {option?.child_name || "No Child"}
+                            {option?.child_name || "No Child"} - ({option?.id})
                         </li>
                     )}
                     renderInput={(params) => (

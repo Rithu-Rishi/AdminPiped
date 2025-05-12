@@ -34,6 +34,7 @@ import TeacherFeedback from "./pages/TeacherFeedback";
 import Attendance from "./pages/Attendance";
 import Unauthorized from "./pages/Unauthorized";
 import WalletTransactions from "./pages/WalletTransactions";
+import DeviceAttendance from "./pages/DeviceAttendance";
 
 const AppRouter = () => {
     return (
@@ -73,6 +74,7 @@ const AppRouter = () => {
                     <Route path="/teacherFeecback" element={<TeacherFeedback />} />
                     <Route path="/attendance" element={<Attendance />} />
                     <Route path="/wallet-transactions" element={<WalletTransactions />} />
+                    <Route path="/device-attendance" element={<DeviceAttendance />} />
                 </Route>
             </Route>
             {/* Cafeteria Protected Route */}

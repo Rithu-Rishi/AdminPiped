@@ -175,6 +175,7 @@ const ChildList = () => {
                   <TableCell>Parent</TableCell>
                   <TableCell>Gender</TableCell>
                   <TableCell>Date of Birth</TableCell>
+                  <TableCell>Subscription</TableCell>
                   {/* <TableCell align="center">Actions</TableCell> */}
                 </TableRow>
               </TableHead>
@@ -185,6 +186,21 @@ const ChildList = () => {
                     <TableCell>{row.user.name}</TableCell>
                     <TableCell><span className={`px-3 py-1 rounded-1 bg-opacity-10 ${row.gender === 'Male' ? 'bg-success text-success' : 'bg-danger text-danger'}`}>{row.gender}</span></TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
+                    <TableCell>
+                      {row.facility_subscription?.length > 0 ? (() => {
+                        const endDate = new Date(row.facility_subscription[0].end_date);
+                        const isExpired = endDate < new Date();
+
+                        return (
+                          <span className={isExpired ? "text-danger fw-bold" : "text-success fw-bold"}>
+                            {formatDate(row.facility_subscription[0].end_date)}
+                            {isExpired ? " (Expired)" : ""}
+                          </span>
+                        );
+                      })() : (
+                        <span className="text-muted">No Subscription</span>
+                      )}
+                    </TableCell>
                     {/* <TableCell align="center">
                       <DropdownButton
                         align="end"

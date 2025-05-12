@@ -3,7 +3,7 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Button, Modal, Box, Typography, TextField, TablePagination, InputAdornment
 } from "@mui/material";
-import { Add as AddIcon, Search as SearchIcon,  MoreVert as Menu, } from "@mui/icons-material";
+import { Add as AddIcon, Search as SearchIcon, MoreVert as Menu, } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import {
@@ -156,6 +156,7 @@ const Admin = () => {
                             </TableBody>
                         </Table>
                         <TablePagination
+                            className="custom_pagination"
                             component="div"
                             count={totalCount}
                             page={page}

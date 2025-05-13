@@ -171,7 +171,9 @@ const ChildList = () => {
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
+                  <TableCell>Child Id</TableCell>
                   <TableCell>Child Name</TableCell>
+                  <TableCell>Code</TableCell>
                   <TableCell>Parent</TableCell>
                   <TableCell>Gender</TableCell>
                   <TableCell>Date of Birth</TableCell>
@@ -182,7 +184,9 @@ const ChildList = () => {
               <TableBody>
                 {children.map((row) => (
                   <TableRow key={row.id}>
+                    <TableCell>{row.id}</TableCell>
                     <TableCell><img src={row.profile_pic_url ? `${IMAGE_BASE_URL}${row.profile_pic_url}` : Child} alt={row.child_name} className="border border-2 rounded-1 p-1 me-1" width="40" height="40" />{row.child_name}</TableCell>
+                    <TableCell>{row.code}</TableCell>
                     <TableCell>{row.user.name}</TableCell>
                     <TableCell><span className={`px-3 py-1 rounded-1 bg-opacity-10 ${row.gender === 'Male' ? 'bg-success text-success' : 'bg-danger text-danger'}`}>{row.gender}</span></TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>

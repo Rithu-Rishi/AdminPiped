@@ -5,10 +5,10 @@
 
 // QA URLs
 
-// export const API_URL = "https://pipe.mosol9.in/pied-app";
-// export const IMAGE_BASE_URL = "https://pipe.mosol9.in/";  
+export const API_URL = "https://pipe.mosol9.in/pied-app";
+export const IMAGE_BASE_URL = "https://pipe.mosol9.in/";  
 
 // Live URLs
 
-export const API_URL = "https://thepiedpiper.app/pied-app";
-export const IMAGE_BASE_URL = "https://thepiedpiper.app/"; 
+// export const API_URL = "https://thepiedpiper.app/pied-app";
+// export const IMAGE_BASE_URL = "https://thepiedpiper.app/"; 

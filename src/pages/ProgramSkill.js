@@ -17,6 +17,7 @@ import { handleApiError } from "../utils/apiErrorHandler";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import NoData from "../includes/NoData";
+import ExportCSVButton from "../pages/ExportCSVButton";
 
 const ProgramSkill = () => {
   const [skillLevels, setSkillLevels] = useState([]);
@@ -154,6 +155,7 @@ const ProgramSkill = () => {
     setFormData({ ...formData, skills: updatedSkills });
   };
 
+
   return (
     <>
       {/* Table */}
@@ -177,6 +179,26 @@ const ProgramSkill = () => {
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Skill Level
           </Button>
+          <ExportCSVButton
+            fetchAllData={async () => {
+              const response = await getAllSkillLevels({ page: 1, per_page: 10000, search: "" });
+              return response.data || [];
+            }}
+            headers={[
+              "Program",
+              "Sub Program",
+              "Skill Name",
+              "Period"
+            ]}
+            rowMapper={row => [
+              row.program || "",
+              row.sub_program_focus || "",
+              row.skill_name || "",
+              row.skill_period + ' Months' || ""
+            ]}
+            fileName="Pogram Skill.csv"
+            onError={() => setAlertMessage({ open: true, type: "error", message: "Failed to fetch all Program Skill for export." })}
+          />
         </div>
       </div>
 

@@ -17,6 +17,7 @@ import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
 import { handleApiError } from "../utils/apiErrorHandler";
 import NoData from "../includes/NoData";
+import ExportCSVButton from "../pages/ExportCSVButton";
 
 const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
@@ -131,6 +132,8 @@ const Teacher = () => {
     setLoading(false);
   };
 
+
+
   return (
     <>
       {/* Table */}
@@ -140,7 +143,7 @@ const Teacher = () => {
         <div className='d-flex align-items-center gap-2'>
           <TextField className="search_icon"
             size="small" placeholder="Search..." value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setPage(0)}}
+            onChange={(e) => { setSearchTerm(e.target.value); setPage(0) }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -152,6 +155,36 @@ const Teacher = () => {
           <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Teacher
           </Button>
+          <ExportCSVButton
+            fetchAllData={async () => {
+              const response = await getAllTeachers({ page: 1, per_page: 10000, search: "" });
+              return response.data || [];
+            }}
+            headers={[
+              "Name",
+              "Email",
+              "Mobile Number",
+              "Date of Birth",
+              "Designation",
+              "Bio",
+              "Experiences",
+              "Awards",
+              "Certifications"
+            ]}
+            rowMapper={row => [
+              row.name || "",
+              row.email || "",
+              row.mobile_number || "",
+              row.date_of_birth || "",
+              row.designation || "",
+              row.bio || "",
+              row.experiences || "",
+              row.awards || "",
+              row.certifications || ""
+            ]}
+            fileName="teachers.csv"
+            onError={() => setAlertMessage({ open: true, type: "error", message: "Failed to fetch all teachers for export." })}
+          />
         </div>
       </div>
 

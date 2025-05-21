@@ -89,7 +89,7 @@ const UserBookings = () => {
                                     <TableCell>Skill Name</TableCell>
                                     <TableCell>Duration</TableCell>
                                     <TableCell>Transaction ID</TableCell>
-                                    <TableCell>Amount Paid</TableCell>
+                                    {/* <TableCell>Amount Paid</TableCell> */}
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -102,7 +102,7 @@ const UserBookings = () => {
                                         <TableCell>{booking.skill_level?.skill_name || "N/A"}</TableCell>
                                         <TableCell>{booking.payment_plan?.duration_months || "N/A"} Months</TableCell>
                                         <TableCell><span className="px-3 py-1 rounded-1 bg-opacity-10 bg-success text-success">{booking.transaction?.transaction_id || "N/A"}</span></TableCell>
-                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{booking.transaction?.amount_paid || "N/A"}</TableCell>
+                                        {/* <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{booking.transaction?.amount_paid || "N/A"}</TableCell> */}
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -169,7 +169,8 @@ const UserBookings = () => {
                                             <p><span>Payment Plan</span>: {bookingDetails.payment_plan?.duration_months || "N/A"} Months</p>
                                             <p><span>Transaction ID</span>: {bookingDetails.transaction?.transaction_id || "N/A"}</p>
                                             <p><span>Amount Paid</span>: <CurrencyRupeeIcon className="fs-14 text-black" />{bookingDetails.transaction?.amount_paid || "N/A"}</p>
-                                        </div>
+                                            <p><span>Coupon Code</span>: {bookingDetails.coupon?.coupon_code || "N/A"}</p>
+                                        </div> 
                                     </Col>
                                 </Row>
                                 <div className="section">

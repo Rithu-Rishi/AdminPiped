@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getProgramTransactions } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, TextField, InputAdornment
+    TablePagination, TextField, InputAdornment
 } from "@mui/material";
 import { CurrencyRupee as CurrencyRupeeIcon, Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
@@ -72,7 +72,7 @@ const Transitions = () => {
                                 {transactions.map((transaction) => (
                                     <TableRow key={transaction.id}>
                                         <TableCell>{transaction.parent?.name || "N/A"}</TableCell>
-                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{transaction.amount_paid || "N/A"}</TableCell>
+                                        <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{transaction.final_amount.toFixed(2) || "N/A"}</TableCell>
                                         <TableCell><span className="text-success">{transaction.payment_status || "N/A"}</span></TableCell>
                                         <TableCell>{formatDate(transaction.created_at) || "N/A"}</TableCell>
                                         <TableCell><span className="px-3 py-1 rounded-1 bg-opacity-10 bg-success text-success">{transaction.transaction_id || "N/A"}</span></TableCell>

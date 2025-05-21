@@ -181,7 +181,7 @@ const ProgramSkill = () => {
           </Button>
           <ExportCSVButton
             fetchAllData={async () => {
-              const response = await getAllSkillLevels({ page: 1, per_page: 10000, search: "" });
+              const response = await getAllSkillLevels({ page: 1, per_page: 10000, search: debouncedSearch });
               return response.data || [];
             }}
             headers={[
@@ -191,8 +191,8 @@ const ProgramSkill = () => {
               "Period"
             ]}
             rowMapper={row => [
-              row.program || "",
-              row.sub_program_focus || "",
+              row.program?.program_name || "",
+              row.sub_program_focus?.title || "",
               row.skill_name || "",
               row.skill_period + ' Months' || ""
             ]}

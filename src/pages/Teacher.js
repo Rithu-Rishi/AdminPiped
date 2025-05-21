@@ -157,7 +157,7 @@ const Teacher = () => {
           </Button>
           <ExportCSVButton
             fetchAllData={async () => {
-              const response = await getAllTeachers({ page: 1, per_page: 10000, search: "" });
+              const response = await getAllTeachers({ page: 1, per_page: 10000, search: debouncedSearch });
               return response.data || [];
             }}
             headers={[

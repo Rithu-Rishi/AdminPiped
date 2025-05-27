@@ -123,3 +123,14 @@ export const removeTeacherFromProgram = async (programId, teacherId) => {
         throw error;
     }
 };
+
+// Fetch teacher schedules
+export const getTeacherSchedules = async ({ page = 1, perpage = 10, search = "" }) => {
+    try {
+        const response = await API.get(`/api/teachers/class-schedules?page=${page}&perpage=${perpage}&search=${search}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching teacher schedules:", error);
+        throw error;
+    }
+};

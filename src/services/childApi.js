@@ -3,9 +3,15 @@ import API from "../config/api";
 const BASE_URL = "/api/child";
 
 // Fetch all children
-export const getAllChildren = async ({ page = 1, per_page = 10, search = "" }) => {
+export const getAllChildren = async ({ page = 1, per_page = 10, search = "", start_date, end_date, status }) => {
     try {
-        const response = await API.get(`${BASE_URL}?page=${page}&per_page=${per_page}&search=${search}`);
+        let url = `${BASE_URL}?page=${page}&per_page=${per_page}&search=${encodeURIComponent(search)}`;
+
+        if (status) url += `&status=${status}`;
+        if (start_date && end_date) {
+            url += `&start_date=${encodeURIComponent(start_date)}&end_date=${encodeURIComponent(end_date)}`;
+        }
+        const response = await API.get(url);
         return response.data.data;
     } catch (error) {
         console.error("Error fetching children", error);
@@ -31,7 +37,7 @@ export const addChild = async (childData) => {
         Object.keys(childData).forEach((key) => {
             formData.append(key, childData[key]);
         });
-        
+
         const response = await API.post(BASE_URL, formData, {
             headers: { "Content-Type": "multipart/form-data" }
         });
@@ -49,7 +55,7 @@ export const updateChild = async (id, childData) => {
         Object.keys(childData).forEach((key) => {
             formData.append(key, childData[key]);
         });
-        
+
         const response = await API.put(`${BASE_URL}/${id}`, formData, {
             headers: { "Content-Type": "multipart/form-data" }
         });
@@ -67,6 +73,26 @@ export const deleteChild = async (id) => {
         return response.data;
     } catch (error) {
         console.error("Error deleting child", error);
+        throw error;
+    }
+};
+
+// Export CSV
+
+export const exportChildrenCSV = async ({ search, start_date, end_date, status = "" }) => {
+    try {
+        let url = `/api/child/download-excel?status=${encodeURIComponent(status)}&search=${encodeURIComponent(search)}`;
+
+        if (start_date && end_date) {
+            url += `&start_date=${encodeURIComponent(start_date)}&end_date=${encodeURIComponent(end_date)}`;
+        }
+
+        const response = await API.get(url, {
+            responseType: 'blob',
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error exporting children", error);
         throw error;
     }
 };

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { getAllParents, addParent, updateParent, deleteParent } from "../services/parentApi";
+import { getAllParents, addParent, updateParent, deleteParent, downloadParentsCSV } from "../services/parentApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, Modal, Box, Typography, TextField, TablePagination, InputAdornment, Tooltip
 } from "@mui/material";
 import { IMAGE_BASE_URL } from "../config/constants";
-import { Search as SearchIcon, MoreVert as Menu, CheckCircleOutline as CheckCircleOutlineIcon, ErrorOutlineOutlined as ErrorOutlineOutlinedIcon } from "@mui/icons-material";
+import {
+  Search as SearchIcon, MoreVert as Menu, CheckCircleOutline as CheckCircleOutlineIcon,
+  ErrorOutlineOutlined as ErrorOutlineOutlinedIcon, CalendarMonth as CalendarMonthIcon
+} from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -13,6 +16,10 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
 import Parent from '../assets/images/parents-64.png';
 import NoData from "../includes/NoData";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import dayjs from 'dayjs';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const ParentsList = () => {
   const [parents, setParents] = useState([]);
@@ -36,6 +43,8 @@ const ParentsList = () => {
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ open: false, type: "", message: "" });
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -49,12 +58,27 @@ const ParentsList = () => {
 
   useEffect(() => {
     fetchParents();
-  }, [page, rowsPerPage, debouncedSearch]);
+  }, [page, rowsPerPage, debouncedSearch, startDate, endDate]);
 
   const fetchParents = async () => {
+    if (startDate && !endDate) { // If start date is set but end date is not
+      return;
+    }
+
     setLoading(true);
+    const filters = {
+      page: page + 1,
+      per_page: rowsPerPage,
+      search: debouncedSearch,
+    };
+
+    if (startDate && endDate) {
+      filters.start_date = dayjs(startDate).format('YYYY-MM-DD');
+      filters.end_date = dayjs(endDate).format('YYYY-MM-DD');
+    }
+
     try {
-      const response = await getAllParents({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+      const response = await getAllParents(filters);
       setParents(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
@@ -129,32 +153,93 @@ const ParentsList = () => {
     setLoading(false);
   };
 
+  // Handle CSV Download
+  const handleDownloadCSV = async () => {
+    try {
+      const filters = {
+        start_date: startDate ? formatDate(startDate, 'YYYY-MM-DD') : null,
+        end_date: endDate ? formatDate(endDate, 'YYYY-MM-DD') : null,
+        search: searchTerm,
+      };
+
+      const csvData = await downloadParentsCSV(filters);
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const url = window.URL.createObjectURL(new Blob([csvData]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `parents_list_${randomSuffix}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("CSV Download Failed");
+    }
+  };
+
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between align-items-center mb-2'>
+      <div className='d-flex justify-content-between mb-2'>
         <h5 className="mb-0">Parents List</h5>
-        <TextField className="search_icon"
-          size="small"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(0);
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon className="fs-14 text-primary" />
-              </InputAdornment>
-            ),
-          }}
-        />
-        {/* <div>
-          <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
-            Create Parent
+        <div className="d-flex justify-content-end gap-2">
+          <div className="col-md-2">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart startDate={startDate} maxDate={new Date()}
+              endDate={endDate} placeholderText="Start Date"
+              className="form-control" dateFormat="dd MMM, yyyy"
+            />
+          </div>
+          <div className="col-md-2">
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd startDate={startDate} endDate={endDate}
+              minDate={startDate} placeholderText="End Date" maxDate={new Date()}
+              className="form-control" dateFormat="dd MMM, yyyy"
+            />
+          </div>
+
+          {/* <Button variant="outlined" size="small"
+            onClick={() => {
+              setPage(0); fetchParents();
+            }}
+          > Apply Filter
+          </Button> */}
+
+          <TextField className="search_icon"
+            size="small"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon className="fs-14 text-primary" />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button variant="outlined" size="small"
+            onClick={() => {
+              setStartDate(null); setEndDate(null); setSearchTerm(""); setPage(0);
+            }}
+          > Reset </Button>
+          <Button
+            variant="contained"
+            color="success"
+            size="small"
+            onClick={handleDownloadCSV}
+            startIcon={<DownloadIcon />}
+          >
+            Export
           </Button>
-        </div> */}
+        </div>
+
       </div>
 
       {loading ? <Spinner loading={loading} /> : (
@@ -168,6 +253,7 @@ const ParentsList = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Mobile</TableCell>
                   <TableCell>DOB</TableCell>
+                  <TableCell>Joined On</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -194,6 +280,7 @@ const ParentsList = () => {
                     </TableCell>
                     <TableCell>{row.mobile_number || 'N/A'}</TableCell>
                     <TableCell>{formatDate(row.date_of_birth)}</TableCell>
+                    <TableCell>{formatDate(row.created_at)}</TableCell>
                     <TableCell align="center">
                       <DropdownButton
                         align="end"

@@ -169,6 +169,7 @@ const Coupons = () => {
                                     <TableCell>Valid From</TableCell>
                                     <TableCell>Valid To</TableCell>
                                     <TableCell>Usage Limit</TableCell>
+                                    <TableCell>Used Count</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell>Actions</TableCell>
                                 </TableRow>
@@ -183,13 +184,16 @@ const Coupons = () => {
                                         <TableCell>{formatDate(row.valid_from)}</TableCell>
                                         <TableCell>{formatDate(row.valid_to)}</TableCell>
                                         <TableCell>{row.usage_limit}</TableCell>
+                                        <TableCell>{row.used_count}</TableCell>
                                         <TableCell>
                                             <Switch checked={row.is_active === 1} onChange={() => handleToggleStatus(row.id)} />
                                         </TableCell>
                                         <TableCell>
                                             <DropdownButton align="end" title={<Menu />} size='sm' className="custom_dropdown">
                                                 <Dropdown.Item onClick={() => openFormModal(row)}>Edit</Dropdown.Item>
-                                                <Dropdown.Item className="text-danger" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>Delete</Dropdown.Item>
+                                                {row.used_count === 0 && (
+                                                    <Dropdown.Item className="text-danger" onClick={() => { setSelectedRow(row); setDeleteModalOpen(true); }}>Delete</Dropdown.Item>
+                                                )}
                                             </DropdownButton>
                                         </TableCell>
                                     </TableRow>

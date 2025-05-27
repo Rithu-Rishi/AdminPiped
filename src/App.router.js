@@ -35,6 +35,8 @@ import Attendance from "./pages/Attendance";
 import Unauthorized from "./pages/Unauthorized";
 import WalletTransactions from "./pages/WalletTransactions";
 import DeviceAttendance from "./pages/DeviceAttendance";
+import ChildProgram from "./pages/ChildProgram";
+import TeacherSchedule from "./pages/TeacherSchedule";
 
 const AppRouter = () => {
     return (
@@ -75,6 +77,8 @@ const AppRouter = () => {
                     <Route path="/attendance" element={<Attendance />} />
                     <Route path="/wallet-transactions" element={<WalletTransactions />} />
                     <Route path="/device-attendance" element={<DeviceAttendance />} />
+                    <Route path="/child-programs" element={<ChildProgram />} />
+                    <Route path="/teacherSchedule" element={<TeacherSchedule />} />
                 </Route>
             </Route>
             {/* Cafeteria Protected Route */}

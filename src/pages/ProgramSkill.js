@@ -179,7 +179,7 @@ const ProgramSkill = () => {
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Skill Level
           </Button>
-          <ExportCSVButton
+          {/* <ExportCSVButton
             fetchAllData={async () => {
               const response = await getAllSkillLevels({ page: 1, per_page: 10000, search: debouncedSearch });
               return response.data || [];
@@ -198,7 +198,7 @@ const ProgramSkill = () => {
             ]}
             fileName="Pogram Skill.csv"
             onError={() => setAlertMessage({ open: true, type: "error", message: "Failed to fetch all Program Skill for export." })}
-          />
+          /> */}
         </div>
       </div>
 

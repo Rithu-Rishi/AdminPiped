@@ -3,9 +3,14 @@ import API from "../config/api";
 const BASE_URL = "/api/parent";
 
 // Fetch all parents
-export const getAllParents = async ({ page = 1, per_page = 10, search = "" }) => {
+export const getAllParents = async ({ page = 1, per_page = 10, search = "", start_date, end_date }) => {
     try {
-        const response = await API.get(`${BASE_URL}?page=${page}&per_page=${per_page}&search=${search}`);
+        let url = `${BASE_URL}?page=${page}&per_page=${per_page}&search=${encodeURIComponent(search)}`;
+        if (start_date && end_date) {
+            url += `&start_date=${encodeURIComponent(start_date)}&end_date=${encodeURIComponent(end_date)}`;
+        }
+
+        const response = await API.get(url);
         return response.data.data;
     } catch (error) {
         console.error("Error fetching parents", error);
@@ -69,4 +74,22 @@ export const deleteParent = async (id) => {
         console.error("Error deleting parent", error);
         throw error;
     }
+};
+
+// Export/Download parent data
+export const downloadParentsCSV = async ({ start_date, end_date, search = "" }) => {
+  try {
+    let url = `/api/parents/download-excel?search=${encodeURIComponent(search)}`;
+    if (start_date && end_date) {
+      url += `&start_date=${encodeURIComponent(start_date)}&end_date=${encodeURIComponent(end_date)}`;
+    }
+
+    const response = await API.get(url, {
+      responseType: 'blob', // Important for file download
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error downloading CSV file", error);
+    throw error;
+  }
 };

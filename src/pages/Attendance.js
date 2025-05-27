@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Select, FormControl,
-    Paper, Typography, Box, MenuItem, TablePagination, InputLabel
+    Paper, Typography, Box, MenuItem, TablePagination, InputLabel, Button
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -170,6 +170,21 @@ const Attendance = () => {
                         <CalendarMonthIcon />
                     </span>
                 </div>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                        setFilters({
+                            program_id: "",
+                            teacher_id: "",
+                            from_date: null,
+                            to_date: null
+                        });
+                        fetchAttendance(); setPage(0);
+                    }}
+                >
+                    Reset
+                </Button>
             </Box>
 
             {loading ? <Spinner loading={loading} /> : (

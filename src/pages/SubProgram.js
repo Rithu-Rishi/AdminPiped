@@ -104,7 +104,6 @@ const SubPrograms = () => {
         payload.append("program_id", formData.program_id);
         payload.append("sub_title", formData.sub_title);
         payload.append("keywords", formData.keywords);
-        debugger
         // Filter and send only NEWLY uploaded images
         formData.images.forEach((img, index) => {
           if (img instanceof File) {

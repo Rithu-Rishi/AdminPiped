@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllChildren, addChild, updateChild, deleteChild } from "../services/childApi";
+import { getAllChildren, addChild, updateChild, deleteChild, exportChildrenCSV } from "../services/childApi";
 import { getAllParents } from "../services/parentApi";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
@@ -11,12 +11,12 @@ import { IMAGE_BASE_URL } from "../config/constants";
 import { Search as SearchIcon, MoreVert as Menu } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import AlertMessage from "../includes/AlertMessage";
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
 import { formatDate } from '../utils/dateUtils';
 import Child from '../assets/images/child.png';
 import useDebounce from "../hooks/useDebounce";
 import NoData from "../includes/NoData";
+import dayjs from 'dayjs';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const ChildList = () => {
   const [children, setChildren] = useState([]);
@@ -40,19 +40,40 @@ const ChildList = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     fetchChildren();
-  }, [page, rowsPerPage, debouncedSearch]);
+  }, [page, rowsPerPage, debouncedSearch, startDate, endDate, statusFilter]);
 
   useEffect(() => {
     fetchParents();
   }, []);
 
   const fetchChildren = async () => {
+    if (startDate && !endDate) { // If start date is set but end date is not
+      return;
+    }
     setLoading(true);
+
+    const filters = {
+      page: page + 1,
+      per_page: rowsPerPage,
+      search: debouncedSearch,
+    };
+
+    if (startDate && endDate) {
+      filters.start_date = dayjs(startDate).format('YYYY-MM-DD');
+      filters.end_date = dayjs(endDate).format('YYYY-MM-DD');
+    }
+
+    if (statusFilter) {
+      filters.status = statusFilter;
+    }
     try {
-      const response = await getAllChildren({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+      const response = await getAllChildren(filters);
       setChildren(response.data || []);
       setTotalCount(response.total || 0);
     } catch (err) {
@@ -137,27 +158,80 @@ const ChildList = () => {
     setLoading(false);
   };
 
+  // Export CSV button handler
+  const handleExportCSV = async () => {
+    const filters = {
+      search: debouncedSearch,
+      start_date: startDate ? dayjs(startDate).format('YYYY-MM-DD') : null,
+      end_date: endDate ? dayjs(endDate).format('YYYY-MM-DD') : null,
+      status: statusFilter || ''
+    };
+    try {
+      const csvData = await exportChildrenCSV(filters);
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const url = window.URL.createObjectURL(new Blob([csvData]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `child_list_${randomSuffix}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Failed to export CSV");
+    }
+  };
+
   return (
     <>
       {/* Table */}
-      <div className='d-flex justify-content-between align-items-center mb-2'>
+      <div className='d-flex justify-content-between mb-2'>
         <h5 className="mb-0">Child List</h5>
-        <TextField className="search_icon"
-          size="small"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(0);
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon className="fs-14 text-primary" />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <div className="d-flex justify-content-end gap-2">
+          <div className="col-md-2">
+            <DatePicker className="form-control" selected={startDate} onChange={setStartDate} placeholderText="Start Date" maxDate={new Date()} dateFormat="yyyy-MM-dd" />
+          </div>
+          <div className="col-md-2">
+            <DatePicker className="form-control" selected={endDate} onChange={setEndDate} placeholderText="End Date" minDate={startDate} maxDate={new Date()} dateFormat="yyyy-MM-dd" />
+          </div>
+          <div className="col-md-2">
+            <Select fullWidth size="small" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <MenuItem default value="all">All</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
+              <MenuItem value="none">No Subscription</MenuItem>
+            </Select>
+          </div>
+          {/* <Button variant="outlined" size="small" onClick={() => { setPage(0); fetchChildren(); }}>Apply Filter</Button> */}
+          <TextField className="search_icon"
+            size="small"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon className="fs-14 text-primary" />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button variant="outlined" size="small"
+            onClick={() => { setStartDate(null); setEndDate(null); setStatusFilter(''); setSearchTerm(""); setPage(0); fetchChildren(); }}>Reset
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            size="small"
+            onClick={handleExportCSV}
+            startIcon={<DownloadIcon />}
+          >
+            Export
+          </Button>
+        </div>
+
         {/* <div>
           <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Child

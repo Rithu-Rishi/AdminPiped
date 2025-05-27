@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Button, Modal, Box, Typography, TextField
+    Button, Modal, Box, Typography, TextField, InputAdornment, TablePagination
 } from "@mui/material";
 import { MoreVert as Menu } from "@mui/icons-material";
 import { getTeacherFeedbacks, approveFeedback, rejectFeedback, updateFeedback } from "../services/feedbackApi";
 import Spinner from "../includes/Spinner";
+import { Search as SearchIcon } from "@mui/icons-material";
 import AlertMessage from "../includes/AlertMessage";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import NoData from "../includes/NoData";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import useDebounce from "../hooks/useDebounce";
 
 const TeacherFeedback = () => {
     const [feedbacks, setFeedbacks] = useState([]);
@@ -28,16 +32,38 @@ const TeacherFeedback = () => {
     });
     const [selectedFeedback, setSelectedFeedback] = useState(null);
     const [alertMessage, setAlertMessage] = useState({ open: false, type: '', message: '' });
+    const [searchTerm, setSearchTerm] = useState("");
+    const [page, setPage] = useState(0); // starts at 0
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [totalCount, setTotalCount] = useState(0);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
     useEffect(() => {
         fetchFeedbacks();
-    }, []);
+    }, [page, rowsPerPage, debouncedSearch, startDate, endDate]);
 
     const fetchFeedbacks = async () => {
+        if (startDate && !endDate) return;
+
+        setLoading(true);
+
+        const filters = {
+            page: page + 1, // backend usually expects 1-based index
+            per_page: rowsPerPage,
+            search: debouncedSearch,
+        };
+
+        if (startDate && endDate) {
+            filters.start_date = startDate.toISOString().split("T")[0];
+            filters.end_date = endDate.toISOString().split("T")[0];
+        }
         setLoading(true);
         try {
-            const response = await getTeacherFeedbacks();
-            setFeedbacks(response.data);
+            const response = await getTeacherFeedbacks(filters);
+            setFeedbacks(response.data || []);
+            setTotalCount(response.total || 0);
         } catch (error) {
             setAlertMessage({ open: true, type: 'error', message: 'Failed to fetch feedbacks.' });
         }
@@ -93,6 +119,48 @@ const TeacherFeedback = () => {
     return (
         <>
             <h5 className="mb-3">Teacher Feedback</h5>
+            <div className="d-flex justify-content-end gap-2 mb-3">
+                <div className="col-md-2">
+                    <DatePicker
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        placeholderText="Start Date"
+                        className="form-control"
+                        maxDate={new Date()}
+                        dateFormat="dd MMM, yyyy"
+                    />
+                </div>
+                <div className="col-md-2">
+                    <DatePicker
+                        selected={endDate}
+                        onChange={(date) => setEndDate(date)}
+                        placeholderText="End Date"
+                        className="form-control"
+                        minDate={startDate}
+                        maxDate={new Date()}
+                        dateFormat="dd MMM, yyyy"
+                    />
+                </div>
+                <div className="">
+                    <TextField className="search_icon"
+                        placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon className="fs-14 text-primary" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </div>
+                <Button variant="outlined" size="small" onClick={() => {
+                    setStartDate(null);
+                    setEndDate(null);
+                    setSearchTerm("");
+                }}>Reset</Button>
+            </div>
 
             {loading ? <Spinner loading={loading} /> : (
                 feedbacks.length > 0 ? (
@@ -101,6 +169,7 @@ const TeacherFeedback = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Child</TableCell>
+                                    <TableCell>Teacher</TableCell>
                                     <TableCell>Program</TableCell>
                                     <TableCell>Sub Program</TableCell>
                                     <TableCell>Skill Level</TableCell>
@@ -113,6 +182,7 @@ const TeacherFeedback = () => {
                                 {feedbacks.map((row) => (
                                     <TableRow key={row.id}>
                                         <TableCell>{row.child?.child_name}</TableCell>
+                                        <TableCell>{row.teacher?.name}</TableCell>
                                         <TableCell>{row.program?.program_name}</TableCell>
                                         <TableCell>{row.sub_program_focus?.title}</TableCell>
                                         <TableCell>{row.skill_level?.skill_name}</TableCell>
@@ -145,6 +215,19 @@ const TeacherFeedback = () => {
                                 ))}
                             </TableBody>
                         </Table>
+                        <TablePagination
+                            className="custom_pagination"
+                            component="div"
+                            count={totalCount}
+                            page={page}
+                            onPageChange={(event, newPage) => setPage(newPage)}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={(event) => {
+                                setRowsPerPage(parseInt(event.target.value, 10));
+                                setPage(0);
+                            }}
+                            rowsPerPageOptions={[5, 10, 25, 50]}
+                        />
                     </TableContainer>
                 ) : (
                     <NoData />

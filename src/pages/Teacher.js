@@ -155,7 +155,7 @@ const Teacher = () => {
           <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={() => openFormModal()}>
             Create Teacher
           </Button>
-          <ExportCSVButton
+          {/* <ExportCSVButton
             fetchAllData={async () => {
               const response = await getAllTeachers({ page: 1, per_page: 10000, search: debouncedSearch });
               return response.data || [];
@@ -184,7 +184,7 @@ const Teacher = () => {
             ]}
             fileName="teachers.csv"
             onError={() => setAlertMessage({ open: true, type: "error", message: "Failed to fetch all teachers for export." })}
-          />
+          /> */}
         </div>
       </div>
 

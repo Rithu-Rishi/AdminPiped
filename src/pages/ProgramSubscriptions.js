@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { getProgramSubscriptions } from "../services/BookingsApi";
+import { getProgramSubscriptions, exportProgramSubscriptionCSV } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, TextField, InputAdornment
+    TablePagination, TextField, InputAdornment, Button
 } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
 import { formatDate } from '../utils/dateUtils';
 import useDebounce from "../hooks/useDebounce";
 import NoData from "../includes/NoData";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import dayjs from 'dayjs';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const ProgramSubscriptions = () => {
     const [subscriptions, setSubscriptions] = useState([]);
@@ -18,15 +22,31 @@ const ProgramSubscriptions = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [totalCount, setTotalCount] = useState(0);
     const debouncedSearch = useDebounce(searchTerm, 500);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
 
     useEffect(() => {
         fetchProgramSubscriptions();
-    }, [page, rowsPerPage, debouncedSearch]);
+    }, [page, rowsPerPage, debouncedSearch, startDate, endDate]);
 
     const fetchProgramSubscriptions = async () => {
+        if (startDate && !endDate) { // If start date is set but end date is not
+            return;
+        }
+        const filters = {
+            page: page + 1,
+            per_page: rowsPerPage,
+            search: debouncedSearch,
+        };
+
+        if (startDate && endDate) {
+            filters.start_date = dayjs(startDate).format('YYYY-MM-DD');
+            filters.end_date = dayjs(endDate).format('YYYY-MM-DD');
+        }
+
         setLoading(true);
         try {
-            const response = await getProgramSubscriptions({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+            const response = await getProgramSubscriptions(filters);
             setSubscriptions(response.data || []);
             setTotalCount(response.total || 0);
         } catch (err) {
@@ -35,23 +55,76 @@ const ProgramSubscriptions = () => {
         setLoading(false);
     };
 
+    // Handle CSV Download
+    const handleDownloadCSV = async () => {
+        const filters = {
+            search: debouncedSearch,
+            start_date: startDate ? dayjs(startDate).format('YYYY-MM-DD') : null,
+            end_date: endDate ? dayjs(endDate).format('YYYY-MM-DD') : null
+        };
+        try {
+            const csvData = await exportProgramSubscriptionCSV(filters);
+            const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+            const url = window.URL.createObjectURL(new Blob([csvData]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `program_subscription_${randomSuffix}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Failed to export CSV");
+        }
+    }
+
     return (
         <>
-            <div className='d-flex justify-content-between align-items-center mb-2'>
+            <div className='d-flex justify-content-between mb-2'>
                 <h5 className="mb-0">Program Subscriptions</h5>
-                <TextField className="search_icon"
-                    placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setPage(0);
-                    }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon className="fs-14 text-primary" />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                <div className="d-flex justify-content-end gap-2">
+                    <div className="col-md-2">
+                        <DatePicker
+                            selected={startDate}
+                            onChange={(date) => setStartDate(date)}
+                            selectsStart startDate={startDate} maxDate={new Date()}
+                            endDate={endDate} placeholderText="Start Date"
+                            className="form-control" dateFormat="dd MMM, yyyy"
+                        />
+                    </div>
+                    <div className="col-md-2">
+                        <DatePicker
+                            selected={endDate}
+                            onChange={(date) => setEndDate(date)}
+                            selectsEnd startDate={startDate} endDate={endDate}
+                            minDate={startDate} placeholderText="End Date" maxDate={new Date()}
+                            className="form-control" dateFormat="dd MMM, yyyy"
+                        />
+                    </div>
+                    <TextField className="search_icon"
+                        placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setPage(0);
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon className="fs-14 text-primary" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button variant="outlined" size="small"
+                        onClick={() => {
+                            setStartDate(null); setEndDate(null); setSearchTerm(""); setPage(0);
+                        }}
+                    > Reset </Button>
+                    <Button
+                        variant="contained" color="success" size="small"
+                        onClick={handleDownloadCSV}
+                        startIcon={<DownloadIcon />}
+                    >Export</Button>
+                </div>
+
             </div>
             {loading ? <Spinner loading={loading} /> : (
                 subscriptions.length > 0 ? (

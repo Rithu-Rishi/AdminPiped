@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getUserBookings, getBookingDetails } from "../services/BookingsApi";
+import { getUserBookings, getBookingDetails, exportBookingHistoryCSV } from "../services/BookingsApi";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    TablePagination, Typography, Modal, Box, TextField, InputAdornment
+    TablePagination, Typography, Modal, Box, TextField, InputAdornment, Button
 } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import Spinner from "../includes/Spinner";
@@ -10,6 +10,10 @@ import { CurrencyRupee as CurrencyRupeeIcon } from "@mui/icons-material";
 import { Row, Col } from "react-bootstrap";
 import useDebounce from "../hooks/useDebounce";
 import NoData from "../includes/NoData";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import dayjs from 'dayjs';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const UserBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -21,15 +25,31 @@ const UserBookings = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [totalCount, setTotalCount] = useState(0);
     const debouncedSearch = useDebounce(searchTerm, 500);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
 
     useEffect(() => {
         fetchBookings();
-    }, [page, rowsPerPage, debouncedSearch]);
+    }, [page, rowsPerPage, debouncedSearch, startDate, endDate]);
 
     const fetchBookings = async () => {
+        if (startDate && !endDate) { // If start date is set but end date is not
+            return;
+        }
+        const filters = {
+            page: page + 1,
+            per_page: rowsPerPage,
+            search: debouncedSearch,
+        };
+
+        if (startDate && endDate) {
+            filters.start_date = dayjs(startDate).format('YYYY-MM-DD');
+            filters.end_date = dayjs(endDate).format('YYYY-MM-DD');
+        }
+
         setLoading(true);
         try {
-            const response = await getUserBookings({ page: page + 1, per_page: rowsPerPage, search: debouncedSearch });
+            const response = await getUserBookings(filters);
             setBookings(response.data || []);
             setTotalCount(response.total || 0);
         } catch (err) {
@@ -55,24 +75,76 @@ const UserBookings = () => {
         setBookingDetails(null);
     };
 
+    // Handle CSV Download
+    const handleDownloadCSV = async () => {
+        const filters = {
+            search: debouncedSearch,
+            start_date: startDate ? dayjs(startDate).format('YYYY-MM-DD') : null,
+            end_date: endDate ? dayjs(endDate).format('YYYY-MM-DD') : null
+        };
+        try {
+            const csvData = await exportBookingHistoryCSV(filters);
+            const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+            const url = window.URL.createObjectURL(new Blob([csvData]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `booking_history_${randomSuffix}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Failed to export CSV");
+        }
+    }
+
     return (
         <>
-            <div className='d-flex justify-content-between align-items-center mb-2'>
+            <div className='d-flex justify-content-between mb-2'>
                 <h5 className="mb-0">User Bookings</h5>
+                <div className="d-flex justify-content-end gap-2">
+                    <div className="col-md-2">
+                        <DatePicker
+                            selected={startDate}
+                            onChange={(date) => setStartDate(date)}
+                            selectsStart startDate={startDate} maxDate={new Date()}
+                            endDate={endDate} placeholderText="Start Date"
+                            className="form-control" dateFormat="dd MMM, yyyy"
+                        />
+                    </div>
+                    <div className="col-md-2">
+                        <DatePicker
+                            selected={endDate}
+                            onChange={(date) => setEndDate(date)}
+                            selectsEnd startDate={startDate} endDate={endDate}
+                            minDate={startDate} placeholderText="End Date" maxDate={new Date()}
+                            className="form-control" dateFormat="dd MMM, yyyy"
+                        />
+                    </div>
+                    <TextField className="search_icon"
+                        placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setPage(0);
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon className="fs-14 text-primary" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button variant="outlined" size="small"
+                        onClick={() => {
+                            setStartDate(null); setEndDate(null); setSearchTerm(""); setPage(0);
+                        }}
+                    > Reset </Button>
+                    <Button
+                        variant="contained" color="success" size="small"
+                        onClick={handleDownloadCSV}
+                        startIcon={<DownloadIcon />}
+                    >Export</Button>
+                </div>
 
-                <TextField className="search_icon"
-                    placeholder="Search..." size="small" value={searchTerm} onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setPage(0);
-                    }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon className="fs-14 text-primary" />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
 
             </div>
 
@@ -102,7 +174,7 @@ const UserBookings = () => {
                                         <TableCell>{booking.skill_level?.skill_name || "N/A"}</TableCell>
                                         <TableCell>{booking.payment_plan?.duration_months || "N/A"} Months</TableCell>
                                         <TableCell><span className="px-3 py-1 rounded-1 bg-opacity-10 bg-success text-success">{booking.transaction?.transaction_id || "N/A"}</span></TableCell>
-                                        {/* <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{booking.transaction?.amount_paid || "N/A"}</TableCell> */}
+                                        {/* <TableCell><CurrencyRupeeIcon className="fs-14 text-black" />{booking.coupon?.coupon_code || "N/A"}</TableCell> */}
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -161,16 +233,42 @@ const UserBookings = () => {
                                             <p><span>Program</span>: {bookingDetails.program?.program_name || "N/A"}</p>
                                             <p><span>Skill Level</span>: {bookingDetails.skill_level?.skill_name || "N/A"} ({bookingDetails.payment_plan?.duration_months || "N/A"} months)</p>
                                             <p><span>Sub Program</span>: {bookingDetails.sub_program_focus?.title || "N/A"}</p>
+                                            <p><span>Payment Plan</span>: {bookingDetails.payment_plan?.duration_months || "N/A"} Months</p>
                                         </div>
                                     </Col>
                                     <Col>
                                         <div className="section">
                                             <h6>Payment Details</h6>
-                                            <p><span>Payment Plan</span>: {bookingDetails.payment_plan?.duration_months || "N/A"} Months</p>
                                             <p><span>Transaction ID</span>: {bookingDetails.transaction?.transaction_id || "N/A"}</p>
-                                            <p><span>Amount Paid</span>: <CurrencyRupeeIcon className="fs-14 text-black" />{bookingDetails.transaction?.amount_paid || "N/A"}</p>
+                                            <p>
+                                                <span>Amount Paid</span>: <CurrencyRupeeIcon className="fs-14 text-black" />
+                                                {(() => {
+                                                    const amountPaid = parseFloat(bookingDetails.transaction?.amount_paid) || 0;
+                                                    const coupon = bookingDetails.coupon;
+                                                    let discountedAmount = amountPaid;
+
+                                                    if (coupon) {
+                                                        const couponValue = parseFloat(coupon.value) || 0;
+                                                        if (coupon.coupon_type === "percent") {
+                                                            discountedAmount = amountPaid - (amountPaid * couponValue / 100);
+                                                        } else if (coupon.coupon_type === "amount") {
+                                                            discountedAmount = amountPaid - couponValue;
+                                                        }
+                                                    }
+
+                                                    return discountedAmount.toFixed(2);
+                                                })()}
+                                            </p>
                                             <p><span>Coupon Code</span>: {bookingDetails.coupon?.coupon_code || "N/A"}</p>
-                                        </div> 
+                                            <p>
+                                                <span>Coupon Value</span>:
+                                                {bookingDetails.coupon
+                                                    ? bookingDetails.coupon.coupon_type === "percent"
+                                                        ? `${bookingDetails.coupon.value}%`
+                                                        : `₹${bookingDetails.coupon.value}`
+                                                    : "N/A"}
+                                            </p>
+                                        </div>
                                     </Col>
                                 </Row>
                                 <div className="section">
